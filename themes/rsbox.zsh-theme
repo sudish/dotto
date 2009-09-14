@@ -19,15 +19,19 @@ function precmd {
 	PR_FILLBAR="\${(l.(($TERMWIDTH - ($promptsize + $pwdsize)))..${PR_HBAR}.)}"
     fi
 
+    vcs_info
 
     ###
     # Get APM info.
+    # 
+    #     if which ibam > /dev/null; then
+    # PR_APM_RESULT=`ibam --percentbattery`
+    #     elif which apm > /dev/null; then
+    # PR_APM_RESULT=`apm`
+    #     fi
 
-    if which ibam > /dev/null; then
-	PR_APM_RESULT=`ibam --percentbattery`
-    elif which apm > /dev/null; then
-	PR_APM_RESULT=`apm`
-    fi
+    PR_APM=''
+    PR_APM_RESULT=''
 }
 
 
@@ -39,6 +43,39 @@ preexec () {
     fi
 }
 
+autoload -Uz vcs_info
+
+function old_box_prompt_info() {
+  if [[ -d .git ]]; then
+    ref=$(git symbolic-ref HEAD 2> /dev/null) || return
+    branch=${ref#refs/heads/}
+          CURRENT_BRANCH="git:($PR_MAGENTA${branch}$PR_YELLOW)$PR_NO_COLOUR$(parse_git_dirty)"
+  else
+    CURRENT_BRANCH='%D{%a,%b%d}'
+  fi
+
+  echo $CURRENT_BRANCH
+}
+
+
+function box_prompt_info() {
+  if [ -n "$vcs_info_msg_0_" ]; then
+    # CURRENT_BRANCH="git:($PR_MAGENTA${branch}$PR_YELLOW)$PR_NO_COLOUR$(parse_git_dirty)"
+    CURRENT_BRANCH="$vcs_info_msg_0_"
+  else
+    # CURRENT_BRANCH="($PR_YELLOW%D{%a,%b%d}$PR_BLUE)"
+    CURRENT_BRANCH=""
+  fi
+
+  echo $CURRENT_BRANCH
+}
+
+
+
+
+parse_git_dirty () {
+  [[ $(git status | tail -n1) != "nothing to commit (working directory clean)" ]] && echo " %{$fg[yellow]%}x$PR_NO_COLOUR"
+}
 
 setprompt () {
     ###
@@ -105,13 +142,13 @@ setprompt () {
     ###
     # APM detection
     
-    if which ibam > /dev/null; then
-	PR_APM='$PR_RED${${PR_APM_RESULT[(f)1]}[(w)-2]}%%(${${PR_APM_RESULT[(f)3]}[(w)-1]})$PR_LIGHT_BLUE:'
-    elif which apm > /dev/null; then
-	PR_APM='$PR_RED${PR_APM_RESULT[(w)5,(w)6]/\% /%%}$PR_LIGHT_BLUE:'
-    else
-	PR_APM=''
-    fi
+    #     if which ibam > /dev/null; then
+    # PR_APM='$PR_RED${${PR_APM_RESULT[(f)1]}[(w)-2]}%%(${${PR_APM_RESULT[(f)3]}[(w)-1]})$PR_LIGHT_BLUE:'
+    #     elif which apm > /dev/null; then
+    # PR_APM='$PR_RED${PR_APM_RESULT[(w)5,(w)6]/\% /%%}$PR_LIGHT_BLUE:'
+    #     else
+    # PR_APM=''
+    #     fi
     
     # 
     ###
@@ -132,7 +169,7 @@ $PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT\
 $PR_NO_COLOUR '
 
     RPROMPT=' $PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_BLUE$PR_HBAR$PR_SHIFT_OUT\
-($PR_YELLOW%D{%a,%b%d}$PR_BLUE)$PR_SHIFT_IN$PR_HBAR$PR_CYAN$PR_LRCORNER$PR_SHIFT_OUT$PR_NO_COLOUR'
+$(box_prompt_info)$PR_SHIFT_IN$PR_HBAR$PR_CYAN$PR_LRCORNER$PR_SHIFT_OUT$PR_NO_COLOUR'
 
     PS2='$PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT\
 $PR_BLUE$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT(\
