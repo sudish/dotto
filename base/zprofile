@@ -1,0 +1,18 @@
+if [ -z "$ZCONFIGDIR" ]; then
+   ZCONFIGDIR=$HOME/.zdir
+   for zbase in $HOME $HOME/config $HOME/.rsconfig $HOME/home; do
+     for zfilesdir in .zdir zdir .zfiles zfiles .zconfig zconfig; do
+       if [ -d "$zbase/$zfilesdir" ]; then
+         ZCONFIGDIR="$zbase/$zfilesdir"
+         break 2
+       fi
+     done
+   done
+fi
+
+if [ -n "$ZCONFIGDIR" -a -d "$ZCONFIGDIR"  ]; then
+  . $ZCONFIGDIR/zprofile
+else
+  echo "Cannot find ZCONFIGDIR!" >&2
+fi
+
