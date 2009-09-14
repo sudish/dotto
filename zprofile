@@ -41,8 +41,6 @@ export HISTSIZE=400
 # whole screen
 export LESS="efiMqR"
 
-#export hosts=(lucy hrothgar localhost)
-
 export IGNOREEOF=0
 
 hd() {
@@ -83,17 +81,15 @@ ulimit -c 3000
 ### fix for gnuserv and Xauth with ssh
 ### xauth extract - $DISPLAY | xauth -f .Xauthority merge -
 
-# linux fix
-if [ "$LANG" = "C" ]; then
-	unset LANG
-fi
-
 test -r /sw/bin/init.sh && . /sw/bin/init.sh
 
-# Your previous .profile  (if any) is saved as .profile.dpsaved
-# Setting the path for DarwinPorts.
+export SHORTHOST=$(hostname -s)
 
-ZCONFIGDIR=$HOME/.zdir
-
-. $ZCONFIGDIR/zprofile
+for dir in $ZCONFIGDIR/zprofile.d $ZCONFIGDIR/zprofile.d/`uname` $ZCONFIGDIR/zprofile.d/$SHORTHOST; do
+  if [ -d $dir ]; then
+    for file in $dir/*; do
+      . $file
+    done
+  fi
+done
 

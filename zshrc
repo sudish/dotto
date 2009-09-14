@@ -89,10 +89,6 @@ tput() {
    esac
 }
 
-if [ -x /usr/local/bin/rdist ]; then
-	alias rdist=/usr/local/bin/rdist
-fi
-
 ###
 # establish a stub function to autoload functions from a file
 
@@ -109,12 +105,19 @@ function autoload_from
 }
 
 alias vi=vim
-export SHORTHOST=$(hostname -s)
-
-
 
 # set up completion magic
 hosts=(turok test.zeevex.com prod.zeevex.com monitor.zeevex.com schultz.dreamhost.com minimus-2.local)
+
+for dir in $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/zshrc.d/$SHORTHOST; do
+  if [ -d $dir ]; then
+    for file in $dir/*; do
+      . $file
+    done
+  fi
+done
+
+
 if [ -r ~/.zcomp ]; then
 	. ~/.zcomp
 fi
@@ -136,12 +139,4 @@ if [ -r ~/.ec2rc ]; then
 fi
 
 pdoc=/Users/Shared/Documents/Prog\ Docs
-
-export EDITOR='mate-w'
-
-#export SF_ENVIRONMENT=robertdev
-
-for zrc in $HOME/.zrc/*; do
-    . $zrc
-done
 
