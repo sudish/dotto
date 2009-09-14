@@ -29,6 +29,7 @@ setopt prompt_subst
 
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 
+RPROMPT=''
 ztheme() {
   if [ "$1" = "-l" ]; then
     ls -1 $ZCONFIGDIR/themes | sed -e 's/.zsh-theme$//'
@@ -44,3 +45,7 @@ ztheme() {
   fi
   source "$ZCONFIGDIR/themes/$ZSH_THEME.zsh-theme"
 }
+
+if [ -n "$ZSH_THEME" ]; then
+  ztheme $ZSH_THEME
+fi
