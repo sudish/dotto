@@ -1,10 +1,4 @@
 ZSH_THEME=rs1990
 
-unsetopt multibyte
-bindkey -me
-
-# bind F1 to run-help
-# THIS causes rlogins to lucy to die
-# bindkey -s "`echotc k1`" "run-help "
-
+bindkey -me 2>/dev/null
 
