@@ -1,0 +1,49 @@
+zmodload -i zsh/stat
+
+export PERIOD=30
+export PERIOD_FUNCS=" "
+export AGENT_FILE=$HOME/.sshagent
+export AGENT_FILE_MTIME=0
+
+agent() {
+	doload=0
+	if [ -r "$AGENT_FILE" ]; then
+		lmtime=`builtin stat +mtime $AGENT_FILE`
+		if [ $lmtime != $AGENT_FILE_MTIME ]; then
+			doload=1
+		fi
+	else
+		doload=0
+	fi
+
+	if [ $doload != 0 ]; then
+		# echo "loading agent file"
+		AGENT_FILE_MTIME=`builtin stat +mtime $AGENT_FILE`
+		. $AGENT_FILE
+	fi
+}
+
+
+periodic() {
+	for func in $PERIOD_FUNCS
+	do
+		$func
+	done
+}
+
+add_periodic() {
+	for func in $*; do
+		PERIOD_FUNCS=" $PERIOD_FUNCS $func "
+	done
+}
+
+delete_periodic() {
+	for func in $*; do
+		PERIOD_FUNCS=${PERIOD_FUNCS// $func /}
+	done
+}
+
+# set up scan
+add_periodic agent
+
+# echo "$$" >> /tmp/rsanders.zperiodic
