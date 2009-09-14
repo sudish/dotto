@@ -85,7 +85,7 @@ test -r /sw/bin/init.sh && . /sw/bin/init.sh
 
 export SHORTHOST=$(hostname -s)
 
-for dir in $ZCONFIGDIR/zprofile.d $ZCONFIGDIR/zprofile.d/`uname` $ZCONFIGDIR/zprofile.d/$SHORTHOST; do
+for dir in $ZCONFIGDIR/zprofile.d $ZCONFIGDIR/zprofile.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zprofile.d; do
   if [ -d $dir ]; then
     for file in $dir/*; do
       . $file

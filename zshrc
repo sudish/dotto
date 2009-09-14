@@ -1,4 +1,3 @@
-
 # Z-Shell .rc file
 
 # $Date: 2003/03/18 07:11:02 $
@@ -12,23 +11,10 @@ echo "running zshrc.."
 setopt nolistbeep autolist nonomatch sh_word_split noclobber
 unsetopt menucomplete
 
-if [ "$TERM" = "xterm" -o "$TERM" = "rxvt" ]; then
-	XTERMPROMPT=$(echo -n "\e]0;%m - %n\07")
-fi
-#if [ "$INSCREEN" = 1  ]; then
-#    SCREENNULLPROMPT=$(echo -n "\033k\033\\")
-#else
-#    SCREENNULLPROMPT=""
-#fi
-
-# the magic prompt, oh yes
-PS1="%{$SCREENNULLPROMPT%}%{$XTERMPROMPT%}%(0#.%S.%B)%n%(0#.%s.%b){%m}%B%~%b%(#.#.$) "
-RPROMPT="%(?..[%?])"
-
 # get that BASH-like "> file" behavior
 noeolecho()
 {
-echo -n
+  echo -n
 }
 NULLCMD=noeolecho
 
@@ -109,7 +95,7 @@ alias vi=vim
 # set up completion magic
 hosts=(turok test.zeevex.com prod.zeevex.com monitor.zeevex.com schultz.dreamhost.com minimus-2.local)
 
-for dir in $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/zshrc.d/$SHORTHOST; do
+for dir in $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zshrc.d; do
   if [ -d $dir ]; then
     for file in $dir/*; do
       . $file
@@ -138,5 +124,4 @@ if [ -r ~/.ec2rc ]; then
 	. ~/.ec2rc
 fi
 
-pdoc=/Users/Shared/Documents/Prog\ Docs
 
