@@ -122,8 +122,15 @@ zsource prefs
 for dir in $ZCONFIGDIR/zprofile.d $ZCONFIGDIR/zprofile.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zprofile.d; do
   if [ -d $dir ]; then
     for file in $dir/*; do
-      . $file
+      source $file
     done
   fi
 done
+
+for lib in $ZCONFIGDIR/lib/*; do
+  if [ -f "$lib/libprofile.zsh" ]; then
+    source "$lib/libprofile.zsh"
+  fi
+done
+
 

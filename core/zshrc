@@ -89,4 +89,8 @@ if [ -r ~/.ec2rc ]; then
 	. ~/.ec2rc
 fi
 
-
+for lib in $ZCONFIGDIR/lib/*; do
+  if [ -f "$lib/librc.zsh" ]; then
+    source "$lib/librc.zsh"
+  fi
+done
