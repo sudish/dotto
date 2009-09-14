@@ -1,0 +1,5 @@
+zlog() {
+  echo "`date`: $*" >> $ZCONFIGDIR/log/zlog.log 2>/dev/null
+}
+
+

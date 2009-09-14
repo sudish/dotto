@@ -11,7 +11,7 @@ if [ -z "$ZCONFIGDIR" ]; then
 fi
 
 if [ -n "$ZCONFIGDIR" -a -d "$ZCONFIGDIR"  ]; then
-  . $ZCONFIGDIR/zprofile
+  . $ZCONFIGDIR/core/zprofile
 else
   echo "Cannot find ZCONFIGDIR!" >&2
 fi

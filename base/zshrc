@@ -1,4 +1,4 @@
 if [ -n "$ZCONFIGDIR" -a -d "$ZCONFIGDIR" ]; then
-  . $ZCONFIGDIR/zshrc
+  . $ZCONFIGDIR/core/zshrc
 fi
 

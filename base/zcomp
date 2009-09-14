@@ -1,4 +1,4 @@
 if [ -n "$ZCONFIGDIR" -a -d "$ZCONFIGDIR" ]; then
-  . $ZCONFIGDIR/zcomp
+  . $ZCONFIGDIR/core/zcomp
 fi
 

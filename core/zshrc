@@ -5,7 +5,7 @@
 # $Revision: 1.1 $
 # $State: Exp $
 
-echo "running zshrc.."
+zlog "running zshrc.."
 
 # ZSH options
 setopt nolistbeep autolist nonomatch sh_word_split noclobber
@@ -17,12 +17,6 @@ noeolecho()
   echo -n
 }
 NULLCMD=noeolecho
-
-bindkey -e
-
-# bind F1 to run-help
-# THIS causes rlogins to lucy to die
-# bindkey -s "`echotc k1`" "run-help "
 
 if [ "`uname -s`" = "FreeBSD" -a "$TERM" = "vt100" ]; then
 	export TERM="vt100-color"
@@ -53,27 +47,8 @@ fi
 
 stty erase '^?'
 
-
-which tput > /dev/null 2> /dev/null
-if [ $? = 0 ]; then
-	alias clear="echo -n \"`tput clear`\""
-fi
-
 # set hostname
 HOSTNAME=`hostname`
-
-# because zsh doesn't load termcap in for some reason, and Linux's tput
-# is using Berkeley-curses, which depends on TERMCAP being set... 
-
-tput() {
-   CAP=$1
-   shift
-   case $CAP in
-     cols) echo $COLUMNS;;
-     lines) echo $LINES;;
-     *) command tput $CAP $*;;
-   esac
-}
 
 ###
 # establish a stub function to autoload functions from a file
@@ -90,8 +65,6 @@ function autoload_from
 	done
 }
 
-alias vi=vim
-
 # set up completion magic
 hosts=(turok test.zeevex.com prod.zeevex.com monitor.zeevex.com schultz.dreamhost.com minimus-2.local)
 
@@ -104,20 +77,12 @@ for dir in $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/hosts/$SH
 done
 
 
-if [ -r ~/.zcomp ]; then
-	. ~/.zcomp
-fi
+zsource core/zcomp
 
-if [ -r ~/.zperiodic ]; then
-	. ~/.zperiodic
-fi
+zsource core/zperiodic 
 
 if [ -r ~/.sshagent ]; then
 	. ~/.sshagent
-fi
-
-if [ -r ~/.zmacosx ]; then
-	. ~/.zmacosx
 fi
 
 if [ -r ~/.ec2rc ]; then

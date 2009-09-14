@@ -1,0 +1,16 @@
+
+# because zsh doesn't load termcap in for some reason, and Linux's tput
+# is using Berkeley-curses, which depends on TERMCAP being set...
+
+
+
+tput() {
+   CAP=$1
+   shift
+   case $CAP in
+     cols) echo $COLUMNS;;
+     lines) echo $LINES;;
+     *) command tput $CAP $*;;
+   esac
+}
+

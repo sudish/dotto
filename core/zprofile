@@ -61,9 +61,6 @@ export LPDEST=hp1200d
 # set up terminal defaults	
 stty echoe susp ^z intr ^c lnext undef kill undef werase undef start undef stop undef erase '^?'
 
-# enable meta-key
-bindkey -me
-
 # skip fancy stuff for root
 if [ "$UID" != "0" ]; then
    # setup TERMCAP for tput and kermit scripts
@@ -85,20 +82,40 @@ test -r /sw/bin/init.sh && . /sw/bin/init.sh
 
 export SHORTHOST=$(hostname -s)
 
+FPATH=$ZCONFIGDIR/functions:$FPATH
+source $ZCONFIGDIR/functions/setup.zsh
+
 zsource() {
   for arg in $*; do
-    if [ -n "$ZCONFIGDIR/$arg" ]; then
+    if [ -n "$ZCONFIGDIR/$arg" -a -f "$ZCONFIGDIR/$arg" ]; then
       source "$ZCONFIGDIR/$arg"
+      zlog "sourcing $arg"
     fi
-    if [ -n "$ZCONFIGDIR/local/$arg" ]; then
+    if [ -n "$ZCONFIGDIR/local/$arg" -a -f "$ZCONFIGDIR/local/$arg" ]; then
       source "$ZCONFIGDIR/local/$arg"
+      zlog "sourcing local $arg"
     fi
   done
 }
 
-zlog() {
-  echo "$*" >> $ZCONFIGDIR/log/zlog.log
+zdirname() {
+  if [ -d $1 ]; then
+    return $1
+  else
+    return $ZCONFIGDIR/$1
+  fi
 }
+
+zsourcedir() {
+  for dir in $*; do
+    zdir=`zdirname $dir`
+    for file in $(find $zdir -name \*.zsh); do
+      relfile=${file#$ZCONFIGDIR}
+      zsource relfile
+    done
+  done
+}
+
 
 zsource prefs
 
