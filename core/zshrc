@@ -68,13 +68,15 @@ function autoload_from
 # set up completion magic
 hosts=(turok test.zeevex.com prod.zeevex.com monitor.zeevex.com schultz.dreamhost.com minimus-2.local)
 
-for dir in $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zshrc.d; do
-  if [ -d $dir ]; then
-    for file in $dir/*; do
-      . $file
-    done
-  fi
-done
+zsourcedir $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zshrc.d
+
+#   if [ -d $dir ]; then
+#     for zfile in $dir/*; do
+#       . $zfile
+#     done
+#     unset zfile
+#   fi
+# done
 
 
 zsource core/zcomp
@@ -89,8 +91,10 @@ if [ -r ~/.ec2rc ]; then
 	. ~/.ec2rc
 fi
 
-for lib in $ZCONFIGDIR/lib/*; do
-  if [ -f "$lib/librc.zsh" ]; then
-    source "$lib/librc.zsh"
+for zlib in $ZCONFIGDIR/lib/*; do
+  if [ -f "$zlib/librc.zsh" ]; then
+    source "$zlib/librc.zsh"
   fi
 done
+unset zlib
+

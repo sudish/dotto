@@ -1,0 +1,7 @@
+zdirname() {
+  if [ -d "$1" ]; then
+    echo $1
+  else
+    echo $ZCONFIGDIR/$1
+  fi
+}

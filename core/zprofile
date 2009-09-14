@@ -82,50 +82,14 @@ test -r /sw/bin/init.sh && . /sw/bin/init.sh
 
 export SHORTHOST=$(hostname -s)
 
+# load all base functions
+
 FPATH=$ZCONFIGDIR/functions:$FPATH
 source $ZCONFIGDIR/functions/setup.zsh
 
-zsource() {
-  for arg in $*; do
-    if [ -n "$ZCONFIGDIR/$arg" -a -f "$ZCONFIGDIR/$arg" ]; then
-      source "$ZCONFIGDIR/$arg"
-      zlog "sourcing $arg"
-    fi
-    if [ -n "$ZCONFIGDIR/local/$arg" -a -f "$ZCONFIGDIR/local/$arg" ]; then
-      source "$ZCONFIGDIR/local/$arg"
-      zlog "sourcing local $arg"
-    fi
-  done
-}
-
-zdirname() {
-  if [ -d $1 ]; then
-    return $1
-  else
-    return $ZCONFIGDIR/$1
-  fi
-}
-
-zsourcedir() {
-  for dir in $*; do
-    zdir=`zdirname $dir`
-    for file in $(find $zdir -name \*.zsh); do
-      relfile=${file#$ZCONFIGDIR}
-      zsource relfile
-    done
-  done
-}
-
-
 zsource prefs
 
-for dir in $ZCONFIGDIR/zprofile.d $ZCONFIGDIR/zprofile.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zprofile.d; do
-  if [ -d $dir ]; then
-    for file in $dir/*; do
-      source $file
-    done
-  fi
-done
+zsourcedir $ZCONFIGDIR/zprofile.d $ZCONFIGDIR/zprofile.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zprofile.d
 
 for lib in $ZCONFIGDIR/lib/*; do
   if [ -f "$lib/libprofile.zsh" ]; then

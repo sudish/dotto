@@ -1,0 +1,13 @@
+
+zsource() {
+  for arg in $*; do
+    if [ -n "$ZCONFIGDIR/$arg" -a -f "$ZCONFIGDIR/$arg" ]; then
+      source "$ZCONFIGDIR/$arg"
+      zlog "zsource: sourcing $arg"
+    fi
+    if [ -n "$ZCONFIGDIR/local/$arg" -a -f "$ZCONFIGDIR/local/$arg" ]; then
+      source "$ZCONFIGDIR/local/$arg"
+      zlog "zsource: sourcing local $arg"
+    fi
+  done
+}
