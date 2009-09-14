@@ -85,7 +85,22 @@ test -r /sw/bin/init.sh && . /sw/bin/init.sh
 
 export SHORTHOST=$(hostname -s)
 
-source $ZCONFIGDIR/prefs 
+zsource() {
+  for arg in $*; do
+    if [ -n "$ZCONFIGDIR/$arg" ]; then
+      source "$ZCONFIGDIR/$arg"
+    fi
+    if [ -n "$ZCONFIGDIR/local/$arg" ]; then
+      source "$ZCONFIGDIR/local/$arg"
+    fi
+  done
+}
+
+zlog() {
+  echo "$*" >> $ZCONFIGDIR/log/zlog.log
+}
+
+zsource prefs
 
 for dir in $ZCONFIGDIR/zprofile.d $ZCONFIGDIR/zprofile.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zprofile.d; do
   if [ -d $dir ]; then
