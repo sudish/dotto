@@ -1,0 +1,11 @@
+# (-*- shell-script -*-)
+
+# SHELL VARIABLES
+
+export PATH="/usr/local/mysql-5.0.51a-osx10.4-i686/bin/:$PATH"
+export CDPATH="/Users/bjorn/Sites:/Users/bjorn/foss"
+
+alias wget="curl -O"
+alias mysql="mysql -u root"
+alias mysqladmin="mysqladmin -u root"
+alias mysqldump="mysqldump -u root"

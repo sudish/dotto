@@ -1,0 +1,235 @@
+# (-*- shell-script -*-)
+
+# Shared functions
+
+# Extract & Delete
+ed() {
+  case ${1##*.} in
+    tar)
+      tar -xvf $1
+      ;;
+    tgz|gz)
+      tar -zxvf $1
+      ;;
+    tbz|tbz2|bz2)
+      tar -jxvf $1
+      ;;
+    zip)
+      unzip $1
+      ;;
+    rar)
+      unrar x $1
+      ;;
+    *)
+      return 1
+      ;;
+  esac || return 1 # if extraction failed
+  rm $1
+}
+
+# Prefix the previous line with "sudo " then execute it
+rerun-with-sudo () {
+  LBUFFER="sudo !!"
+  zle accept-line
+}
+zle -N rerun-with-sudo
+
+set-title() {
+  case $TERM in
+    xterm*|rxvt*)
+      # Note that set-term-title is defined for both linux and osx,
+      # to handle different terminal emulator apps.
+      set-term-title `hostname -s`:$1
+      ;;
+    screen*)
+      echo -ne "\ek`hostname -s`:`basename ${1%% *}`\e\\"
+      ;;
+    *)
+      ;;
+  esac
+}
+
+set-program-title() {
+  case $1 in
+    screen|top|htop|emacs|vi|vim|irssi|aptitude|pacman|yaourt)
+      set-title $1
+      ;;
+    *)
+      set-title `pwd`
+      ;;
+  esac
+}
+
+# Convenience function for updating my dotfiles
+rcup() {
+  local pwd=$(pwd)
+  cd ~/.zsh
+  git pull
+  cd ~/.emacs.d
+  git pull
+  cd ~/dotfiles
+  git pull
+  cd $pwd
+}
+
+if [[ $ANCIENT_ZSH != t ]]; then
+  # Quick dirchange
+  rationalise-dot() {
+    if [[ $LBUFFER = *.. ]]; then
+      LBUFFER+=/..
+    else
+      LBUFFER+=.
+    fi
+  }
+  zle -N rationalise-dot
+
+  # Reruns last command
+  infer-hist() {
+    zle up-history
+    zle infer-next-history
+    zle accept-line
+  }
+  zle -N infer-hist
+
+  # Ruby
+  gemdoc() {
+    local gemdir=`gem env gemdir`
+    local gem=`ls $gemdir/doc/ | grep $1 | sort | tail -1`
+
+    if [ $gem ]; then
+      eval "$BROWSER $gemdir/doc/$gem/rdoc/index.html"
+    else
+      echo "Gem not found"
+    fi
+  }
+
+  _gemdoc() {
+    compadd $(ls `gem env gemdir`/doc)
+  }
+  compdef _gemdoc gemdoc
+
+  # Simple completion for psql databases
+  _psql_databases() {
+    compadd $(psql -l | grep "^ \w" |  awk -F '|' '{ printf("%s\n", $1) }' | sed 's/ //g')
+  }
+  compdef _psql_databases psql
+fi
+
+# Wrapper for math expressions
+solve() {
+  print $(( $@ ))
+}
+
+# Git
+function git-scoreboard () {
+  git log | grep Author | sort | uniq -ci | sort -r
+}
+
+zipdir() {
+  zip "$@".zip -r "$@" -x "*/.DS_Store" "*/.gitignore" "*/.hgignore" "*/.hgtags" "*/.svn/*" "*/.git/*" "*/.hg/*"
+}
+
+# SCM
+sadd() {
+  svn st | grep "^\?" | awk -F "      " '{ printf("\"%s\"\n", $2) }' | xargs svn add
+}
+
+sdel() {
+  svn st | grep "^\!" | awk -F "      " '{ printf("\"%s\"\n", $2) }' | xargs svn del
+}
+
+# NOTE: this is probably obsolete since hg commit -A
+hdel() {
+  hg st | grep "^\!" | awk '{ printf("\"%s\"\n", $2) }' | xargs hg rm
+}
+
+# Deletes files that are unkown in the hg repos
+hdelu() {
+  hg st | grep "^\?" | awk '{ printf("\"%s\"\n", $2) }' | xargs rm
+}
+
+# Recursively delete all .svn dirs
+rm_svn() {
+  find "$@" -name .svn -print0 | xargs -0 rm -rf
+}
+
+# Recursively delete all .DS_Store files
+ds_clean() {
+  find "$@" -name .DS_Store -print0 | xargs -0 rm
+}
+
+# Simple heuristics for determining the current projects scm.
+set_scm() {
+  GIT=0
+  SVN=0
+  HG=0
+
+  if [ -d .svn ]; then
+    SVN=1
+  elif git branch >/dev/null 2>&1; then
+    GIT=1
+  elif hg branch > /dev/null 2>&1; then
+    HG=1
+  else
+    echo "SCM not found - does this directory contain a repos?"
+  fi
+}
+
+# Passes on any args to the current scm binary
+scm() {
+  set_scm
+  if [ $GIT -eq 1 ]; then
+    git $@
+  elif [ $SVN -eq 1 ]; then
+    svn $@
+  elif [ $HG -eq 1 ]; then
+    hg $@
+  fi
+}
+
+# SCM commit
+sci() {
+  set_scm
+  if [ $GIT -eq 1 ]; then
+    if [ -z $@ ]; then
+      git commit
+    else
+      git commit -m $@
+    fi
+  elif [ $SVN -eq 1 ]; then
+    svn ci -m $@
+  elif [ $HG -eq 1 ]; then
+    if [ -z $@ ]; then
+      hg commit -A
+    else
+      hg commit -A -m $@
+    fi
+  fi
+}
+
+# SCM update
+scu() {
+  set_scm
+  if [ $GIT -eq 1 ]; then
+    git pull
+  elif [ $SVN -eq 1 ]; then
+    svn up
+  elif [ $HG -eq 1 ]; then
+    hg pull
+    hg update
+  fi
+}
+
+# SCM log
+scl() {
+  scm log | less
+}
+
+# SCM status
+scs() {
+  scm status
+}
+
+scd() {
+  scm diff $@
+}

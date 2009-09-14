@@ -1,0 +1,92 @@
+# (-*- shell-script -*-)
+# Common aliases
+
+alias reload_zshrc="source ~/.zshrc"
+alias reload_hist="fc -RI"
+
+alias df="df -h"
+alias f="find . |grep -i"
+alias h="history"
+alias l="less"
+alias m="more"
+alias c="clear"
+alias cl="clear ; ls -laF"
+alias cal="cal -m"
+alias psg="ps aux | grep"
+alias trail="tail -n 300 -f"
+alias screen="screen -U"
+alias srd="screen -U -r -d"
+alias x="exit"
+alias conk="conkeror"
+
+# Ruby
+alias irb="irb --readline -r irb/completion"
+alias ri="ri -Tf ansi"
+
+# Rails
+alias ss="rake log:clear; ./script/server"
+alias ssp="./script/server -eproduction"
+alias sc="./script/console"
+alias sg="./script/generate"
+alias sp="./script/plugin"
+alias devlog="tail -F log/development.log"
+alias rem="rake db:migrate VERSION=0 && rake db:migrate"
+alias remm="rake db:drop && rake db:create && rake db:migrate"
+alias rdm="rake db:migrate"
+alias rdmr="rake db:migrate:redo"
+alias rdmp="RAILS_ENV=production rake db:migrate"
+alias rtags="ctags-exuberant -a -e -f TAGS --tag-relative -R app lib vendor"
+
+# gem
+alias gl="gem list"
+alias gse="gem list -r | grep -i"
+alias gqu="gem list | grep -i"
+alias gin="gem install"
+alias gun="gem uninstall"
+alias gup="gem update"
+
+# git
+alias gb="git branch --color"
+alias gcm="git commit -a -v"
+alias gco="git checkout"
+alias grs="git reset --soft"
+alias grsh="git reset --soft HEAD"
+alias grshh="git reset --soft HEAD^"
+alias grhh="git reset --hard HEAD"
+alias grhhh="git reset --hard HEAD^"
+alias gdc="git diff --cached"
+alias gdh="git diff HEAD"
+alias gdhh="git diff HEAD\^"
+alias gdhhh="git diff HEAD\^\^"
+alias gpp="git push origin master"
+alias gpf="git pull origin master"
+alias gpt="git push --tags"
+alias gph="git push heroku master"
+
+# Global aliases
+alias -g ...="../.."
+alias -g ....="../../.."
+alias -g .....="../../../.."
+alias -g G="| grep"
+alias -g GI="| grep -i"
+alias -g DN=/dev/null
+alias -g S="| sort"
+alias -g H="| head"
+alias -g HL="| head -20"
+alias -g T="| tail"
+alias -g TL="| tail -20"
+alias -g VM=/var/log/messages
+alias -g N="| wc -l"
+alias -g L="|less" # command L equivalent to command |less
+
+# Set up cross platform auto extensions, for Zsh versions above 4.1.1
+if [ $MODERN_ZSH = "t" ]; then
+  alias -s tar="tar -xvf"
+  alias -s gz="tar -zxvf"
+  alias -s tgz="tar -zxvf"
+  alias -s bz2="tar -jxvf"
+  alias -s git="git clone"
+  alias -s zip=unzip
+  alias -s txt=less
+  alias -s conf=emacs
+fi

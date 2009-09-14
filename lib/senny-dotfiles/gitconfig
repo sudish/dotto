@@ -1,0 +1,17 @@
+[user]
+  name = Yves Senn
+  email = yves.senn@gmail.com
+[alias]
+  co = checkout
+[color]
+  diff = auto
+  status = auto
+  branch = auto
+[core]
+  excludesfile = /Users/senny/.gitignore
+  editor = mate -w
+[apply]
+  whitespace = nowarn
+[github]
+	user = senny
+	token = 35c26258bd00218b35622934e6428090

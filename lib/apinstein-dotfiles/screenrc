@@ -1,0 +1,8 @@
+# trick to make ssh-agent reconnect when resuming screen
+setenv SSH_AUTH_SOCK "/tmp/ssh-agent-$USER-screen"
+startup_message off
+vbell on
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B}%Y-%m-%d %{W}%c %{g}]'
+altscreen on
+source $HOME/.screenrc.local

@@ -1,0 +1,51 @@
+# (-*- shell-script -*-)
+
+# Tab-titles only work in iTerm atm
+set-term-title() {
+  print -Pn "\e]2;${1}\a"
+  print -Pn "\e]1;${1}\a"
+}
+
+# Check if Aquamacs is present
+# TODO make this work with Carbon Emacs
+if [ -d /Applications/Aquamacs\ Emacs.app ]; then
+  emacs() {
+    # The files have to exist before they can be opened
+    for f in $@; do
+      if [[ ! -f $f ]]; then touch $f; fi
+    done
+    open -a /Applications/Aquamacs\ Emacs.app $@
+  }
+
+  em() {
+    /Applications/Aquamacs\ Emacs.app/Contents/MacOS/Aquamacs\ Emacs -nw --debug-init "$@"
+  }
+fi
+
+export PATH="/Users/bjorn/dotfiles/bin:$PATH"
+export EDITOR=emacs
+export FCEDIT=$EDITOR
+export SVN_EDITOR=$EDITOR
+export VISUAL=$EDITOR
+export BROWSER=open
+
+export LC_ALL="en_US.UTF-8"
+export LANG="en_US.UTF-8"
+
+if [[ $MODERN_ZSH = t ]]; then
+  alias -s {php,txt,lisp,sml,php,js}=$EDITOR
+  alias -s {html,org,com,net,doc,odt,rtf,jpeg,jpg,JPEG,JPG,png,gif,xpm,avi,mp4,mpg,mpeg,vmw,mov,rm,pdf}=open
+fi
+
+alias wget="curl -O"
+alias e=open -a $EDITOR
+alias o=open
+alias dmesg="sudo dmesg" # sudo required for dmesg on osx
+
+# Package management
+alias sse="port list | grep -i"
+alias squ="port installed active | grep -i"
+alias sin="sudo port install"
+alias sun="sudo port uninstall"
+alias sup="sudo port -d selfupdate && port outdated"
+alias spu="sudo port upgrade"
