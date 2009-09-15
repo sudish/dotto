@@ -22,6 +22,23 @@ for zfile in $ZCONFIGDIR/base/*; do
   cp -f $zfile $HOME/$dotfile
 done
 
+#
+# linked config files
+#
+for zfile in $ZCONFIGDIR/conf.d/*; do
+  basefile=`basename $zfile`
+  dotfile=.$basefile
+  if [ -h $HOME/$dotfile ]; then
+    echo "Symlink already exists"
+  else
+    echo "Backing up conf.d $dotfile and creating symlink"
+    mv -i $HOME/$dotfile $zbackupdir/$basefile
+  fi
+  # make relative symlink
+  ln -s ${zfile#$HOME/} $HOME/$dotfile
+done
+
+
 if [ "$dozbackup" = 1 ]; then
   cd $ZCONFIGDIR
   git add $zbackupdir $zbackupdir/*
