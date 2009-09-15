@@ -1,5 +1,5 @@
 #!/bin/zsh
-echo "running zshenv..."
+zctrace "running zshenv..."
 bootzshenv() {
   local dir zdir file relfile
   for dir in $ZCONFIGDIR/zshenv.d $ZCONFIGDIR/zlogin.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zlogin.d; do

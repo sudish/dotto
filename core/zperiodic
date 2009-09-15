@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-echo "running zperiodic..."
+zctrace "running zperiodic..."
 
 zmodload -i zsh/stat
 
@@ -8,28 +8,6 @@ export PERIOD=30
 typeset -Ag PERIOD_FUNCS
 typeset -Ag ZCRON_TIMESTAMPS
 typeset -Ag ZCRON_FUNCTIONS
-export AGENT_FILE=$HOME/.sshagent
-export AGENT_FILE_MTIME=0
-
-mkdir -p $ZCONFIGDIR/local/timestamps
-
-agent() {
-	doload=0
-	if [ -r "$AGENT_FILE" ]; then
-		lmtime=`builtin stat +mtime $AGENT_FILE`
-		if [ $lmtime != $AGENT_FILE_MTIME ]; then
-			doload=1
-		fi
-	else
-		doload=0
-	fi
-
-	if [ $doload != 0 ]; then
-		zlog "loading agent file"
-		AGENT_FILE_MTIME=`builtin stat +mtime $AGENT_FILE`
-		. $AGENT_FILE
-	fi
-}
 
 
 function run_periodic_dir() {
@@ -53,7 +31,6 @@ function run_periodic_dir() {
 
 
 periodic() {
-    echo "PERIODIC"
 	for func in ${(k)PERIOD_FUNCS}
 	do
 		$func
@@ -81,7 +58,6 @@ zcron_add() {
     local period=$1 func=$2
     #local OLDIFS="$IFS"
     #IFS="\0"
-    echo "period=$period, func=$func"
     ZCRON_FUNCTIONS[$func]=$period
     #unset "ZCRON_TIMESTAMPS[$func]"
     #IFS="$OLDIFS"
@@ -132,6 +108,4 @@ function run_cron_funcs() {
     #IFS="$OLDIFS"
 }
 
-# set up scan
-add_periodic agent
 

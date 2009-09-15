@@ -10,47 +10,7 @@
 # load all base functions
 source $ZCONFIGDIR/core/newshell
 
-zlog "running zshrc.."
-
-# ZSH options
-setopt nolistbeep autolist nonomatch sh_word_split noclobber
-unsetopt menucomplete
-
-# get that BASH-like "> file" behavior
-noeolecho()
-{
-  echo -n
-}
-NULLCMD=noeolecho
-
-if [ "`uname -s`" = "FreeBSD" -a "$TERM" = "vt100" ]; then
-	export TERM="vt100-color"
-fi
-
-if [ "$TERM" = "screen" -o "$TERM" = "vt100-color" -o "$TERM" = "vt100" ]; then
-	# export TERM=vt100
-	DO_COLOR=yes
-fi
-
-# if on the console, alias ls to cls (color ls)
-if [ "$TERM" = "console" -o "$TERM" = "xterm" -o "X$DO_COLOR" = "Xyes" -o "$TERM" = "vt100" -o "$TERM" = "screen" -o "$TERM" = "xterm-color" ]
-then
-	#which colorls > /dev/null 2> /dev/null
-	if [ "`uname -s`" != Linux ];  then
-		alias ls='ls -G'
-	else
-		# GNU generation, baby
-		alias ls='ls --color=auto'
-	fi
-fi
-
-#if [ "$TERM" = "xterm" ]; then
-#	if [ "$DISPLAY" = ":0.0" -o "$DISPLAY" = "$HOST:0.0" ]; then
-#		stty erase ^H
-#	fi
-#fi
-
-stty erase '^?'
+zctrace "running zshrc.."
 
 # set hostname
 HOSTNAME=`hostname`
@@ -70,31 +30,8 @@ function autoload_from
 	done
 }
 
-# set up completion magic
-hosts=(turok test.zeevex.com prod.zeevex.com monitor.zeevex.com schultz.dreamhost.com minimus-2.local)
-
-zsourcedir $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zshrc.d
-
-#   if [ -d $dir ]; then
-#     for zfile in $dir/*; do
-#       . $zfile
-#     done
-#     unset zfile
-#   fi
-# done
-
-
 zsource core/zcomp
-
 zsource core/zperiodic 
-
-if [ -r ~/.sshagent ]; then
-	. ~/.sshagent
-fi
-
-if [ -r ~/.ec2rc ]; then
-	. ~/.ec2rc
-fi
 
 for zlib in $ZCONFIGDIR/lib/*; do
   if [ -f "$zlib/librc.zsh" ]; then
@@ -102,4 +39,6 @@ for zlib in $ZCONFIGDIR/lib/*; do
   fi
 done
 unset zlib
+
+zsourcedir $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zshrc.d
 

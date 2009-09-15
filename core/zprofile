@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-echo "running zprofile.."
+zctrace "running zprofile.."
 
 if [ "$TERM" = "console" -o "$TERM" = "dumb" ]; then
    TERM=vt100

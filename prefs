@@ -42,4 +42,44 @@ export LPDEST=hp1200d
 # set up terminal defaults	
 stty echoe susp ^z intr ^c lnext undef kill undef werase undef start undef stop undef erase '^?'
 
+# set up completion magic
+hosts=(turok test.zeevex.com prod.zeevex.com monitor.zeevex.com schultz.dreamhost.com minimus-2.local)
+
+
+# ZSH options
+setopt nolistbeep autolist nonomatch sh_word_split noclobber
+unsetopt menucomplete
+
+if [ "`uname -s`" = "FreeBSD" -a "$TERM" = "vt100" ]; then
+	export TERM="vt100-color"
+fi
+
+if [ "$TERM" = "screen" -o "$TERM" = "vt100-color" -o "$TERM" = "vt100" ]; then
+	# export TERM=vt100
+	DO_COLOR=yes
+fi
+
+
+# if on the console, alias ls to cls (color ls)
+if [ "$TERM" = "console" -o "$TERM" = "xterm" -o "X$DO_COLOR" = "Xyes" -o "$TERM" = "vt100" -o "$TERM" = "screen" -o "$TERM" = "xterm-color" ]
+then
+	#which colorls > /dev/null 2> /dev/null
+	if [ "`uname -s`" != Linux ];  then
+		alias ls='ls -G'
+	else
+		# GNU generation, baby
+		alias ls='ls --color=auto'
+	fi
+fi
+
+stty erase '^?'
+
+
+
+# get that BASH-like "> file" behavior
+noeolecho()
+{
+  echo -n
+}
+NULLCMD=noeolecho
 

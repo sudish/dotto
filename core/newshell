@@ -2,7 +2,7 @@
 
 
 if [ -z "$_zconfig_booted" ]; then
-  echo "running newshell..."
+  zctrace "running newshell..."
   export FPATH=$ZCONFIGDIR/functions:$FPATH
   source $ZCONFIGDIR/functions/setup.zsh
 

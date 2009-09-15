@@ -1,5 +1,11 @@
 #!/bin/zsh
 
+zctrace() { 
+  if [ "$ZC_TRACE" = 1 ]; then
+    echo "$*"
+  fi
+}
+
 if [ -z "$ZCONFIGDIR" ]; then
    for zbase in $HOME $HOME/config $HOME/.rsconfig $HOME/home; do
      for zfilesdir in .zdir zdir .zfiles zfiles .zconfig zconfig; do
