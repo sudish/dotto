@@ -1,9 +1,11 @@
 #!/bin/zsh
 
-pwd=`pwd`
+local zpwd 
+zpwd=`pwd`
 for dir in $HOME/bin/paths/* $HOME/bin; do
     cd $dir
-    realdir=`/bin/pwd -P`
-    PATH=${realdir}:${PATH}
+    PATH=`/bin/pwd -P`:${PATH}
 done
-cd $pwd
+cd $zpwd
+unset zpwd
+
