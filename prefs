@@ -11,9 +11,8 @@ export LESS="efiMqR"
 
 export IGNOREEOF=0
 
-export JAVA_HOME=/usr/java/current
-export PATH=/opt/local/bin:/opt/local/sbin:$PATH
-export PATH=/usr/X11R6/bin:/usr/krb5/bin:/usr/krb5/sbin:$PATH:/usr/local/bin:/sbin:/usr/sbin:/usr/contrib/bin:/usr/local/pgsql/bin:$JAVA_HOME/bin:/usr/java/ant:/usr/local/java/jython-2.1
+# export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+# export PATH=/usr/X11R6/bin:/usr/krb5/bin:/usr/krb5/sbin:$PATH:/usr/local/bin:/sbin:/usr/sbin:/usr/contrib/bin:/usr/local/pgsql/bin:$JAVA_HOME/bin:/usr/java/ant:/usr/local/java/jython-2.1
 
 # 3 MB coredump limit
 ulimit -c 3000
