@@ -5,7 +5,11 @@ if [ -z "$_zconfig_booted" ]; then
   zctrace "running newshell..."
 
   local zcfile
-  export FPATH=$ZCONFIGDIR/local/build/functions.zwc:$ZCONFIGDIR/functions:$FPATH
+  export FPATH=$ZCONFIGDIR/functions:$FPATH
+  
+  for zcfile in `find $ZCONFIGDIR/local/build/$ZSH_VERSION -name \*.zwc`; do
+      FPATH=$FPATH:$zcfile
+  done
 
   for zcfile in $ZCONFIGDIR/functions/*; do
     autoload -U `basename $zcfile`
