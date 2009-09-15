@@ -34,7 +34,7 @@ for zfile in $ZCONFIGDIR/conf.d/*; do
     rm -f $HOME/$dotfile
   elif [ -f $HOME/$dotfile -o -d $HOME/$dotfile ]; then
     echo "Backing up conf.d $dotfile and creating symlink"
-    mv -i $HOME/$dotfile $zbackupdir/$basefile
+    mv $HOME/$dotfile $zbackupdir/$basefile
   else
     echo "No backup necessary for $basefile"
   fi
