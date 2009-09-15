@@ -1,5 +1,7 @@
-local x
-for x in /usr/local/lib/cw/*(.xN)
+local fpath fname
+for fpath in /usr/local/lib/cw/*(.xN)
 do
-  hash `basename $x`=$x
+    fname=$fpath:t
+    eval "$fname() { $fpath \"\${(@)*}\" }"
 done
+
