@@ -6,9 +6,6 @@ unsetopt flowcontrol
 
 WORDCHARS=''
 
-autoload -U compinit
-compinit
-
 zmodload -i zsh/complist
 
 ## case-insensitive (all),partial-word and then substring completion

@@ -9,6 +9,9 @@
 
 zctrace "running zcomp.."
 
+autoload -U compinit
+compinit -C
+
 # Rmdir only real directories
 compctl -g '*(/)' rmdir
 
