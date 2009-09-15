@@ -3,8 +3,14 @@
 
 if [ -z "$_zconfig_booted" ]; then
   zctrace "running newshell..."
-  export FPATH=$ZCONFIGDIR/functions:$FPATH
-  source $ZCONFIGDIR/functions/setup.zsh
+
+  local zcfile
+  export FPATH=$ZCONFIGDIR/local/build/functions.zwc:$ZCONFIGDIR/functions:$FPATH
+
+  for zcfile in $ZCONFIGDIR/functions/*; do
+    autoload -U `basename $zcfile`
+  done
+  unset $zcfile
 
   # load default prefs and local prefs
   zsourcedir prefs.d
