@@ -1,3 +1,3 @@
-pdoc=/Users/Shared/Documents/Prog\ Docs
-echo "Loaded projects.zsh"
+hash -d pdoc="/Users/Shared/Documents/Prog Docs"
+
 

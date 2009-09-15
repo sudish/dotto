@@ -14,7 +14,8 @@ if [ -z "$_zconfig_booted" ]; then
   for zcfile in $ZCONFIGDIR/functions/*; do
     autoload -U `basename $zcfile`
   done
-  unset $zcfile
+
+  unset zcfile
 
   # load default prefs and local prefs
   zsourcedir prefs.d
