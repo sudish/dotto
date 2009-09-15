@@ -28,14 +28,21 @@ done
 for zfile in $ZCONFIGDIR/conf.d/*; do
   basefile=`basename $zfile`
   dotfile=.$basefile
+  install=1
   if [ -h $HOME/$dotfile ]; then
-    echo "Symlink already exists"
-  else
+    echo "Removing old symlink for .$basefile"
+    rm -f $HOME/$dotfile
+  elif [ -f $HOME/$dotfile -o -d $HOME/$dotfile ]; then
     echo "Backing up conf.d $dotfile and creating symlink"
     mv -i $HOME/$dotfile $zbackupdir/$basefile
+  else
+    echo "No backup necessary for $basefile"
   fi
   # make relative symlink
-  ln -s ${zfile#$HOME/} $HOME/$dotfile
+  if [ "$install" = "1" ]; then
+      echo "Installing .$basefile symlink"
+      ln -s ${zfile#$HOME/} $HOME/$dotfile
+  fi
 done
 
 
