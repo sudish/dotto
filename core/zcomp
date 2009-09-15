@@ -1,3 +1,4 @@
+#!/bin/zsh
 
 # Zsh 2.4 completion setup file
 
@@ -6,7 +7,7 @@
 # $Revision: 1.1 $
 # $State: Exp $
 
-zlog "running zcomp.."
+echo "running zcomp.."
 
 # Rmdir only real directories
 compctl -g '*(/)' rmdir
@@ -155,3 +156,4 @@ exec fprint fprint0 fprintf ok print print0 printf prune ls)" - \
 # See func/multicomp
 # compctl -D -f + -U -K multicomp
 
+# -*- Mode: Shell Script; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-

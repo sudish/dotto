@@ -1,0 +1,12 @@
+#!/bin/zsh
+echo "running zshenv..."
+bootzshenv() {
+  local dir zdir file relfile
+  for dir in $ZCONFIGDIR/zshenv.d $ZCONFIGDIR/zlogin.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zlogin.d; do
+    for file in $dir/*.zsh(N); do
+      source $file
+    done
+  done
+}
+
+time bootzshenv

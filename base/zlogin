@@ -1,6 +1,6 @@
 #!/bin/zsh
 
 if [ -n "$ZCONFIGDIR" -a -d "$ZCONFIGDIR" ]; then
-  . $ZCONFIGDIR/core/zshrc
+  . $ZCONFIGDIR/core/zlogin
 fi
 

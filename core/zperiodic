@@ -1,9 +1,17 @@
+#!/bin/zsh
+
+echo "running zperiodic..."
+
 zmodload -i zsh/stat
 
 export PERIOD=30
-export PERIOD_FUNCS=" "
+typeset -Ag PERIOD_FUNCS
+typeset -Ag ZCRON_TIMESTAMPS
+typeset -Ag ZCRON_FUNCTIONS
 export AGENT_FILE=$HOME/.sshagent
 export AGENT_FILE_MTIME=0
+
+mkdir -p $ZCONFIGDIR/local/timestamps
 
 agent() {
 	doload=0
@@ -17,33 +25,113 @@ agent() {
 	fi
 
 	if [ $doload != 0 ]; then
-		# echo "loading agent file"
+		zlog "loading agent file"
 		AGENT_FILE_MTIME=`builtin stat +mtime $AGENT_FILE`
 		. $AGENT_FILE
 	fi
 }
 
 
-periodic() {
-	for func in $PERIOD_FUNCS
-	do
-		$func
-	done
+function run_periodic_dir() {
+    local last dir seconds key
+    
+    dir=$1
+    period=$2
+    key="PERIODIC_DIR_$dir"
+
+    last=$ZCRON_TIMESTAMPS[$key]
+    
+    if [[ $last != <-> ]]; then
+         last=0
+    fi
+
+    if [[ $((SECONDS - last)) -gt $period ]]; then
+        ZCRON_TIMESTAMPS[$key]=$SECONDS
+        zsourcedir $ZCONFIGDIR/$dir
+    fi
 }
 
+
+periodic() {
+    echo "PERIODIC"
+	for func in ${(k)PERIOD_FUNCS}
+	do
+		$func
+ 	done
+    run_cron_funcs
+	run_periodic_dir hourly 3600
+	run_periodic_dir daily 86400
+	run_periodic_dir weekly 604800
+}
+
+# old style
 add_periodic() {
 	for func in $*; do
-		PERIOD_FUNCS=" $PERIOD_FUNCS $func "
+		PERIOD_FUNCS[$func]=$func
 	done
 }
 
 delete_periodic() {
 	for func in $*; do
-		PERIOD_FUNCS=${PERIOD_FUNCS// $func /}
+		delete "PERIOD_FUNCS[$func]"
 	done
+}
+
+zcron_add() {
+    local period=$1 func=$2
+    #local OLDIFS="$IFS"
+    #IFS="\0"
+    echo "period=$period, func=$func"
+    ZCRON_FUNCTIONS[$func]=$period
+    #unset "ZCRON_TIMESTAMPS[$func]"
+    #IFS="$OLDIFS"
+}
+
+zcron_delete() {
+    local func=$1
+    #local OLDIFS="$IFS"
+    #IFS="\0"
+
+    unset "ZCRON_FUNCTIONS[$func]"
+    unset "ZCRON_TIMESTAMPS[$func]"
+    #IFS="$OLDIFS"
+}
+
+zcron_list() {
+    local func period
+    #local OLDIFS="$IFS"
+    #IFS="\0"
+    for func in ${(k)ZCRON_FUNCTIONS}; do
+        echo $ZCRON_FUNCTIONS[$func] - $func
+    done
+    #IFS="$OLDIFS"
+}
+
+
+function run_cron_funcs() {
+    local func last dir seconds key period
+    #local OLDIFS="$IFS"
+    #IFS="\0"
+
+    for func in ${(k)ZCRON_FUNCTIONS}; do
+        last=$ZCRON_TIMESTAMPS[$func]
+        period=$ZCRON_FUNCTIONS[$func]
+    
+        if [[ $last != <-> ]]; then
+             last=0
+        fi
+
+        if [[ $((SECONDS - last)) -gt $period ]]; then
+            ZCRON_TIMESTAMPS[$func]=$SECONDS
+            IFS=$OLDIFS 
+            $func
+            #IFS="\0"
+        fi
+    done
+    
+    #IFS="$OLDIFS"
 }
 
 # set up scan
 add_periodic agent
 
-# echo "$$" >> /tmp/rsanders.zperiodic

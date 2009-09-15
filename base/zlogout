@@ -1,4 +1,6 @@
+#!/bin/zsh
+
 if [ -n "$ZCONFIGDIR" -a -d "$ZCONFIGDIR" ]; then
-  . $ZCONFIGDIR/core/zcomp
+  . $ZCONFIGDIR/core/zlogout
 fi
 

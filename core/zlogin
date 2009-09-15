@@ -1,0 +1,5 @@
+#!/bin/zsh
+echo "running zlogin.."
+zsourcedir $ZCONFIGDIR/zlogin.d $ZCONFIGDIR/zlogin.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zlogin.d
+
+

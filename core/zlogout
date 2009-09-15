@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+echo "running zlogout..."
+
+zsourcedir $ZCONFIGDIR/zlogout.d $ZCONFIGDIR/zlogout.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zlogout.d

@@ -1,9 +1,14 @@
+#!/bin/zsh
+
 # Z-Shell .rc file
 
 # $Date: 2003/03/18 07:11:02 $
 # $Source: /home/rsanders/RCS/.zshrc,v $
 # $Revision: 1.1 $
 # $State: Exp $
+
+# load all base functions
+source $ZCONFIGDIR/core/newshell
 
 zlog "running zshrc.."
 

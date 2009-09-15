@@ -1,0 +1,14 @@
+#!/bin/zsh
+
+
+if [ -z "$_zconfig_booted" ]; then
+  echo "running newshell..."
+  export FPATH=$ZCONFIGDIR/functions:$FPATH
+  source $ZCONFIGDIR/functions/setup.zsh
+
+  # load default prefs and local prefs
+  zsourcedir prefs.d
+  zsource prefs
+  
+  _zconfig_booted=1
+fi
