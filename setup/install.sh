@@ -7,9 +7,10 @@ if grep ZCONFIGDIR $HOME/.zprofile >/dev/null 2>&1; then
   dozbackup=0
 else
   dozbackup=1
-  zbackupdir=$ZCONFIGDIR/backup/`hostname`
-  mkdir -p "$zbackupdir"
-fi 
+fi
+
+zbackupdir=$ZCONFIGDIR/backup/`hostname`
+mkdir -p "$zbackupdir"
 
 for zfile in $ZCONFIGDIR/base/*; do
   basefile=`basename $zfile`
