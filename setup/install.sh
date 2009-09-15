@@ -18,7 +18,7 @@ for zfile in $ZCONFIGDIR/base/*; do
     echo "Backing up $dotfile"
     cp $HOME/$dotfile $zbackupdir/$basefile
   fi
-  mv -n $HOME/$dotfile $HOME/${dotfile}.prezfiles
+  mv -i $HOME/$dotfile $HOME/${dotfile}.prezfiles
   cp -f $zfile $HOME/$dotfile
 done
 
