@@ -99,7 +99,7 @@ function run_cron_funcs() {
 
         if [[ $((SECONDS - last)) -gt $period ]]; then
             ZCRON_TIMESTAMPS[$func]=$SECONDS
-            IFS=$OLDIFS 
+            #IFS=$OLDIFS 
             $func
             #IFS="\0"
         fi
