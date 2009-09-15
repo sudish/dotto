@@ -1,5 +1,6 @@
 
 zsource() {
+  local arg
   for arg in $*; do
     if [ -n "$ZCONFIGDIR/$arg" -a -f "$ZCONFIGDIR/$arg" ]; then
       source "$ZCONFIGDIR/$arg"

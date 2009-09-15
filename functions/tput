@@ -5,7 +5,7 @@
 
 
 tput() {
-   CAP=$1
+   local CAP=$1
    shift
    case $CAP in
      cols) echo $COLUMNS;;

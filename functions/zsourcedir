@@ -1,4 +1,5 @@
 zsourcedir() {
+  local dir zdir file relfile
   for dir in $*; do
     zdir=`zdirname $dir`
     zlog "zsourcedir: dir=$dir, zdir=$zdir"
