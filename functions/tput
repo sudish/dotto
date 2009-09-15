@@ -1,3 +1,4 @@
+#!/bin/zsh
 
 # because zsh doesn't load termcap in for some reason, and Linux's tput
 # is using Berkeley-curses, which depends on TERMCAP being set...

@@ -1,10 +1,12 @@
+#!/bin/zsh
+
 zsourcedir() {
   local dir zdir file relfile
   for dir in $*; do
     zdir=`zdirname $dir`
     zlog "zsourcedir: dir=$dir, zdir=$zdir"
-    setopt -G
-    for file in $dir/*.zsh; do
+
+    for file in $dir/*.zsh(N); do
       zlog "zsourcedir: file=$file"
       relfile=${file#$ZCONFIGDIR}
       zsource $relfile

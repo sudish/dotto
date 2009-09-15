@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 zdirname() {
   if [ -d "$1" ]; then
     echo $1

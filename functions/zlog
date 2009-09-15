@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 zlog() {
   if [ "$ZLOG_DEBUG" = 1 ]; then
     echo "`date`: $*" >> $ZCONFIGDIR/log/zlog.log 2>/dev/null

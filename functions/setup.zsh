@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 for file in $ZCONFIGDIR/functions/*; do
   zcbase=`basename $file`
   if [ $zcbase != "setup.zsh" ]; then
