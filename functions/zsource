@@ -3,8 +3,9 @@
 zsource() {
   local arg
   for arg in $*; do
+    arg=${arg#$ZCONFIGDIR/}
     if [[ "$arg" == *.zwc ]]; then
-      echo "skipping zwc file: $arg"
+      zlog "skipping zwc file: $arg"
       continue
     fi
     if [ -n "$ZCONFIGDIR/$arg" -a -f "$ZCONFIGDIR/$arg" ]; then
