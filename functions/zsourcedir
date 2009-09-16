@@ -6,9 +6,9 @@ zsourcedir() {
     zdir=`zdirname $dir`
     zlog "zsourcedir: dir=$dir, zdir=$zdir"
 
-    for file in $dir/*.zsh(N); do
-      zlog "zsourcedir: file=$file"
+    for file in $zdir/*.zsh(N); do
       relfile=${file#$ZCONFIGDIR}
+      zlog "zsourcedir: file=$file relfile=$relfile"
       zsource $relfile
     done
   done
