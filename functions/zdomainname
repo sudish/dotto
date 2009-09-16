@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+zmodload zsh/regex
+
+zdomainname() {
+  [[ ${1:-$HOSTNAME} -regex-match ^[^.]+\.(.*)$ ]] && print $match[1]
+}

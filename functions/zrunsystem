@@ -1,0 +1,13 @@
+#!/bin/zsh
+
+zrunsystem() {
+  local systemname system
+  for systemname in "${(@)*}"; do
+    zlog "zrunsystem: $system"
+    system="${systemname%.d}.d"
+    zsourcedir "$system" "$system/`uname`" 
+    local domain=`zdomainname`
+    [ -n "$domain" ] && zsourcedir "$system/domains/$domain"
+    zsourcedir "$system/hosts/`hostname -s`" "$system/hosts/`hostname`"
+  done
+}
