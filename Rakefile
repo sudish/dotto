@@ -14,14 +14,32 @@ BUILDDIR = "local/build/#{ZSH_VERSION}"
 task :default => :help do
 end
 
+desc "Show ZSH versions and variables"
 task :info do
-  puts "ZSH_VERSION is #{ZSH_VERSION}"
+  puts "ZSH_VERSION is #{ZSH_VERSION}, #{ZSH}"
   puts "BUILDDIR is #{BUILDDIR}"
 end
 
+desc "Show help"
 task :help do
   system %Q{rake -T}
 end
+
+desc "Pull and update from repository"
+task :update => [:pull, :updatelocal]
+
+desc "Pull latest from repository"
+task :pull do
+  system %Q{git pull}
+end
+
+desc "Install in home directory"
+task :install do
+  system %Q{yes n | ./setup/install.zsh}
+end
+
+desc "Update installation from local files"
+task :updatelocal => [:clean, :install, :compile]
 
 desc "Clean compiled zwc files"
 task :clean do
