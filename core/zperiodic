@@ -30,16 +30,19 @@ function run_periodic_dir() {
 }
 
 
-periodic() {
+function zperiodic_function() {
 	for func in ${(k)PERIOD_FUNCS}
 	do
 		$func
  	done
-    run_cron_funcs
+    # run_cron_funcs
 	run_periodic_dir hourly 3600
 	run_periodic_dir daily 86400
 	run_periodic_dir weekly 604800
 }
+
+typeset -a periodic_functions
+periodic_functions+=zperiodic_function
 
 # old style
 add_periodic() {
@@ -52,6 +55,13 @@ delete_periodic() {
 	for func in $*; do
 		delete "PERIOD_FUNCS[$func]"
 	done
+}
+
+zmodload zsh/sched 2>/dev/null
+
+zcron_runner() {
+    run_cron_funcs
+    sched +30 zcron_runner
 }
 
 zcron_add() {
@@ -108,4 +118,6 @@ function run_cron_funcs() {
     #IFS="$OLDIFS"
 }
 
+# start the whole thing off
+zcron_runner
 
