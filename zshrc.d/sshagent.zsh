@@ -1,23 +1,21 @@
 #!/bin/zsh
 
-export AGENT_FILE=$HOME/.sshagent
-export AGENT_FILE_MTIME=0
+typeset -g AGENT_FILE=$HOME/.sshagent
+typeset -g AGENT_FILE_MTIME=0
 
 agent() {
-	doload=0
-	if [ -r "$AGENT_FILE" ]; then
+	local doload=0 lmtime
+	if [ -r "$AGENT_FILE" -a \( -z "$SSH_AUTH_SOCK" -o ! -e "$SSH_AUTH_SOCK" \) ]; then
 		lmtime=`builtin stat +mtime $AGENT_FILE`
 		if [ $lmtime != $AGENT_FILE_MTIME ]; then
 			doload=1
 		fi
-	else
-		doload=0
 	fi
 
 	if [ $doload != 0 ]; then
 		zlog "loading agent file"
 		AGENT_FILE_MTIME=`builtin stat +mtime $AGENT_FILE`
-		. $AGENT_FILE
+		source $AGENT_FILE
 	fi
 }
 
