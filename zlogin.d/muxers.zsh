@@ -8,8 +8,9 @@ if [ -n "$SSH_TTY" ]; then
         fi
     fi
     if which screen >/dev/null; then
-        if output=`screen -ls`; then
-            echo "** SCREEN\n$output"
+        screen -ls >/dev/null 2>&1
+        if [ $? -gt 10 ]; then
+            echo "** SCREEN\n`screen -ls`"
         fi
     fi
 fi
