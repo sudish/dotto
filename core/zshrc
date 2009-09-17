@@ -33,14 +33,12 @@ function autoload_from
 zsource core/zcomp
 zsource core/zperiodic 
 
-function {
-    for zlib in $ZCONFIGDIR/lib/*; do
-      if [ -f "$zlib/librc.zsh" ]; then
-        source "$zlib/librc.zsh"
-      fi
-    done
-    unset zlib
-}
+for _zlib in $ZCONFIGDIR/lib/*; do
+  if [ -f "$zlib/librc.zsh" ]; then
+    source "$zlib/librc.zsh"
+  fi
+done
+unset _zlib
 
 zsourcedir $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zshrc.d
 

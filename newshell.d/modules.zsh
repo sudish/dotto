@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-function {
+if true; then
     zmodload -a zsh/stat stat zstat 
     zmodload -a zsh/zpty zpty
     zmodload -a zsh/zprof zprof
@@ -19,4 +19,4 @@ function {
     zmodload zsh/parameter
     zmodload zsh/regex
     zmodload zsh/zutil
-} 2>/dev/null
+fi 2>/dev/null
