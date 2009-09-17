@@ -120,7 +120,7 @@ Use prompt -h <theme> for help on specific themes.'
        fi
        ;;
     l) print Currently available prompt themes:
-       print $prompt_themes
+       print ${(i)prompt_themes}
        return
        ;;
     p) preview=( $prompt_themes )
