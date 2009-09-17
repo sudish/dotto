@@ -79,8 +79,7 @@ function prompt_rsbox_setup() {
     ###
     # Need this so the prompt will work.
 
-    setopt prompt_subst
-
+    setopt prompt_subst prompt_cr prompt_percent prompt_bang
 
     ###
     # See if we can use colors.
