@@ -17,7 +17,7 @@ if [ -z "$ZCONFIGDIR" ]; then
    done
 fi
 unset zbase zfilesdir
-s
+
 if [ -n "$ZCONFIGDIR" -a -d "$ZCONFIGDIR" ]; then
   source $ZCONFIGDIR/core/zshenv
 fi
