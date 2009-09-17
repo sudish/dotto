@@ -1,0 +1,23 @@
+#!/bin/zsh
+
+function set_remove() {
+    local name=$1 value i max
+    shift
+    
+    local copy
+    set -A copy ${(P)name}
+    
+    for value in "${(@)*}"; do
+        if [[ -n ${copy[(r)$value]} ]]; then
+            echo "removing ..$value.."
+            eval "set -A $name \${$name:#$value}"
+        fi
+    done
+}
+
+# # testing
+# typeset -a v
+# v=(a b c "two words")
+# set_remove v a d e a
+# 
+# echo "final is cnt=$#v ..${(pj:,:)v}.. $v[1],$v[2],$v[3],$v[4],$v[5],$v[6]"

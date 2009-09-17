@@ -1,0 +1,31 @@
+#!/bin/zsh
+
+function set_add() {
+    local name=$1 value i max
+    shift
+
+    # for value in "${(@)*}"; do
+    #     for (( i=0; i < $max; i++ )); do
+    #         
+    #     done
+    # done
+
+    # echo "current value is ${(Pj:,:)name}"
+    
+    local copy
+    set -A copy ${(P)name}
+    
+    for value in "${(@)*}"; do
+        # if [[ -z $copy[(r)$value] ]]; then
+        if [[ -z ${copy[(r)$value]} ]]; then
+            eval "$name+=\$value"
+        fi
+    done
+}
+ 
+# # testing
+# typeset -a v
+# v=(a b c "two words")
+# set_add v a d e
+# 
+# echo "final is cnt=$#v ..${(pj:,:)v}.. $v[1],$v[2],$v[3],$v[4],$v[5],$v[6]"
