@@ -1,4 +1,6 @@
-function precmd {
+#!/bin/zsh
+
+function prompt_box_precmd {
 
     local TERMWIDTH
     (( TERMWIDTH = ${COLUMNS} - 1 ))
@@ -32,7 +34,7 @@ function precmd {
 
 
 setopt extended_glob
-preexec () {
+prompt_box_preexec () {
     if [[ "$TERM" == "screen" ]]; then
 	local CMD=${1[(wr)^(*=*|sudo|-*)]}
 	echo -n "\ek$CMD\e\\"
@@ -46,6 +48,8 @@ prompt_box_setup () {
 
     setopt prompt_subst
 
+    add-zsh-hook precmd prompt_box_precmd
+    add-zsh-hook precmd prompt_box_preexec
 
     ###
     # See if we can use colors.
@@ -140,4 +144,3 @@ $PR_LIGHT_GREEN%_$PR_BLUE)$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT\
 $PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT$PR_NO_COLOUR '
 }
 
-prompt_box_setup

@@ -161,6 +161,7 @@ Use prompt -h <theme> for help on specific themes.'
 
        (( ${#zle_highlight} )) || unset zle_highlight
 
+       autoload +X prompt_$1_setup
        prompt_$1_setup "$@[2,-1]" && prompt_theme=( "$@" )
        ;;
   esac
