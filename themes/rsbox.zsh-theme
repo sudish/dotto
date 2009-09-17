@@ -1,5 +1,5 @@
 
-function precmd {
+function ztheme_precmd {
 
     local TERMWIDTH
     (( TERMWIDTH = ${COLUMNS} - 1 ))
@@ -32,7 +32,7 @@ function precmd {
 
 
 setopt extended_glob
-preexec () {
+function ztheme_preexec () {
     if [[ "$TERM" == "screen" ]]; then
 	  local CMD=${1[(wr)^(*=*|sudo|-*)]}
 	  echo -n "\ek$CMD\e\\"
