@@ -1,9 +1,10 @@
+#!/bin/zsh
+
 df () {
    if [ -x /usr/local/lib/cw/df ]; then
-        /usr/local/lib/cw/df "${(@)*}" 2>>(grep -v "negative filesystem block")
+        /usr/local/lib/cw/df -h -T nowebdav "${(@)*}" 2>>(grep -v "negative filesystem block")
    else
-        command df "${(@)*}"
+        command df -h -T nowebdav "${(@)*}"
    fi
 }
-
 
