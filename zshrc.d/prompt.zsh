@@ -5,6 +5,32 @@ setopt prompt_subst
 
 typeset -g -A zthemevars
 
+ztheme_emulate() {
+    emulate -L zsh
+    local name=$1
+    # typeset -g -a prompt_themes
+    # eval "function prompt_${name}_setup () { ztheme $name }"
+    # prompt_themes+=$name
+}
+
+ztheme_setup() {
+    ztheme_reset
+
+    fpath+=$ZCONFIGDIR/themes
+    
+    autoload promptinit
+    promptinit
+    
+    local file
+    for file in $ZCONFIGDIR/themes/*.zsh-theme; do
+        ztheme_emulate ${${file:t}:r}
+    done
+
+    if [ -n "$ZSH_THEME" ]; then
+        prompt $ZSH_THEME
+    fi
+}
+
 ztheme_reset() {
     zthemevars=
 
@@ -38,12 +64,8 @@ ztheme() {
   fi
 }
 
+ztheme_setup
 
-if [ -n "$ZSH_THEME" ]; then
-  ztheme $ZSH_THEME
-else
-  ztheme_reset
-fi
 
 typeset -g -H PS1 PS2 PS3 PS4 RPS1 RPS2 PROMPT PROMPT2 PROMPT3 RPROMPT prompt
 

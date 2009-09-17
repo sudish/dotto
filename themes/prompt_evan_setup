@@ -1,0 +1,6 @@
+#!/bin/zsh
+# Evan describes this sexy prompt as: "a skinny, topless prompt"
+
+function prompt_evan_setup() {
+  PROMPT='%m :: %2~ %B»%b '
+}

@@ -1,5 +1,6 @@
+#!/bin/zsh
 
-function ztheme_precmd {
+function prompt_rsbox_precmd {
 
     local TERMWIDTH
     (( TERMWIDTH = ${COLUMNS} - 1 ))
@@ -32,7 +33,7 @@ function ztheme_precmd {
 
 
 setopt extended_glob
-function ztheme_preexec () {
+function prompt_rsbox_preexec () {
     if [[ "$TERM" == "screen" ]]; then
 	  local CMD=${1[(wr)^(*=*|sudo|-*)]}
 	  echo -n "\ek$CMD\e\\"
@@ -74,7 +75,7 @@ parse_git_dirty () {
   [[ $(git status | tail -n1) != "nothing to commit (working directory clean)" ]] && echo " %{$fg[yellow]%}x$PR_NO_COLOUR"
 }
 
-setprompt () {
+function prompt_rsbox_setup() {
     ###
     # Need this so the prompt will work.
 
@@ -164,6 +165,10 @@ $PR_NO_COLOUR "
 $PR_BLUE$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT(\
 $PR_LIGHT_GREEN%_$PR_BLUE)$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT\
 $PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT$PR_NO_COLOUR "
+
+
+    add-zsh-hook precmd prompt_rsbox_precmd
+    add-zsh-hook preexec prompt_rsbox_preexec
 }
 
-setprompt
+prompt_rsbox_setup

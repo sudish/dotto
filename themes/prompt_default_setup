@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+function prompt_default_setup() {
+  RPROMPT=''
+  PS1='%m%#  '
+  PS2='%_> '
+  PS3='?# '
+  PS4='+%N:%i> '
+}
