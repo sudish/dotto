@@ -2,14 +2,14 @@
 
 local output
 if [ -n "$SSH_TTY" ]; then
-    if which tmux 2>/dev/null; then
+    if which tmux >/dev/null; then
         if output=`tmux list-sessions`; then
-            echo $output
+            echo "** TMUX\n$output"
         fi
     fi
-    if which screen 2>/dev/null; then
+    if which screen >/dev/null; then
         if output=`screen -ls`; then
-            echo $output
+            echo "** SCREEN\n$output"
         fi
     fi
 fi
