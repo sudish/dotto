@@ -9,4 +9,4 @@ bootzshenv() {
   done
 }
 
-time bootzshenv
+bootzshenv

@@ -2,8 +2,6 @@
 
 
 if [ -z "$_zconfig_booted" ]; then
-  zctrace "running newshell..."
-
   local zcfile
   FPATH=$ZCONFIGDIR/functions:$FPATH
   

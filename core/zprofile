@@ -16,7 +16,7 @@ export SHORTHOST=$(hostname -s)
 # load all base functions
 source $ZCONFIGDIR/core/newshell
 
-zsourcedir $ZCONFIGDIR/zprofile.d $ZCONFIGDIR/zprofile.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zprofile.d
+zrunsystem zprofile
 
 for lib in $ZCONFIGDIR/lib/*; do
   if [ -f "$lib/libprofile.zsh" ]; then

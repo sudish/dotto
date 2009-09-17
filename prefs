@@ -38,7 +38,15 @@ hosts=(turok test.zeevex.com prod.zeevex.com monitor.zeevex.com schultz.dreamhos
 
 # ZSH options
 setopt nolistbeep autolist nonomatch sh_word_split noclobber
-unsetopt menucomplete
+# unsetopt menucomplete
+
+# Directory stuff.
+setopt AUTO_NAME_DIRS
+
+# Speed stuff.
+setopt AUTO_CD
+setopt MULTIOS
+setopt CDABLEVARS
 
 if [ "`uname -s`" = "FreeBSD" -a "$TERM" = "vt100" ]; then
 	export TERM="vt100-color"
@@ -61,10 +69,13 @@ then
 		alias ls='ls --color=auto'
 	fi
 fi
+export LSCOLORS="Gxfxcxdxbxegedabagacad"
 
 stty erase '^?'
 
 # get that BASH-like "> file" behavior
 noeolecho() { echo -n }
 NULLCMD=noeolecho
+
+
 

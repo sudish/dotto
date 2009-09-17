@@ -4,12 +4,12 @@ zsourcedir() {
   local dir zdir file relfile
   for dir in $*; do
     zdir=`zdirname $dir`
-    zlog "zsourcedir: dir=$dir, zdir=$zdir"
+    zctrace "zsourcedir: dir=$dir, zdir=$zdir"
 
     for file in $zdir/*.zsh(N); do
-      relfile=${file#$ZCONFIGDIR}
-      zlog "zsourcedir: file=$file relfile=$relfile"
-      zsource $relfile
+      relfile=${file#$ZCONFIGDIR/}
+      zctrace "zsourcedir: dir=$dir, file=$file relfile=$relfile"
+      source $file
     done
   done
 }

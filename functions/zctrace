@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+zctrace() { 
+  if [ "$ZC_TRACE" = 1 ]; then
+    echo "$*"
+  fi
+}
