@@ -6,6 +6,8 @@
 
 function prompt_rsbox_precmd {
 
+    zctrace "precmd..."
+
     local TERMWIDTH
     (( TERMWIDTH = ${COLUMNS} - 1 ))
 
@@ -37,11 +39,25 @@ function prompt_rsbox_precmd {
 
 
 setopt extended_glob
+
 function prompt_rsbox_preexec () {
+    local typed="$1" singleline="$2" fulltext="$3"
+    local i upcount
+    
+    zctrace "preexec..."
+    
     if [[ "$TERM" == "screen" ]]; then
 	  local CMD=${1[(wr)^(*=*|sudo|-*)]}
 	  echo -n "\ek$CMD\e\\"
     fi
+    upcount=2
+    for (( i=0; i < $upcount; i++ )); do
+        echotc up
+        echotc ce
+    done
+    echotc ce
+    local histcmd="`hostname -s`% $singleline"
+    echo "`echotc mr`${(r:$COLUMNS:: :)histcmd}`echotc me`"
 }
 
 autoload -Uz vcs_info
