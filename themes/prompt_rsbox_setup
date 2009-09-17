@@ -4,6 +4,8 @@
 # See http://aperiodic.net/phil/prompt/
 #
 
+typeset -g -H -A rsboxvars
+
 function prompt_rsbox_precmd {
 
     zctrace "precmd..."
@@ -50,13 +52,17 @@ function prompt_rsbox_preexec () {
 	  local CMD=${1[(wr)^(*=*|sudo|-*)]}
 	  echo -n "\ek$CMD\e\\"
     fi
-    upcount=2
+    
+    local visible="${rsboxvars[LEFTPART]}${typed}"
+    local visiblesize=$(display_dimensions "$visible")
+    
+    (( upcount = 1 + ${visiblesize} ))
     for (( i=0; i < $upcount; i++ )); do
         echotc up
         echotc ce
     done
     echotc ce
-    local histcmd="`hostname -s`% $singleline"
+    local histcmd="% $singleline"
     echo "`echotc mr`${(r:$COLUMNS:: :)histcmd}`echotc me`"
 }
 
@@ -159,6 +165,8 @@ function prompt_rsbox_setup() {
     # Finally, the prompt.
 
     local RSBOXHOST=`hostname -s`
+
+    rsboxvars[LEFTPART]="--(%(?..%?:)${(e)PR_APM}${RSBOXHOST}:%(!..)%#)-- "
 
     PROMPT="$PR_SET_CHARSET$PR_STITLE${(e)PR_TITLEBAR}\
 $PR_CYAN$PR_SHIFT_IN$PR_ULCORNER$PR_BLUE$PR_HBAR$PR_SHIFT_OUT(\
