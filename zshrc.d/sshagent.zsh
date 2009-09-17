@@ -5,7 +5,7 @@ typeset -g AGENT_FILE_MTIME=0
 
 agent() {
 	local doload=0 lmtime
-	if [ -r "$AGENT_FILE" -a \( -z "$SSH_AUTH_SOCK" -o ! -e "$SSH_AUTH_SOCK" \) ]; then
+	if [ "$SHLVL" -gt 1 -a -r "$AGENT_FILE" -a \( -z "$SSH_AUTH_SOCK" -o ! -e "$SSH_AUTH_SOCK" \) ]; then
 		lmtime=`builtin stat +mtime $AGENT_FILE`
 		if [ $lmtime != $AGENT_FILE_MTIME ]; then
 			doload=1
@@ -19,5 +19,8 @@ agent() {
 	fi
 }
 
+typeset -g -a precmd_functions
+precmd_functions+="agent"
+
 # set up scan for SSH agent file every 60 seconds
-zcron_add 60 agent
+# zcron_add 60 agent
