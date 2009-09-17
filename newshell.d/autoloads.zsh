@@ -1,3 +1,3 @@
 #!/bin/zsh
 
-autoload add-zsh-hook
+autoload -Uz add-zsh-hook

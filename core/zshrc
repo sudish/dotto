@@ -34,13 +34,12 @@ zsource core/zcomp
 zsource core/zperiodic 
 
 for _zlib in $ZCONFIGDIR/lib/*; do
-  if [ -f "$zlib/librc.zsh" ]; then
-    source "$zlib/librc.zsh"
+  zctrace "Loading lib $_zlib"
+  if [ -f "$_zlib/librc.zsh" ]; then
+    source "$_zlib/librc.zsh"
   fi
 done
 unset _zlib
-
-zsourcedir $ZCONFIGDIR/zshrc.d $ZCONFIGDIR/zshrc.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zshrc.d
 
 zrunsystem zshrc
 
