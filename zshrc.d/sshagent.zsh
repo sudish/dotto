@@ -19,8 +19,8 @@ agent() {
 	fi
 }
 
-typeset -g -a precmd_functions
-precmd_functions+="agent"
+typeset -g -a preexec_functions
+preexec_functions+="agent"
 
 # set up scan for SSH agent file every 60 seconds
 # zcron_add 60 agent
