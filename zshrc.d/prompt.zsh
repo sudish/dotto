@@ -32,13 +32,18 @@ ztheme_setup() {
 }
 
 ztheme_reset() {
+    RPROMPT=''
+    PS1='%m%#  '
+    PS2='%_> '
+    PS3='?# '
+    PS4='+%N:%i> '
     zthemevars=
 
-    for funcname in preexec precmd chpwd periodic; do
-        eval "function ztheme_${funcname} () { }"
-        typeset -g -a "${funcname}_functions"
-        set_add "${funcname}_functions" "ztheme_${funcname}"
-    done
+    # for funcname in preexec precmd chpwd periodic; do
+    #     eval "function ztheme_${funcname} () { }"
+    #     typeset -g -a "${funcname}_functions"
+    #     set_add "${funcname}_functions" "ztheme_${funcname}"
+    # done
 }
 
 ztheme() {
@@ -54,11 +59,6 @@ ztheme() {
   local file="$ZCONFIGDIR/themes/$ZSH_THEME.zsh-theme"
   
   if [ -f $file ]; then
-    RPROMPT=''
-    PS1='%m%#  '
-    PS2='%_> '
-    PS3='?# '
-    PS4='+%N:%i> '
     ztheme_reset
     source "$ZCONFIGDIR/themes/$ZSH_THEME.zsh-theme"
   fi
