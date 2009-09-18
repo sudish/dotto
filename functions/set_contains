@@ -1,0 +1,21 @@
+#!/bin/zsh
+
+function set_contains() {
+    local name=$1 value i max
+    shift
+
+    local copy
+    set -A copy ${(P)name}
+
+    for value in "${(@)*}"; do
+        if [[ -z ${copy[(r)$value]} ]]; then
+          return 1
+        fi
+    done
+}
+ 
+# # testing
+# typeset -a v
+# v=(a b c "two words")
+# set_add v a d e
+# 
