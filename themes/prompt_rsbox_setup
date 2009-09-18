@@ -27,7 +27,7 @@ function prompt_rsbox_vcsupdate {
     local update=0 git_dir
 
     # mark as cached pessimistically
-    rsboxvars[vcs_fresh]="!"
+    rsboxvars[vcs_fresh]="~"
 
     (( delta = EPOCHSECONDS - rsboxvars[last_vcs_update] ))
 
