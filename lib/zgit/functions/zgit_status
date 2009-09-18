@@ -14,7 +14,11 @@ function zgit_status {
     if zgit_in_p; then
         gitstatus=$(git status 2>/dev/null)
 
-        [[ -z ${gitstatus:#*Changes to be committed*} ]] && statstring+="*"
+        if [[ -z ${gitstatus:#*Changes to be committed*} || -z ${gitstatus:#*Changed but not updated*} ]]
+        then
+           statstring+="*"
+        fi
+
         [[ -z ${gitstatus:#*Untracked files*} ]] && statstring+="+"
         [[ -f ${git_dir}/refs/stash ]] && statstring+="$"
 

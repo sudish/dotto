@@ -37,7 +37,11 @@ function prompt_rsbox_vcsupdate {
     elif zgit_in_p; then
         git_dir=$(zgit_dir)
         
-        if [[ $(builtin stat +mtime "$git_dir/HEAD") -gt rsboxvars[last_vcs_update] ]]; then
+        if newer_than $rsboxvars[last_vcs_update] "$git_dir/HEAD" "$git_dir" \
+                 "$git_dir/.." "$git_dir/refs" "$git_dir/rebase_merge" "$git_dir/rebase_apply" \
+                 "$git_dir/.dotest" "$git_dir/BISECT_LOG" "$git_dir/BISECT_LOG" \
+                 "$git_dir/.dotest-merge" "$git_dir/MERGE_HEAD"
+        then
             zctrace "HEAD timestamp is newer!"
             update=1
         elif [[ $PWD == ${git_dir:h} || $PWD == $git_dir ]]; then

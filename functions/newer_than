@@ -1,0 +1,14 @@
+#!/bin/zsh
+
+function newer_than {
+  emulate -L zsh
+  local basetime=${1} file read time
+  shift
+  
+  for file in "${(@)*}"; do
+    if [[ $(builtin stat +mtime "$file") -gt $basetime ]]; then
+        return 0
+    fi
+  done
+  return 1
+}
