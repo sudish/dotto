@@ -6,13 +6,69 @@
 
 typeset -g -H -A rsboxvars
 
-function prompt_rsbox_precmd {
+autoload colors zsh/terminfo
+autoload -Uz vcs_info
 
+rsboxvars[last_vcs_update]=$SECONDS
+# ZC_TRACE=1
+
+function prompt_rsbox_vcsupdate {
+    local arg="$1"
+
+    if [ "$rsboxvars[updating]" = "1" ]; then
+        echo "**** RECURSIVE VCSUPDATE ****"
+        return
+    fi
+    
+    rsboxvars[updating]=1
+    
+    local update=0
+    
+    (( delta = SECONDS - rsboxvars[last_vcs_update] ))
+    
+    if [ "$arg" = "-f" ]; then
+        zctrace "ARG FORCED VCS UPDATE"
+        update=1
+    elif [ "$delta" -gt 120 ]; then
+        zctrace "TIME FORCED VCS UPDATE"
+        update=1
+    fi
+    
+    if [ "$update" = 1 ]; then
+        zctrace "updating VCS..."
+        rsboxvars[last_vcs_update]=$SECONDS
+        # sleep 1; vcs_info
+        # vcs_info_msg_0_="-(git @ $SECONDS )-"
+        # vcs_info_msg_0_="-(git @ $SECONDS )-"
+        my_vcs_info
+    fi
+
+    rsboxvars[updating]=0
+}
+
+function my_vcs_info {
+    if output=`git branch 2>/dev/null`; then
+        vcs_info_msg_0_="(git [$output])"
+    else
+        vcs_info_msg_0_=""
+    fi
+}
+
+function prompt_rsbox_chpwd {
+    prompt_rsbox_vcsupdate -f
+}
+
+
+function prompt_rsbox_precmd {
     zctrace "precmd..."
 
     local TERMWIDTH
     (( TERMWIDTH = ${COLUMNS} - 1 ))
 
+    if [ "$rsboxvars[preexec_ran]" = "0" ]; then
+        prompt_rsbox_eraseprompt
+        echo
+    fi
 
     ###
     # Truncate the path if it's too long.
@@ -33,18 +89,40 @@ function prompt_rsbox_precmd {
 	    PR_FILLBAR="\${(l.(($TERMWIDTH - ($promptsize + $pwdsize)))..${PR_HBAR}.)}"
     fi
 
-    vcs_info
+    prompt_rsbox_vcsupdate
 
     PR_APM=''
     PR_APM_RESULT=''
+    
+    rsboxvars[preexec_ran]=0
 }
 
 
-setopt extended_glob
+function prompt_rsbox_eraseprompt () {
+    local typed="$1"
+    local i upcount
+    
+    local visible="${rsboxvars[LEFTPART]}${typed}"
+    local visiblesize=$(display_dimensions "$visible")
+    
+    (( upcount = 1 + ${visiblesize} ))
+    
+    if [ $upcount -lt $LINES ]; then
+        for (( i=0; i < $upcount; i++ )); do
+            echotc up
+            echotc ce
+        done
+        echotc ce
+    fi
+}
+
+function prompt_rsbox_showhistoryline () {
+    local histcmd="% $1"
+    echo "`echotc mr`${(r:$COLUMNS:: :)histcmd}`echotc me`"
+}
 
 function prompt_rsbox_preexec () {
     local typed="$1" singleline="$2" fulltext="$3"
-    local i upcount
     
     zctrace "preexec..."
     
@@ -52,21 +130,13 @@ function prompt_rsbox_preexec () {
 	  local CMD=${1[(wr)^(*=*|sudo|-*)]}
 	  echo -n "\ek$CMD\e\\"
     fi
+
+    prompt_rsbox_eraseprompt "$typed"
+    prompt_rsbox_showhistoryline "$singleline"
     
-    local visible="${rsboxvars[LEFTPART]}${typed}"
-    local visiblesize=$(display_dimensions "$visible")
-    
-    (( upcount = 1 + ${visiblesize} ))
-    for (( i=0; i < $upcount; i++ )); do
-        echotc up
-        echotc ce
-    done
-    echotc ce
-    local histcmd="% $singleline"
-    echo "`echotc mr`${(r:$COLUMNS:: :)histcmd}`echotc me`"
+    rsboxvars[preexec_ran]=1
 }
 
-autoload -Uz vcs_info
 
 function old_box_prompt_info() {
   local CURRENT_BRANCH
@@ -103,11 +173,11 @@ function prompt_rsbox_setup() {
     ###
     # Need this so the prompt will work.
     setopt prompt_subst prompt_cr prompt_percent prompt_bang
-
+    setopt extended_glob
+    
     ###
     # See if we can use colors.
 
-    autoload colors zsh/terminfo
     if [[ "$terminfo[colors]" -ge 8 ]]; then
 	  colors
     fi
@@ -193,6 +263,7 @@ $PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT$PR_NO_COLOUR "
 
     add-zsh-hook precmd prompt_rsbox_precmd
     add-zsh-hook preexec prompt_rsbox_preexec
+    add-zsh-hook chpwd prompt_rsbox_chpwd
 }
 
 prompt_rsbox_setup
