@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+zctrace "running muxers..."
+
 local output
 if [ -n "$SSH_TTY" ]; then
     if which tmux >/dev/null; then

@@ -5,8 +5,7 @@ zrunsystem() {
   for systemname in "${(@)*}"; do
     zctrace "zrunsystem: $systemname"
     system="${systemname%.d}.d"
-    zsourcedir "$system" "$system/`uname`" 
-    zsourcedir "$system" "os/`uname`/$system" 
+    zsourcedir "$system" "$system/`uname`" "os/`uname`/$system" 
     local domain="$(zdomainname)"
     [ -n "$domain" ] && zsourcedir "$system/domains/$domain"
     [ -n "$domain" ] && zsourcedir "domains/$domain/$system"
