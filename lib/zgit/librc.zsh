@@ -11,22 +11,23 @@
 
 local libdir=${0:h}
 
-typeset -g -A -H gitinfo_vars
-typeset -g -A -H git_dirs
+typeset -g -A -H zgit_vars
+typeset -g -A -H zgit_dirs
 
-function gitinfo_reset() {
+function zgit_reset() {
     # nothing
 }
 
-function gitinfo_setup() {
+function zgit_setup() {
     local dir="${1:h}"
-    gitinfo_reset
+    zgit_reset
 }
+
+local _zfile
 
 for _zfile in $libdir/functions/*; do
   autoload -Uk ${_zfile:t}
 done
 
 # setup in current dir
-gitinfo_setup ${0:h}
-
+zgit_setup ${0:h}

@@ -2,8 +2,9 @@
 
 function zgit_branch() {
     emulate -L zsh
-    local output branch
+    local branch
 
+    # local output
     # output=$(git branch 2>/dev/null)
     # if [ $? = 0 ]; then
     #     local -a lines
