@@ -1,0 +1,43 @@
+#!/bin/zsh
+
+function zgit_op () {
+    local op git_dir
+    if git_dir=$(zgit_dir); then
+        if [[ -d "$git_dir/.dotest" ]] ;  then
+
+                if [[ -f "$git_dir/.dotest/rebasing" ]] ;  then
+                        op="rebase"
+
+                elif [[ -f "$git_dir/.dotest/applying" ]] ; then
+                        op="am"
+
+                else
+                        op="am/rebase"
+
+                fi
+
+        elif  [[ -f "$git_dir/.dotest-merge/interactive" ]] ;  then
+                op="rebase -i"
+                # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
+
+        elif  [[ -d "$git_dir/.dotest-merge" ]] ;  then
+                op="rebase -m"
+                # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
+            
+        # lvv: not always works. Should  ./.dotest  be used instead?
+        elif  [[ -f "$git_dir/MERGE_HEAD" ]] ;  then
+                op="merge"
+                # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)"
+                
+        else
+                [[  -f "$git_dir/BISECT_LOG"  ]]   &&  op="bisect"
+                # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)" || \
+                #    branch="$(git describe --exact-match HEAD 2>/dev/null)" || \
+                #    branch="$(cut -c1-7 "$git_dir/HEAD")..."
+        fi
+        
+        [ -n "$op" ] && echo $op
+    else
+        return 1
+    fi
+}
