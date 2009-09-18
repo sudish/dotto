@@ -3,7 +3,7 @@
 zrunsystem() {
   local systemname system
   for systemname in "${(@)*}"; do
-    zlog "zrunsystem: $system"
+    zctrace "zrunsystem: $systemname"
     system="${systemname%.d}.d"
     zsourcedir "$system" "$system/`uname`" 
     zsourcedir "$system" "os/`uname`/$system" 

@@ -2,7 +2,7 @@
 
 function zsource() {
   local arg
-  for arg in $*; do
+  for arg in "${(@)*}"; do
     arg=${arg#$ZCONFIGDIR/}
     if [[ "$arg" == *.zwc ]]; then
       zlog "skipping zwc file: $arg"
