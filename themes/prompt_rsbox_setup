@@ -17,13 +17,6 @@ rsboxvars[last_vcs_update]=$EPOCHSECONDS
 function prompt_rsbox_vcsupdate {
     local arg="$1"
 
-    if [ "$rsboxvars[updating]" = "1" ]; then
-        echo "**** RECURSIVE VCSUPDATE ****"
-        return
-    fi
-    
-    rsboxvars[updating]=1
-    
     local update=0
     local git_dir=$(zgit_dir)
 
@@ -37,13 +30,13 @@ function prompt_rsbox_vcsupdate {
         zctrace "TIME FORCED VCS UPDATE"
         update=1
     elif zgit_in_p; then
-        if [[ $(stat +mtime "$git_dir/HEAD") -gt rsboxvars[last_vcs_update] ]]; then
+        if [[ $(builtin stat +mtime "$git_dir/HEAD") -gt rsboxvars[last_vcs_update] ]]; then
             zctrace "HEAD timestamp is newer!"
             update=1
         elif [[ $(zgit_revision) != $rsboxvars[git_revision] ]]; then
             zctrace "Revision changed!"
             update=1
-        elif [[ $(stat +mtime "$git_dir") -gt rsboxvars[last_vcs_update] ]]; then
+        elif [[ $(builtin stat +mtime "$git_dir") -gt rsboxvars[last_vcs_update] ]]; then
             zctrace ".git dir mtime changed!"
             update=1
         fi
@@ -54,8 +47,6 @@ function prompt_rsbox_vcsupdate {
         rsboxvars[last_vcs_update]=$EPOCHSECONDS
         my_vcs_info
     fi
-
-    rsboxvars[updating]=0
 }
 
 function my_vcs_info {
