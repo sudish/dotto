@@ -1,7 +1,8 @@
 #!/bin/zsh
 
-zmodload zsh/regex
-
 zdomainname() {
-  [[ ${1:-$HOSTNAME} -regex-match ^[^.]+\.(.*)$ ]] && print $match[1]
+  local name=${1:-$HOSTNAME}
+  set "${(s:.:)name}"
+  shift
+  echo "${(j:.:)*}"
 }

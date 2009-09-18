@@ -17,6 +17,6 @@ if true; then
     zmodload zsh/mathfunc
     zmodload zsh/mapfile
     zmodload zsh/parameter
-    zmodload zsh/regex
+    zmodload zsh/regex 
     zmodload zsh/zutil
-fi 2>/dev/null
+fi 2>/dev/null >/dev/null
