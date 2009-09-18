@@ -23,8 +23,10 @@ function gitinfo_setup() {
     gitinfo_reset
 }
 
+for _zfile in $_zlib/functions/*; do
+  autoload -Uk ${_zfile:t}
+done
+
 # setup in current dir
 gitinfo_setup ${0:h}
-
-
 

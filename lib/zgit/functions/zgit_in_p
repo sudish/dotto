@@ -5,4 +5,3 @@ function zgit_in_p() {
     [ -n "$dir" ]
 }
 
-zgit_in_p "${(@)*}"

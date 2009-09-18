@@ -17,5 +17,3 @@ function zgit_branch() {
     branch=$(git symbolic-ref HEAD)
     echo "${branch#refs/heads/}"
 }
-
-zgit_branch "${(@)*}"
