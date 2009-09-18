@@ -5,12 +5,13 @@ function zgit_revision() {
     local branch git_dir rev
 
     if zgit_in_p; then
-        git_dir=$(zgit_dir)
-        branch=$(< $git_dir/HEAD)
-        branch=${branch#ref: }
-        rev=$(< $git_dir/$branch)
-        echo "$rev"
-    else
-        return 1
+        git_dir=$(zgit_dir) && \
+            branch=$(< $git_dir/HEAD) 2>/dev/null && \
+            branch=${branch#ref: } && \
+            rev=$(< $git_dir/$branch) 2>/dev/null && \
+            echo "$rev" && \
+            return 0
     fi
+    
+    return 1
 }

@@ -5,14 +5,15 @@ function zgit_branch() {
     local branch git_dir
 
     if zgit_in_p; then
-        git_dir=$(zgit_dir)
-        branch=$(< $git_dir/HEAD)
-        branch=${branch#ref: refs/}
-        branch=${branch#heads/}
-        echo "$branch"
-    else
-        return 1
+        git_dir=$(zgit_dir) && \
+            branch=$(< $git_dir/HEAD) 2>/dev/null && \
+            branch=${branch#ref: refs/} && \
+            branch=${branch#heads/} && \
+            echo "$branch" && \
+            return 0
     fi
+    
+    return 1
         
     # if branch=$(git symbolic-ref HEAD 2>/dev/null); then
     #     echo "${branch#refs/heads/}"
