@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+function zgit_dirty () {
+    emulate -L zsh
+    local gitstatus
+    
+    if zgit_in_p; then
+        gitstatus=$(git status 2>/dev/null)
+        [[ -n ${gitstatus:#*nothing to commit*} ]] && return 0
+    fi
+    return 1
+}

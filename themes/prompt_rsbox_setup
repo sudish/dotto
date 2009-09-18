@@ -22,12 +22,10 @@ rsboxvars[git_scan_period]=${GIT_SCAN_PERIOD:-90}
 function prompt_rsbox_vcsupdate {
     local arg="$1"
 
-    local update=0
-    local git_dir=$(zgit_dir)
+    local update=0 git_dir
 
     (( delta = EPOCHSECONDS - rsboxvars[last_vcs_update] ))
-    
-    
+
     if [ "$arg" = "-f" ]; then
         zctrace "ARG FORCED VCS UPDATE"
         update=1
@@ -35,8 +33,13 @@ function prompt_rsbox_vcsupdate {
         zctrace "TIME FORCED VCS UPDATE"
         update=1
     elif zgit_in_p; then
+        git_dir=$(zgit_dir)
+        
         if [[ $(builtin stat +mtime "$git_dir/HEAD") -gt rsboxvars[last_vcs_update] ]]; then
             zctrace "HEAD timestamp is newer!"
+            update=1
+        elif [[ $PWD == ${git_dir:h} || $PWD == $git_dir ]]; then
+            zctrace "chpwd to root working copy dir, force update"
             update=1
         elif [[ $(zgit_revision) != $rsboxvars[git_revision] ]]; then
             zctrace "Revision changed!"
@@ -56,13 +59,18 @@ function prompt_rsbox_vcsupdate {
 
 function my_vcs_info {
     emulate -L zsh
-    local output branch op
+    local output branch op dirty
     if zgit_in_p; then
         rsboxvars[git_branch]=$(zgit_branch)
         rsboxvars[git_revision]=$(zgit_revision)
         rsboxvars[git_op]=$(zgit_op)
+        zgit_dirty
+        rsboxvars[git_dirty]=$status
+
         [ -n "$rsboxvars[git_op]" ] && op="[$rsboxvars[git_op]]"
-        rsboxvars[git_prompt]="(git${op} [${rsboxvars[git_branch]}])"
+        [[ "$rsboxvars[git_dirty]" = 0 ]] && dirty=" * "
+
+        rsboxvars[git_prompt]="(${dirty}git${op} [${rsboxvars[git_branch]}])"
         vcs_info_msg_0_="$rsboxvars[git_prompt]"
     else
         vcs_info_msg_0_=""

@@ -1,6 +1,8 @@
 #!/bin/zsh
 
 function zgit_op () {
+    emulate -L zsh
+
     local op git_dir branch
     if git_dir=$(zgit_dir); then
         if [[ -d $git_dir/rebase-apply ]]; then
