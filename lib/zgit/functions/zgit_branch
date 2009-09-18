@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+function zgit_branch() {
+    emulate -L zsh
+    local output branch
+    output=$(git branch 2>/dev/null)
+    if [ $? = 0 ]; then
+        local -a lines
+        set -A lines "${(f)output}"
+        branch="${lines[(r)\**]#\* }"
+        echo "$branch"
+    else
+        return 1
+    fi
+}
