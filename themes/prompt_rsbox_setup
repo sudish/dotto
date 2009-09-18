@@ -15,9 +15,9 @@ zmodload zsh/datetime 2>/dev/null
 
 rsboxvars[last_vcs_update]=$EPOCHSECONDS
 
-rsboxvars[git_update_period]=${GIT_UPDATE_PERIOD:-90}
+rsboxvars[git_update_period]=${GIT_UPDATE_PERIOD:-30}
 
-rsboxvars[git_scan_period]=${GIT_SCAN_PERIOD:-90}
+rsboxvars[git_scan_period]=${GIT_SCAN_PERIOD:-30}
 
 function prompt_rsbox_vcsupdate {
     emulate -L zsh
@@ -25,6 +25,8 @@ function prompt_rsbox_vcsupdate {
     local arg="$1"
 
     local update=0 git_dir
+
+    rsboxvars[vcs_fresh]=""
 
     (( delta = EPOCHSECONDS - rsboxvars[last_vcs_update] ))
 
@@ -43,9 +45,6 @@ function prompt_rsbox_vcsupdate {
                  "$git_dir/.dotest-merge" "$git_dir/MERGE_HEAD"
         then
             zctrace "HEAD timestamp is newer!"
-            update=1
-        elif [[ $PWD == ${git_dir:h} || $PWD == $git_dir ]]; then
-            zctrace "chpwd to root working copy dir, force update"
             update=1
         elif [[ $(zgit_revision) != $rsboxvars[git_revision] ]]; then
             zctrace "Revision changed!"
@@ -78,8 +77,10 @@ function my_vcs_info {
 
         rsboxvars[git_prompt]="(${dirty}git${op} [${rsboxvars[git_branch]}])"
         vcs_info_msg_0_="$rsboxvars[git_prompt]"
+        rsboxvars[vcs_fresh]="!"
     else
         vcs_info_msg_0_=""
+        rsboxvars[vcs_fresh]=""
     fi
 }
 
@@ -98,7 +99,11 @@ function prompt_rsbox_chpwd {
     if [ $in_git = 0 ]; then
         git_dir="$(zgit_dir)"
         # did we change repos?
-        [ "$git_dir" != "$rsboxvars[git_dir]" ] && update=1
+        [[ "$git_dir" != "$rsboxvars[git_dir]" ]] && update=1
+
+        # are we in the root of the working copy or git repo?
+        [[ $git_dir == $PWD || ${git_dir:h} == $PWD ]] && update=1
+
         rsboxvars[git_dir]="$git_dir"
     fi
     
@@ -216,7 +221,7 @@ function box_prompt_info() {
 
   if [ -n "$vcs_info_msg_0_" ]; then
     # CURRENT_BRANCH="git:($PR_MAGENTA${branch}$PR_YELLOW)$PR_NO_COLOUR$(parse_git_dirty)"
-    CURRENT_BRANCH="$vcs_info_msg_0_"
+    CURRENT_BRANCH="${vcs_info_msg_0_}${rsboxvars[vcs_fresh]}"
   else
     # CURRENT_BRANCH="($PR_YELLOW%D{%a,%b%d}$PR_BLUE)"
     CURRENT_BRANCH=""
