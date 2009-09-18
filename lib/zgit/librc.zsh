@@ -9,9 +9,9 @@
 #  
 #
 
+local libdir=${0:h}
 
 typeset -g -A -H gitinfo_vars
-
 typeset -g -A -H git_dirs
 
 function gitinfo_reset() {
@@ -23,7 +23,7 @@ function gitinfo_setup() {
     gitinfo_reset
 }
 
-for _zfile in $_zlib/functions/*; do
+for _zfile in $libdir/functions/*; do
   autoload -Uk ${_zfile:t}
 done
 

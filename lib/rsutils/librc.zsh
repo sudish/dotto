@@ -1,7 +1,11 @@
-FPATH=`dirname $0`/functions:$FPATH
+#!/bin/zsh
+
+libdir=${0:h}
+
+FPATH=$libdir/functions:$FPATH
 
 local zfunc
-for zfunc in `dirname $0`/functions/*; do
-  autoload -Uz `basename $zfunc`
+for zfunc in $libdir/functions/*; do
+  autoload -Uk ${zfunc:t}
 done
 unset zfunc
