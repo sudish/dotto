@@ -5,6 +5,8 @@ if [ -z "$_zconfig_booted" ]; then
   local zcfile
   FPATH=$ZCONFIGDIR/functions:$FPATH
   
+  setopt function_argzero typeset_silent
+  
   for zcfile in `find $ZCONFIGDIR/local/build/$ZSH_VERSION -name \*.zwc 2>/dev/null `; do
       FPATH=$FPATH:$zcfile
   done

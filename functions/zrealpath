@@ -1,6 +1,8 @@
 #!/bin/zsh
 
 function zrealpath() {
+  emulate -L zsh
+
   local pth="$1"
   
   [ $pth[1] == "/" ] || pth="$PWD/$pth"

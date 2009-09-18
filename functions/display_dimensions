@@ -1,6 +1,8 @@
 #!/bin/zsh
 
 function display_dimensions() {
+  emulate -L zsh
+
   local string="$1" width=${2:-$COLUMNS}
   typeset -L -i 10 lines=0
   

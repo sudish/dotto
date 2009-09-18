@@ -1,0 +1,21 @@
+#!/bin/zsh
+
+typeset -g -H -A zmemcache
+
+function zmemcache_help () {
+  emulate -L zsh
+
+  echo <<HELP
+zmemcache provides an in-memory cache
+HELP
+}
+
+function zmemcache () {
+  emulate -L zsh
+
+  local cmd="${1:-help}"
+  shift
+  zmemcache_${cmd} "${(@)*}
+  return
+}
+

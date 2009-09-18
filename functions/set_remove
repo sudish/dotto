@@ -1,6 +1,8 @@
 #!/bin/zsh
 
 function set_remove() {
+    emulate -L zsh
+
     local name=$1 value i max
     shift
     

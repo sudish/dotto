@@ -1,6 +1,8 @@
 #!/bin/zsh
 
 zdirname() {
+  emulate -L zsh
+
   if [ -d "$1" ]; then
     echo $1
   else

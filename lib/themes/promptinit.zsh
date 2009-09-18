@@ -187,7 +187,9 @@ prompt_preview_theme () {
   emulate -L zsh
   local -a psv; psv=($psvar); local -a +h psvar; psvar=($psv) # Ick
   local +h PS1=$PS1 PS2=$PS2 PS3=$PS3 PS4=$PS4 RPS1=$RPS1
-  local precmd_functions preexec_functions
+  local +h precmd_functions preexec_functions chpwd_functions periodic_functions 
+  local +h zshaddhistory_functions zshexit_functions
+  setopt localoptions localtraps
 
   print -n "$1 theme"
   (( $#* > 1 )) && print -n " with parameters \`$*[2,-1]'"

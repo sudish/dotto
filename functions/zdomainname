@@ -1,6 +1,8 @@
 #!/bin/zsh
 
 zdomainname() {
+  emulate -L zsh
+
   local name=${1:-$HOSTNAME}
   set "${(s:.:)name}"
   shift
