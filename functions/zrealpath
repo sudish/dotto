@@ -1,0 +1,22 @@
+#!/bin/zsh
+
+function zrealpath() {
+  local pth="$1"
+  
+  [ $pth[1] == "/" ] || pth="$PWD/$pth"
+
+  if [ "${pth:t}" = "." -o "${pth:t}" = ".." -o -d "$pth" ]; then
+      (cd -P "$pth" && pwd -P)
+      return
+  fi
+
+  if [ "${pth:h}" == "/" ]; then
+      echo "$pth"
+      return
+  fi
+  
+  local dir=${pth:h}
+  dir=$(cd -P "$dir" && pwd -P)
+  
+  echo "$dir/${pth:t}"
+}
