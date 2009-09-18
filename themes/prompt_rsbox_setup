@@ -9,7 +9,9 @@ typeset -g -H -A rsboxvars
 autoload colors zsh/terminfo
 autoload -Uz vcs_info
 
-rsboxvars[last_vcs_update]=$SECONDS
+zmodload zsh/datetime 2>/dev/null
+
+rsboxvars[last_vcs_update]=$EPOCHSECONDS
 # ZC_TRACE=1
 
 function prompt_rsbox_vcsupdate {
@@ -23,8 +25,10 @@ function prompt_rsbox_vcsupdate {
     rsboxvars[updating]=1
     
     local update=0
+    local git_dir=$(zgit_dir)
+
+    (( delta = EPOCHSECONDS - rsboxvars[last_vcs_update] ))
     
-    (( delta = SECONDS - rsboxvars[last_vcs_update] ))
     
     if [ "$arg" = "-f" ]; then
         zctrace "ARG FORCED VCS UPDATE"
@@ -32,14 +36,22 @@ function prompt_rsbox_vcsupdate {
     elif [ "$delta" -gt 120 ]; then
         zctrace "TIME FORCED VCS UPDATE"
         update=1
+    elif zgit_in_p; then
+        if [[ $(zstat +mtime "$git_dir/HEAD") -gt rsboxvars[last_vcs_update] ]]; then
+            zctrace "HEAD timestamp is newer!"
+            update=1
+        elif [[ $(zgit_revision) != $rsboxvars[git_revision] ]]; then
+            zctrace "Revision changed!"
+            update=1
+        elif [[ $(zstat +mtime "$git_dir") -gt rsboxvars[last_vcs_update] ]]; then
+            zctrace ".git dir mtime changed!"
+            update=1
+        fi
     fi
     
     if [ "$update" = 1 ]; then
         zctrace "updating VCS..."
-        rsboxvars[last_vcs_update]=$SECONDS
-        # sleep 1; vcs_info
-        # vcs_info_msg_0_="-(git @ $SECONDS )-"
-        # vcs_info_msg_0_="-(git @ $SECONDS )-"
+        rsboxvars[last_vcs_update]=$EPOCHSECONDS
         my_vcs_info
     fi
 
@@ -50,8 +62,9 @@ function my_vcs_info {
     emulate -L zsh
     local output branch
     if zgit_in_p; then
-        branch=$(zgit_branch)
-        vcs_info_msg_0_="(git [$branch])"
+        rsboxvars[git_branch]=$(zgit_branch)
+        rsboxvars[git_revision]=$(zgit_revision)
+        vcs_info_msg_0_="(git [${rsboxvars[git_branch]}])"
     else
         vcs_info_msg_0_=""
     fi
@@ -63,7 +76,7 @@ function prompt_rsbox_chpwd {
 
 
 function prompt_rsbox_precmd {
-    zctrace "precmd..."
+    zctrace "precmd...$*"
 
     local TERMWIDTH
     (( TERMWIDTH = ${COLUMNS} - 1 ))
