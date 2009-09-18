@@ -20,6 +20,8 @@ rsboxvars[git_update_period]=${GIT_UPDATE_PERIOD:-90}
 rsboxvars[git_scan_period]=${GIT_SCAN_PERIOD:-90}
 
 function prompt_rsbox_vcsupdate {
+    emulate -L zsh
+
     local arg="$1"
 
     local update=0 git_dir
@@ -78,6 +80,8 @@ function my_vcs_info {
 }
 
 function prompt_rsbox_chpwd {
+    emulate -L zsh
+
     local update=0 in_git git_dir reason
 
     zgit_in_p
@@ -102,6 +106,8 @@ function prompt_rsbox_chpwd {
 
 
 function prompt_rsbox_precmd {
+    emulate -L zsh
+
     zctrace "precmd...$*"
 
     local TERMWIDTH
@@ -141,6 +147,8 @@ function prompt_rsbox_precmd {
 
 
 function prompt_rsbox_eraseprompt () {
+    emulate -L zsh
+
     local typed="$1"
     local i upcount
     
@@ -159,11 +167,15 @@ function prompt_rsbox_eraseprompt () {
 }
 
 function prompt_rsbox_showhistoryline () {
+    emulate -L zsh
+
     local histcmd="% $1"
     echo "`echotc mr`${(r:$COLUMNS:: :)histcmd}`echotc me`"
 }
 
 function prompt_rsbox_preexec () {
+    emulate -L zsh
+
     local typed="$1" singleline="$2" fulltext="$3"
     
     zctrace "preexec..."
@@ -195,6 +207,9 @@ function old_box_prompt_info() {
 
 
 function box_prompt_info() {
+  emulate -L zsh
+  local CURRENT_BRANCH
+
   if [ -n "$vcs_info_msg_0_" ]; then
     # CURRENT_BRANCH="git:($PR_MAGENTA${branch}$PR_YELLOW)$PR_NO_COLOUR$(parse_git_dirty)"
     CURRENT_BRANCH="$vcs_info_msg_0_"
@@ -208,6 +223,8 @@ function box_prompt_info() {
 
 
 function parse_git_dirty () {
+  emulate -L zsh
+
   [[ $(git status | tail -n1) != "nothing to commit (working directory clean)" ]] && echo " %{$fg[yellow]%}x$PR_NO_COLOUR"
 }
 
