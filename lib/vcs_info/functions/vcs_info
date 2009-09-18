@@ -1,3 +1,4 @@
+#!/bin/zsh
 ## vim:ft=zsh:foldmethod=marker
 ##
 ## vcs_info - provide version control information
