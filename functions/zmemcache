@@ -5,17 +5,17 @@ typeset -g -H -A zmemcache
 function zmemcache_help () {
   emulate -L zsh
 
-  echo <<HELP
+  cat <<"__HELP__"
 zmemcache provides an in-memory cache
-HELP
+__HELP__
 }
 
 function zmemcache () {
   emulate -L zsh
 
   local cmd="${1:-help}"
-  shift
-  zmemcache_${cmd} "${(@)*}
+  [[ $# > 0 ]] && shift
+  zmemcache_${cmd} "${(@)*}"
   return
 }
 
