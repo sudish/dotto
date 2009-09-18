@@ -1,0 +1,27 @@
+#!/bin/zsh
+
+#
+# 
+#
+# Returns 0 for clean, 1 for dirty
+#
+
+function zgit_status {
+    emulate -L zsh
+    local gitstatus statstring res=0
+    local git_dir=$(zgit_dir)
+    
+    if zgit_in_p; then
+        gitstatus=$(git status 2>/dev/null)
+
+        [[ -z ${gitstatus:#*Changes to be committed*} ]] && statstring+="*"
+        [[ -z ${gitstatus:#*Untracked files*} ]] && statstring+="+"
+        [[ -f ${git_dir}/refs/stash ]] && statstring+="$"
+
+        # set return code
+        [[ -n ${gitstatus:#*nothing to commit*} ]] && res=1
+    fi
+
+    echo -n $statstring
+    return $res
+}

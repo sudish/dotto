@@ -66,11 +66,11 @@ function my_vcs_info {
         rsboxvars[git_branch]=$(zgit_branch)
         rsboxvars[git_revision]=$(zgit_revision)
         rsboxvars[git_op]=$(zgit_op)
-        zgit_dirty
-        rsboxvars[git_dirty]=$status
+        rsboxvars[git_status]=$(zgit_status)
+        rsboxvars[git_dirty]=$(( $status == 0 ? 1 : 0 ))
 
-        [ -n "$rsboxvars[git_op]" ] && op="[$rsboxvars[git_op]]"
-        [[ "$rsboxvars[git_dirty]" = 0 ]] && dirty=" * "
+        [[ -n "$rsboxvars[git_op]" ]] && op="[$rsboxvars[git_op]]"
+        [[ -n "$rsboxvars[git_status]" ]] && dirty=" $rsboxvars[git_status] "
 
         rsboxvars[git_prompt]="(${dirty}git${op} [${rsboxvars[git_branch]}])"
         vcs_info_msg_0_="$rsboxvars[git_prompt]"
