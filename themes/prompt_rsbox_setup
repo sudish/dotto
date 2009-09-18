@@ -56,11 +56,14 @@ function prompt_rsbox_vcsupdate {
 
 function my_vcs_info {
     emulate -L zsh
-    local output branch
+    local output branch op
     if zgit_in_p; then
         rsboxvars[git_branch]=$(zgit_branch)
         rsboxvars[git_revision]=$(zgit_revision)
-        vcs_info_msg_0_="(git [${rsboxvars[git_branch]}])"
+        rsboxvars[git_op]=$(zgit_op)
+        [ -n "$rsboxvars[git_op]" ] && op="[$rsboxvars[git_op]]"
+        rsboxvars[git_prompt]="(git${op} [${rsboxvars[git_branch]}])"
+        vcs_info_msg_0_="$rsboxvars[git_prompt]"
     else
         vcs_info_msg_0_=""
     fi

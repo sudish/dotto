@@ -1,9 +1,30 @@
 #!/bin/zsh
 
 function zgit_op () {
-    local op git_dir
+    local op git_dir branch
     if git_dir=$(zgit_dir); then
-        if [[ -d "$git_dir/.dotest" ]] ;  then
+        if [[ -d $git_dir/rebase-apply ]]; then
+            if [[ -f $git_dir/rebase-apply/rebasing ]]; then
+                io="rebase"
+            elif [[ -f $git_dir/rebase-apply/applying ]]; then
+                op="am"
+            else
+                op="am/rebase"
+            fi
+            branch="$(zgit_branch)"
+        elif [[ -f $git_dir/rebase-merge/interactive ]]; then
+            op="rebase -i"
+            branch=$(< "$git_dir/rebase-merge/head-name") 2>/dev/null
+        elif [[ -d $git_dir/rebase-merge ]]; then
+            op="rebase -m"
+            branch=$(< "$git_dir/rebase-merge/head-name") 2>/dev/null
+        elif [[ -f $git_dir/MERGE_HEAD ]]; then
+            op="merge"
+            branch="$(zgit_branch)"
+        elif
+            if [[ -f $git_dir/BISECT_LOG ]]; then
+    	    op="bisect"
+        elif [[ -d "$git_dir/.dotest" ]] ;  then
 
                 if [[ -f "$git_dir/.dotest/rebasing" ]] ;  then
                         op="rebase"
@@ -18,16 +39,16 @@ function zgit_op () {
 
         elif  [[ -f "$git_dir/.dotest-merge/interactive" ]] ;  then
                 op="rebase -i"
-                # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
+                branch=$(< $git_dir/.dotest-merge/head-name) 2>/dev/null
 
         elif  [[ -d "$git_dir/.dotest-merge" ]] ;  then
                 op="rebase -m"
-                # ??? branch="$(cat "$git_dir/.dotest-merge/head-name")"
+                branch=$(< $git_dir/.dotest-merge/head-name) 2>/dev/null
             
         # lvv: not always works. Should  ./.dotest  be used instead?
         elif  [[ -f "$git_dir/MERGE_HEAD" ]] ;  then
                 op="merge"
-                # ??? branch="$(git symbolic-ref HEAD 2>/dev/null)"
+                branch=$(zgit_branch)
                 
         else
                 [[  -f "$git_dir/BISECT_LOG"  ]]   &&  op="bisect"
