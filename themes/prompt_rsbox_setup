@@ -12,7 +12,10 @@ autoload -Uz vcs_info
 zmodload zsh/datetime 2>/dev/null
 
 rsboxvars[last_vcs_update]=$EPOCHSECONDS
-# ZC_TRACE=1
+
+rsboxvars[git_update_period]=${GIT_UPDATE_PERIOD:-90}
+
+rsboxvars[git_scan_period]=${GIT_SCAN_PERIOD:-90}
 
 function prompt_rsbox_vcsupdate {
     local arg="$1"
@@ -26,7 +29,7 @@ function prompt_rsbox_vcsupdate {
     if [ "$arg" = "-f" ]; then
         zctrace "ARG FORCED VCS UPDATE"
         update=1
-    elif [ "$delta" -gt 120 ]; then
+    elif [ "$delta" -gt "$rsboxvars[git_update_period]" -o "$rsboxvars[git_update_period]" = 0 ]; then
         zctrace "TIME FORCED VCS UPDATE"
         update=1
     elif zgit_in_p; then

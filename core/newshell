@@ -19,7 +19,7 @@ if [ -z "$_zconfig_booted" ]; then
   zinclude_path=("$ZCONFIGDIR")
 
   # load default prefs and local prefs
-  # zsourcedir prefs.d prefs.d/`uname` hosts/$SHORTHOST/prefs.d
+
   zrunsystem prefs
   zsource prefs
   
