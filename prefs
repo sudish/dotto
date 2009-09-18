@@ -1,6 +1,12 @@
 #!/bin/zsh
 
 ZSH_THEME=rsbox
+ZSH_PREFS_USER=rsanders
+
+### for debugging
+# setopt XTRACE VERBOSE
+
+###############
 
 export EDITOR=vi
 
@@ -26,9 +32,9 @@ HISTSIZE=400
 # export XDVIFONTS=/usr/local/lib/tex/fonts/cm/%f.%p
 # export FONTS_DIR=/usr/lib/X11/misc
 # export LPDEST=hp1200d
+# export TERMCAP
 
 export GROFF_TYPESETTER=ascii
-export TERMCAP
 
 # set up terminal defaults	
 stty echoe susp ^z intr ^c lnext undef kill undef werase undef start undef stop undef erase '^?'
@@ -38,7 +44,7 @@ hosts=(turok test.zeevex.com prod.zeevex.com monitor.zeevex.com schultz.dreamhos
 
 # ZSH options
 setopt nolistbeep autolist nonomatch sh_word_split noclobber
-# unsetopt menucomplete
+unsetopt menucomplete
 
 # Directory stuff.
 setopt AUTO_NAME_DIRS
