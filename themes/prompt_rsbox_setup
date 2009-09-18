@@ -2,6 +2,8 @@
 
 #
 # See http://aperiodic.net/phil/prompt/
+#     http://volnitsky.com/project/git-prompt/
+#     http://github.com/sudish/dotfiles/blob/master/.zshinit/S90_git_status
 #
 
 typeset -g -H -A rsboxvars
@@ -65,7 +67,26 @@ function my_vcs_info {
 }
 
 function prompt_rsbox_chpwd {
-    prompt_rsbox_vcsupdate -f
+    local update=0 in_git git_dir reason
+
+    zgit_in_p
+    in_git=$status 
+
+    if [ $in_git != "$rsboxvars[in_git]" ]; then
+        update=1
+    fi
+
+    if [ $in_git = 0 ]; then
+        git_dir="$(zgit_dir)"
+        # did we change repos?
+        [ "$git_dir" != "$rsboxvars[git_dir]" ] && update=1
+        rsboxvars[git_dir]="$git_dir"
+    fi
+    
+    if [ $update = 1 ]; then
+        prompt_rsbox_vcsupdate -f 2>/dev/null
+    fi
+    rsboxvars[in_git]=$in_git
 }
 
 
@@ -99,7 +120,7 @@ function prompt_rsbox_precmd {
 	    PR_FILLBAR="\${(l.(($TERMWIDTH - ($promptsize + $pwdsize)))..${PR_HBAR}.)}"
     fi
 
-    prompt_rsbox_vcsupdate
+    prompt_rsbox_vcsupdate 2>/dev/null
 
     PR_APM=''
     PR_APM_RESULT=''
