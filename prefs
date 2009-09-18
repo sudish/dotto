@@ -9,6 +9,7 @@ ZSH_PREFS_USER=rsanders
 ###############
 
 export EDITOR=vi
+export CLICOLOR=true
 
 bindkey -me 2>/dev/null
 
@@ -68,9 +69,7 @@ fi
 if [ "$TERM" = "console" -o "$TERM" = "xterm" -o "X$DO_COLOR" = "Xyes" -o "$TERM" = "vt100" -o "$TERM" = "screen" -o "$TERM" = "xterm-color" ]
 then
 	#which colorls > /dev/null 2> /dev/null
-	if [ "`uname -s`" != Linux ];  then
-		alias ls='ls -G'
-	else
+	if [ "`uname -s`" = Linux ];  then
 		# GNU generation, baby
 		alias ls='ls --color=auto'
 	fi
