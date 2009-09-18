@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-zsource() {
+function zsource() {
   local arg
   for arg in $*; do
     arg=${arg#$ZCONFIGDIR/}

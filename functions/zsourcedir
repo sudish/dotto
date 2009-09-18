@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-zsourcedir() {
+function zsourcedir() {
   local dir zdir file relfile
   for dir in $*; do
     zdir=`zdirname $dir`

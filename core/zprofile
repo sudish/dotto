@@ -20,7 +20,7 @@ zrunsystem zprofile
 
 for _zlib in $ZCONFIGDIR/lib/*; do
   if [ -f "$_zlib/libprofile.zsh" ]; then
-    source "$_zlib/libprofile.zsh"
+    zsource "$_zlib/libprofile.zsh"
   fi
 done
 unset _zlib
