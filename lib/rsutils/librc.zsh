@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-libdir=${0:h}
+local libdir=${0:h}
 
 FPATH=$libdir/functions:$FPATH
 
