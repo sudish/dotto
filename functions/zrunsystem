@@ -7,8 +7,7 @@ zrunsystem() {
     system="${systemname%.d}.d"
     zsourcedir "$system" "$system/`uname`" "os/`uname`/$system" 
     local domain="$(zdomainname)"
-    [ -n "$domain" ] && zsourcedir "$system/domains/$domain"
-    [ -n "$domain" ] && zsourcedir "domains/$domain/$system"
+    [ -n "$domain" ] && zsourcedir "$system/domains/$domain" "domains/$domain/$system"
     zsourcedir "$system/hosts/`hostname -s`" "$system/hosts/`hostname`"
     zsourcedir "hosts/`hostname -s`/$system" "hosts/`hostname`/$system"
   done
