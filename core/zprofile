@@ -18,10 +18,11 @@ source $ZCONFIGDIR/core/newshell
 
 zrunsystem zprofile
 
-for lib in $ZCONFIGDIR/lib/*; do
-  if [ -f "$lib/libprofile.zsh" ]; then
-    source "$lib/libprofile.zsh"
+for _zlib in $ZCONFIGDIR/lib/*; do
+  if [ -f "$_zlib/libprofile.zsh" ]; then
+    source "$_zlib/libprofile.zsh"
   fi
 done
+unset _zlib
 
 
