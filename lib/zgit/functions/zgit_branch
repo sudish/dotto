@@ -15,6 +15,9 @@ function zgit_branch() {
     #     return 1
     # fi
     
-    branch=$(git symbolic-ref HEAD)
-    echo "${branch#refs/heads/}"
+    if branch=$(git symbolic-ref HEAD 2>/dev/null); then
+        echo "${branch#refs/heads/}"
+    else
+        return 1
+    fi
 }
