@@ -9,7 +9,6 @@ ZSH_PREFS_USER=rsanders
 ###############
 
 export EDITOR=vi
-export CLICOLOR=true
 
 bindkey -me 2>/dev/null
 
@@ -64,6 +63,8 @@ if [ "$TERM" = "screen" -o "$TERM" = "vt100-color" -o "$TERM" = "vt100" ]; then
 	DO_COLOR=yes
 fi
 
+export LSCOLORS="Gxfxcxdxbxegedabagacad"
+export CLICOLOR=true
 
 # if on the console, alias ls to cls (color ls)
 if [ "$TERM" = "console" -o "$TERM" = "xterm" -o "X$DO_COLOR" = "Xyes" -o "$TERM" = "vt100" -o "$TERM" = "screen" -o "$TERM" = "xterm-color" ]
@@ -74,7 +75,7 @@ then
 		alias ls='ls --color=auto'
 	fi
 fi
-export LSCOLORS="Gxfxcxdxbxegedabagacad"
+
 
 stty erase '^?'
 
