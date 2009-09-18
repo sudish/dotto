@@ -38,8 +38,11 @@ for _zlib in $ZCONFIGDIR/lib/*(/); do
   if [ -d $_zlib/functions ]; then
       fpath+=$_zlib/functions
   fi
+  if [ -d $_zlib/include ]; then
+      zinclude_path+=$_zlib/include
+  fi
   if [ -f "$_zlib/librc.zsh" ]; then
-    source "$_zlib/librc.zsh"
+    zsource "$_zlib/librc.zsh"
   fi
 done
 unset _zlib _zfile

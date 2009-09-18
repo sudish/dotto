@@ -15,7 +15,7 @@ if [ -z "$_zconfig_booted" ]; then
 
   unset zcfile
 
-  typeset -g -a zinclude_path
+  typeset -g -a zinclude_path zrequired_files
   zinclude_path=("$ZCONFIGDIR")
 
   # load default prefs and local prefs

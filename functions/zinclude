@@ -1,0 +1,37 @@
+#!/bin/zsh
+
+function zinclude () {
+  local file loaded=0
+  local dir target realpath
+
+  for file in "${(@)*}"; do
+    file=${file%.zsh}
+
+    file=${file#$ZCONFIGDIR/}
+        
+    if [[ "$file" == *.zwc ]]; then
+      continue
+    fi
+
+    for dir in "" "${(@)zinclude_path}"; do
+        [ -n "$dir" ] && dir=${dir%/}/
+
+        target=
+        if [ -r "$dir${file}" ]; then
+          target="$dir${file}"
+        elif [ -r "$dir${file}.zsh" ]; then
+          target="$dir${file}.zsh"
+        fi
+
+        if [[ -n "$target" ]]; then
+            realpath=$(zrealpath "${target%.zsh}")
+            zrequired_files+="$realpath"
+            source "$target"
+            loaded=$((loaded+1))
+            break
+        fi
+    done
+  done
+  
+  [ $loaded = $#* ]
+}

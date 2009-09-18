@@ -1,0 +1,44 @@
+#!/bin/zsh
+
+function zrequire () {
+  local file loaded=0
+  local dir target realpath
+    
+  for file in "${(@)*}"; do
+    file=${file%.zsh}
+
+    if [[ -n ${zrequired_files[(r)${file}]} ]]; then
+        continue
+    fi
+
+    file=${file#$ZCONFIGDIR/}
+        
+    if [[ "$file" == *.zwc ]]; then
+      echo "skipping zwc file: $file"
+      continue
+    fi
+
+    for dir in "" "${(@)zinclude_path}"; do
+        [ -n "$dir" ] && dir=${dir%/}/
+
+        target=
+        if [ -r "$dir${file}" ]; then
+          target="$dir${file}"
+        elif [ -r "$dir${file}.zsh" ]; then
+          target="$dir${file}.zsh"
+        fi
+
+        if [[ -n "$target" ]]; then
+            realpath=$(zrealpath "${target%.zsh}")
+            if [[ -z ${zrequired_files[(r)$realpath]} ]]; then
+                zrequired_files+="$realpath"
+                source "$target"
+            fi
+            loaded=$((loaded+1))
+            break
+        fi
+    done
+  done
+  
+  [ $loaded = $#* ]
+}
