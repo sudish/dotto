@@ -49,11 +49,8 @@ function prompt_rsbox_vcsupdate {
 function my_vcs_info {
     emulate -L zsh
     local output branch
-    output=$(git branch 2>/dev/null)
-    if [ $? = 0 ]; then
-        local -a lines
-        set -A lines "${(f)output}"
-        branch="${lines[(r)\**]#\* }"
+    if zgit_in_p; then
+        branch=$(zgit_branch)
         vcs_info_msg_0_="(git [$branch])"
     else
         vcs_info_msg_0_=""

@@ -1,7 +1,8 @@
 #!/bin/zsh
 
 function zgit_in_p() {
-    local dir=$(zgit_dir)
+    local dir="$(zgit_dir)"
     [ -n "$dir" ]
 }
 
+zgit_in_p "${(@)*}"

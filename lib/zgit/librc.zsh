@@ -1,15 +1,26 @@
 #!/bin/zsh
+#
+# References / Inspirations
+#
+#  zsh bundled vcs_info
+#  original box prompt source from which the rsbox theme was hacked up
+#  http://github.com/sudish/dotfiles/blob/master/.zshinit/S90_git_status
+#  http://volnitsky.com/project/git-prompt/git-prompt.sh
+#  
+#
+
 
 typeset -g -A -H gitinfo_vars
 
 typeset -g -A -H git_dirs
 
-gitinfo_reset() {
+function gitinfo_reset() {
+    # nothing
 }
 
-gitinfo_setup() {
-    local root="${1:h}"
-    gitinfo_reset()
+function gitinfo_setup() {
+    local dir="${1:h}"
+    gitinfo_reset
 }
 
 # setup in current dir

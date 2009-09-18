@@ -4,3 +4,4 @@ function zgit_dir_cache() {
     zgit_dirs=
 }
 
+zgit_dir_cache "${(@)*}"

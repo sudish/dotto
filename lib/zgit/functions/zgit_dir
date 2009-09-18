@@ -7,9 +7,17 @@
 typeset -g -A -H zgit_dirs
 
 function zgit_dir() {
+    emulate -L zsh
+
+    local oldifs="$IFS"
+    IFS=''
     if [ -z "$zgit_dirs[$PWD]" ]; then
         zgit_dirs[$PWD]="$(git rev-parse --git-dir 2> /dev/null)"
     fi
-    echo "$zgit_dirs[$PWD]"
+    
+    echo -n "$zgit_dirs[$PWD]"
+    IFS="$oldifs"
+    [ -n "$zgit_dirs[$PWD]" ]
 }
 
+zgit_dir "${(@)*}"
