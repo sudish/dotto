@@ -37,13 +37,13 @@ function prompt_rsbox_vcsupdate {
         zctrace "TIME FORCED VCS UPDATE"
         update=1
     elif zgit_in_p; then
-        if [[ $(zstat +mtime "$git_dir/HEAD") -gt rsboxvars[last_vcs_update] ]]; then
+        if [[ $(stat +mtime "$git_dir/HEAD") -gt rsboxvars[last_vcs_update] ]]; then
             zctrace "HEAD timestamp is newer!"
             update=1
         elif [[ $(zgit_revision) != $rsboxvars[git_revision] ]]; then
             zctrace "Revision changed!"
             update=1
-        elif [[ $(zstat +mtime "$git_dir") -gt rsboxvars[last_vcs_update] ]]; then
+        elif [[ $(stat +mtime "$git_dir") -gt rsboxvars[last_vcs_update] ]]; then
             zctrace ".git dir mtime changed!"
             update=1
         fi
