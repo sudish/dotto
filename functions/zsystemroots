@@ -1,0 +1,38 @@
+#!/bin/zsh
+
+
+function _zmultiroot {
+    local droot dir
+    for dir in "${(@)*}"; do
+        for droot in "$ZCONFIGDIR" "$ZCONFIGDIR/external" "$ZCONFIGDIR/local"; do
+            [[ -n "$droot" ]] && droot="${droot%/}/"
+            zctrace "checking ${droot}${dir}"
+            [[ -d "${droot}${dir}" ]] && zsystemrootdirs+="${droot}${dir}"
+        done
+    done
+}
+
+function zsystemroots() {
+  local systemname system
+  local domain="$(zdomainname)"
+
+  typeset -g -H -a zsystemrootdirs
+  zsystemrootdirs=()   
+
+  for systemname in "${(@)*}"; do
+    zctrace "zsystemroots: $systemname"
+    system="${systemname%.d}.d"
+    _zmultiroot "$system" 
+    _zmultiroot "$system/`uname`" 
+    _zmultiroot "os/`uname`/$system" 
+    [ -n "$domain" ] && _zmultiroot "$system/domains/$domain" "domains/$domain/$system"
+    _zmultiroot "$system/hosts/`hostname -s`" "$system/hosts/`hostname`"
+    _zmultiroot "hosts/`hostname -s`/$system" 
+    _zmultiroot "hosts/`hostname`/$system"
+    _zmultiroot "users/$USERNAME/$system"
+  done
+  
+  echo $zsystemrootdirs
+}
+
+

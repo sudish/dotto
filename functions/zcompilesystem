@@ -1,0 +1,18 @@
+#!/bin/zsh
+
+function zcompilesystem {
+    emulate -L zsh
+    local file 
+    zsystemroots zprofile newshell zshenv zshrc zcomp zperiodic zlogin zlogout >/dev/null
+    
+    for file in $ZCONFIGDIR/core/*; do
+        zcompile $file
+    done
+    
+    for dir in "${(@)zsystemrootdirs}"; do
+        for file in $dir/*.zsh(N); do
+            zctrace "Compiling $file"
+            zcompile $file
+        done
+    done
+}

@@ -1,0 +1,39 @@
+#!/bin/zsh
+
+ZSH_THEME=rsbox
+ZSH_PREFS_USER=rsanders
+
+# set up completion magic
+hosts=(example.com www.example.com ftp.example.com shell.example.com)
+
+
+### for debugging
+# setopt XTRACE VERBOSE
+
+###############
+
+export EDITOR=vi
+
+bindkey -me 2>/dev/null
+
+# 20 MB coredump limit
+ulimit -c 20000
+
+export LESS="efiMqR"
+export PAGER=less
+
+HISTSIZE=400
+
+# set up terminal defaults	
+stty echoe susp ^z intr ^c lnext undef kill undef werase undef start undef stop undef erase '^?'
+
+# ZSH options
+setopt nolistbeep autolist nonomatch sh_word_split noclobber
+unsetopt menucomplete
+
+# Speed stuff.
+setopt AUTO_CD
+setopt MULTIOS
+setopt CDABLEVARS
+
+

@@ -1,14 +1,26 @@
 #!/bin/zsh
 
-zrunsystem() {
+function zsyssourcedir {
+    local droot dir
+    for dir in "${(@)*}"; do
+        for droot in "" "external"; do
+            [[ -n "$droot" ]] && droot="${droot%/}/"
+            zsourcedir "${droot}${dir}"
+        done
+    done
+}
+
+function zrunsystem() {
   local systemname system
+  local domain="$(zdomainname)"
+
   for systemname in "${(@)*}"; do
     zctrace "zrunsystem: $systemname"
     system="${systemname%.d}.d"
-    zsourcedir "$system" "$system/`uname`" "os/`uname`/$system" 
-    local domain="$(zdomainname)"
-    [ -n "$domain" ] && zsourcedir "$system/domains/$domain" "domains/$domain/$system"
-    zsourcedir "$system/hosts/`hostname -s`" "$system/hosts/`hostname`"
-    zsourcedir "hosts/`hostname -s`/$system" "hosts/`hostname`/$system"
+    zsyssourcedir "$system" "$system/`uname`" "os/`uname`/$system" 
+    [ -n "$domain" ] && zsyssourcedir "$system/domains/$domain" "domains/$domain/$system"
+    zsyssourcedir "$system/hosts/`hostname -s`" "$system/hosts/`hostname`"
+    zsyssourcedir "hosts/`hostname -s`/$system" "hosts/`hostname`/$system"
+    zsyssourcedir "users/$USERNAME/$system"
   done
 }
