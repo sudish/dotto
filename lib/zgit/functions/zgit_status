@@ -1,7 +1,14 @@
 #!/bin/zsh
 
 #
-# 
+# The character string printed will contain 0 or more of the
+# following characters, indicating (respectively)
+#
+#   *    unstaged changes
+#   +    staged changes
+#   ?    untracked files
+#   $    stashed changes
+#
 #
 # Returns 0 for clean, 1 for dirty
 #
@@ -14,18 +21,22 @@ function zgit_status {
     if zgit_in_p; then
         gitstatus=$(git status 2>/dev/null)
 
-        if [[ -z ${gitstatus:#*Changes to be committed*} || -z ${gitstatus:#*Changed but not updated*} ]]
-        then
-           statstring+="*"
+        if [[ -z ${gitstatus:#*Changed but not updated*} ]]; then
+           statstring+='*'
         fi
 
-        [[ -z ${gitstatus:#*Untracked files*} ]] && statstring+="+"
-        [[ -f ${git_dir}/refs/stash ]] && statstring+="$"
+        if [[ -z ${gitstatus:#*Changes to be committed*} ]]; then
+           statstring+='+'
+        fi
+
+
+        [[ -z ${gitstatus:#*Untracked files*} ]] && statstring+='?'
+        [[ -f ${git_dir}/refs/stash ]] && statstring+='$'
 
         # set return code
         [[ -n ${gitstatus:#*nothing to commit*} ]] && res=1
     fi
 
-    echo -n $statstring
+    echo -nE $statstring
     return $res
 }
