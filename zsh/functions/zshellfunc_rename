@@ -25,6 +25,7 @@ function zshellfunc_rename {
   
   # force an autoloaded func, or error out
   if [[ $ftype == "autoload" ]]; then
+    zctrace "forcing autoload for $old"
     autoload +X $old &>/dev/null || return 2
     ftype=$(zshellfunc_type $old)
   fi

@@ -23,7 +23,7 @@ function zshellfunc_type {
     ftype=${(s: :)$(whence -w $name)[2]}
     if [[ $ftype == "function" ]]; then
       funcbody=$(typeset -f $name)
-      if [[ ${#${(f)funcbody}} == 4 && -z ${a:#*undefined*builtin autoload*} ]]; then
+      if [[ ${#${(f)funcbody}} == 4 && -z ${funcbody:#*undefined*builtin autoload*} ]]; then
         ftype="autoload"
       fi
     elif [[ $ftype == "hashed" ]]; then
