@@ -70,10 +70,10 @@ task :compile => [BUILDDIR,ZSHBUILDDIR,"#{ZSHBUILDDIR}/functions.zwc", "#{ZSHBUI
   puts "Compile done"
 end
 
-file "#{ZSHBUILDDIR}/functions.zwc" => Dir.glob("functions/*") do |t|
+file "#{ZSHBUILDDIR}/functions.zwc" => Dir.glob("#{ZCONFIGDIR}/functions/*") do |t|
   zsh "zcompile #{t} #{t.prerequisites.join(" ")}"
 end
 
-file "#{ZSHBUILDDIR}/libfunctions.zwc" => Dir.glob("lib/*/functions/*") do |t|
+file "#{ZSHBUILDDIR}/libfunctions.zwc" => Dir.glob("#{ZCONFIGDIR}/lib/*/functions/*") do |t|
   zsh "zcompile #{t} #{t.prerequisites.join(" ")}"
 end
