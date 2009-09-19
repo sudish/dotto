@@ -9,10 +9,14 @@ else
   dozbackup=1
 fi
 
-backupbase=$DOTTODIR/backup
+backupbase=$DOTTODIR/external/backup
 
 zbackupdir=$backupbase/`hostname`
-mkdir -p "$zbackupdir"
+
+if [[ ! -d $backupbase || ! -d $backupbase/.git ]]; then
+    mkdir -p "$zbackupdir"
+    (cd $zbackupdir && git init)
+fi
 
 for zfile in $ZCONFIGDIR/base/*; do
   basefile=`basename $zfile`
@@ -52,8 +56,6 @@ done
 
 if [ "$dozbackup" = 1 ]; then
   cd $backupbase
-  git add $zbackupdir $zbackupdir/*
-  git commit -m"backed up host `hostname`"
-  git push --all
+  git commit -a -m"backed up host `hostname`"
 fi
 
