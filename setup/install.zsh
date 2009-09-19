@@ -9,7 +9,7 @@ else
   dozbackup=1
 fi
 
-backupbase=$DOTTODIR/external/backup
+backupbase=$DOTTODIR/local/backup
 
 zbackupdir=$backupbase/`hostname`
 
