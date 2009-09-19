@@ -15,23 +15,6 @@ zctrace "running zshrc.."
 # set hostname
 HOSTNAME=`hostname`
 
-###
-# establish a stub function to autoload functions from a file
-
-function autoload_from
-{
-	local alf_file=$1
-	local alf_func
-	shift
-
-	for alf_func in $*
-	do
-		eval "function $alf_func () { . $alf_file; $alf_func \$* }"
-	done
-}
-
-zsource core/zcomp
-zsource core/zperiodic 
 
 for _zlib in $ZCONFIGDIR/lib/*(/); do
   zctrace "Loading lib $_zlib"
@@ -49,4 +32,5 @@ unset _zlib _zfile
 
 zrunsystem zshrc
 
-
+zsource core/zcomp
+zsource core/zperiodic 

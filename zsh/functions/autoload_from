@@ -1,0 +1,22 @@
+#!/bin/zsh
+
+###
+# establish a stub function to autoload multiple functions from a 
+# given file
+#
+# autoload_from <file> <function> [<function> ...]
+
+function autoload_from
+{
+        emulate -L zsh
+        local alf_file=$1
+        local alf_func
+        shift
+
+        for alf_func in $*
+        do
+            if ! 
+                eval "function $alf_func () { source $alf_file; $alf_func \$* }"
+        done
+}
+
