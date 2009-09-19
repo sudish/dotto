@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+# strip whitespaces from either end of a string
+
+function ztrim {
+  emulate -L zsh
+  
+  local str=$1 tmp
+  
+	tmp="${str##*[^ ]}"
+	str="${str%${tmp}}"
+	tmp="${str%%[^ ]*}"
+	str="${str#${tmp}}"
+  
+  echo $str
+}

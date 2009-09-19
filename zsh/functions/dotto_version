@@ -1,0 +1,38 @@
+#!/bin/zsh
+
+function dotto_version {
+  emulate -L zsh
+  local ver description tag  
+
+  if [[ -z $dotto_vars[version] ]]; then
+    oldpwd=$PWD
+  
+    {
+      cd $DOTTODIR
+  
+      if zgit_in_p; then
+        tag=$(git describe --tags HEAD 2>/dev/null)
+        description=$(git describe --all HEAD 2>/dev/null)
+        [[ -n "$tag" ]] && ver="$tag "
+        if [[ $description != */$tag ]]; then
+          local pats pat
+          pats=("refs/heads/" "refs/tags/" "tags/")
+          for pat in $pats; do
+            description=${description//$pat/}
+          done
+          [[ -n $description && $description != $tag ]] & ver+="($description) "
+        fi
+      else
+        ver=""
+      fi
+  
+    } always {
+      cd $oldpwd
+    }
+  
+    dotto_vars[version]=$(ztrim $ver)
+  fi
+  
+  echo $dotto_vars[version]
+  [[ -n "$dotto_vars[version]" ]]
+}

@@ -17,7 +17,7 @@ function zsource() {
       source "$DOTTODIR/$arg"
       zlog "zsource: sourcing dottodir/$arg"
     fi
-    if [[ -n "$DOTTODIR/local/zsh/$arg" && -f "$DOTTODIR/local/zsh/$arg" ]]; then
+    if [[ -f "$DOTTODIR/local/zsh/$arg" ]]; then
       source "$DOTTODIR/local/zsh/$arg"
       zlog "zsource: sourcing dottodir/local/zsh/$arg"
     fi

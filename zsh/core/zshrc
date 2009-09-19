@@ -15,7 +15,6 @@ zctrace "running zshrc.."
 # set hostname
 HOSTNAME=`hostname`
 
-
 for _zlib in $ZCONFIGDIR/lib/*(/); do
   zctrace "Loading lib $_zlib"
   if [ -d $_zlib/functions ]; then
@@ -31,6 +30,8 @@ done
 unset _zlib _zfile
 
 zrunsystem zshrc
+
+echo "DOTTO version: $(dotto_version)"
 
 zsource core/zcomp
 zsource core/zperiodic 
