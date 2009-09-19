@@ -1,0 +1,11 @@
+- submodule support
+- move per-host backups into a submodule
+- readme file
+- easy setup
+
+- some config in git vars?
+- show more info in git prompt?
+- more easily themeable rsbox - printf like strings? overridable functions?
+
+- break out the git stuff from rsbox
+- speed up shell launch with caching/precompilation
