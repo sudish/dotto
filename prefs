@@ -43,7 +43,7 @@ stty echoe susp ^z intr ^c lnext undef kill undef werase undef start undef stop 
 hosts=(turok test.zeevex.com prod.zeevex.com monitor.zeevex.com schultz.dreamhost.com minimus-2.local)
 
 # ZSH options
-setopt nolistbeep autolist nonomatch sh_word_split noclobber
+setopt nolistbeep autolist nonomatch noclobber
 unsetopt menucomplete
 
 # Directory stuff.
