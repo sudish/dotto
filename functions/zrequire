@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 function zrequire () {
+  emulate zsh
   local file loaded=0
   local dir target realpath
     

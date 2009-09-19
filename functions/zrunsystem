@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 function zsyssourcedir {
+    emulate zsh
     local droot dir
     local -a droots
     
@@ -18,6 +19,7 @@ function zsyssourcedir {
 }
 
 function zrunsystem() {
+  emulate zsh
   local systemname system
   local domain="$(zdomainname)"
 

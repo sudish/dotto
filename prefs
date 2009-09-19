@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+emulate zsh
+
 ZSH_THEME=rsbox
 ZSH_PREFS_USER=rsanders
 

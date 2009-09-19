@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 function zsourcedir() {
+  emulate zsh
   local dir zdir file relfile
   for dir in "${(@)*}"; do
     zdir=`zdirname $dir`
