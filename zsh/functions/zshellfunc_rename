@@ -1,0 +1,59 @@
+#!/bin/zsh
+
+##
+# Usage: zshellfunc_rename OLD NEW
+#
+# Attempt to rename a function/command/alias etc. In some cases
+# the old name may still be present (commands, hash entries, builtins), in
+# others (aliases, functions) it is deleted.
+#
+# Will force eager loading of autoloaded functions, and will fail if the
+# autoloaded function can't be found.
+#
+# This is mostly useful for the memoization function.
+#
+# Return non-zero on failure.
+#
+
+function zshellfunc_rename {
+  emulate -L zsh
+  local old=$1 new=$2 ftype funcbody
+  
+  if [[ -z $old || -z $new ]] || ! ftype=$(zshellfunc_type $old); then
+    return 1
+  fi
+  
+  # force an autoloaded func, or error out
+  if [[ $ftype == "autoload" ]]; then
+    autoload +X $old &>/dev/null || return 2
+    ftype=$(zshellfunc_type $old)
+  fi
+  
+  case $ftype in
+    alias) 
+       builtin eval ${$(builtin alias -L $old)//$old=/$new=}
+       builtin unalias $old
+       ;;
+    function)
+       funcbody=$(functions $old)
+       funcbody=${funcbody#function }
+       funcbody=${funcbody#$old}
+       builtin eval "function $new $funcbody"
+       builtin unfunction $old
+       ;;
+    hashed)
+       local hpth=${${(ps:=:)$(hash -m $old)}[2]}
+       builtin hash $new=$hpth
+       builtin unhash $old
+       ;;
+    command)
+       builtin eval "function $new { command $old \$* }"
+       ;;
+    builtin)
+       builtin eval "function $new { builtin $old \$* }"
+       ;;
+    *) echo "Cannot rename function of type $ftype" >&2
+       return 3
+       ;;
+  esac
+}
