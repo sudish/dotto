@@ -1,0 +1,37 @@
+#!/bin/zsh
+
+#
+# given a name, prints one of:
+#
+#   function, autoload, builtin, hashed, reserved, command, alias
+#
+# Like whence -w, but "function" is further distinguished as:
+#
+#  function: a non-autoloaded function
+#  autoload: an autoload stub
+#
+# and if the output of "whence -w" is "hashed", then the path is
+# tested. if not found or not executable, prints "none" rather
+# than "hash"
+#
+# status: 0 if found, 1 if not
+#
+
+function zshellfunc_type {
+  local name=$1 funcbody ftype
+  {
+    ftype=${(s: :)$(whence -w $name)[2]}
+    if [[ $ftype == "function" ]]; then
+      funcbody=$(typeset -f $name)
+      if [[ ${#${(f)funcbody}} == 4 && -z ${a:#*undefined*builtin autoload*} ]]; then
+        ftype="autoload"
+      fi
+    elif [[ $ftype == "hashed" ]]; then
+      local hpth=${${(ps:=:)$(hash -m $name)}[2]}
+      [[ ! -x $hpth ]] && ftype="none"
+    fi
+  } &> /dev/null
+  
+  echo $ftype
+  [[ -n $ftype && $ftype != "none" ]]
+}
