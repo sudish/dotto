@@ -5,17 +5,21 @@ function zsource() {
   local arg
   for arg in "${(@)*}"; do
     arg=${arg#$ZCONFIGDIR/}
-    if [[ "$arg" == *.zwc ]]; then
+    if [[ $arg == *.zwc || -z $arg ]]; then
       zlog "skipping zwc file: $arg"
       continue
     fi
-    if [ -n "$ZCONFIGDIR/$arg" -a -f "$ZCONFIGDIR/$arg" ]; then
+    
+    if [[ -f "$ZCONFIGDIR/$arg" ]]; then
       source "$ZCONFIGDIR/$arg"
-      zlog "zsource: sourcing $arg"
+      zlog "zsource: sourcing zconfigdir/$arg"
+    elif [[ -f "$DOTTODIR/$arg" ]]; then
+      source "$DOTTODIR/$arg"
+      zlog "zsource: sourcing dottodir/$arg"
     fi
-    if [ -n "$ZCONFIGDIR/local/$arg" -a -f "$ZCONFIGDIR/local/$arg" ]; then
-      source "$ZCONFIGDIR/local/$arg"
-      zlog "zsource: sourcing local $arg"
+    if [[ -n "$DOTTODIR/local/zsh/$arg" && -f "$DOTTODIR/local/zsh/$arg" ]]; then
+      source "$DOTTODIR/local/zsh/$arg"
+      zlog "zsource: sourcing dottodir/local/zsh/$arg"
     fi
   done
 }
