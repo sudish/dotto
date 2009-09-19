@@ -2,8 +2,15 @@
 
 function zsyssourcedir {
     local droot dir
+    local -a droots
+    
+    droots=("")
+    for droot in $ZCONFIGDIR/external/*(N); do
+        droots+=${droot#$ZCONFIGDIR/}
+    done
+    
     for dir in "${(@)*}"; do
-        for droot in "" "external"; do
+        for droot in "${(@)droots}"; do
             [[ -n "$droot" ]] && droot="${droot%/}/"
             zsourcedir "${droot}${dir}"
         done
