@@ -58,11 +58,15 @@ end
 
 file BUILDDIR do |t|
   FileUtils.mkdir_p BUILDDIR
+end
+
+file ZSHBUILDDIR do |t|
   FileUtils.mkdir_p ZSHBUILDDIR
 end
 
+
 desc "Compile all files"
-task :compile => [BUILDDIR,"#{ZSHBUILDDIR}/functions.zwc", "#{ZSHBUILDDIR}/libfunctions.zwc"]  do
+task :compile => [BUILDDIR,ZSHBUILDDIR,"#{ZSHBUILDDIR}/functions.zwc", "#{ZSHBUILDDIR}/libfunctions.zwc"]  do
   puts "Compile done"
 end
 
