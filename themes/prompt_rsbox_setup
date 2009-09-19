@@ -4,19 +4,19 @@
 # See http://aperiodic.net/phil/prompt/
 #     http://volnitsky.com/project/git-prompt/
 #     http://github.com/sudish/dotfiles/blob/master/.zshinit/S90_git_status
+#     http://www.jukie.net/~bart/conf/zsh.d/S55_git
+#     http://repo.or.cz/w/git.git?a=blob_plain;f=contrib/completion/git-completion.bash;hb=master
 #
 
 typeset -g -H -A rsboxvars
 
 autoload colors zsh/terminfo
 autoload -Uz vcs_info
-
 zmodload zsh/datetime 2>/dev/null
 
 rsboxvars[last_vcs_update]=$EPOCHSECONDS
 
 rsboxvars[git_update_period]=${GIT_UPDATE_PERIOD:-30}
-
 rsboxvars[git_scan_period]=${GIT_SCAN_PERIOD:-30}
 
 function prompt_rsbox_vcsupdate {
@@ -50,6 +50,9 @@ function prompt_rsbox_vcsupdate {
         elif [[ $(zgit_revision) != $rsboxvars[git_revision] ]]; then
             zctrace "Revision changed!"
             update=1
+        elif [[ -n "$(fc -l -m '*git *' -1)" ]]; then
+            zctrace "last cmd was git"
+            update=1
         elif [[ $(builtin stat +mtime "$git_dir") -gt rsboxvars[last_vcs_update] ]]; then
             zctrace ".git dir mtime changed!"
             update=1
@@ -71,7 +74,7 @@ function my_vcs_info {
         rsboxvars[git_revision]=$(zgit_revision)
         rsboxvars[git_op]=$(zgit_op)
         rsboxvars[git_status]=$(zgit_status)
-        rsboxvars[git_dirty]=$(( $status == 0 ? 1 : 0 ))
+        rsboxvars[git_dirty]=$(($status == 0 ? 0 : 1 ))
 
         [[ -n "$rsboxvars[git_op]" ]] && op="[$rsboxvars[git_op]]"
         [[ -n "$rsboxvars[git_status]" ]] && dirty=" $rsboxvars[git_status] "
