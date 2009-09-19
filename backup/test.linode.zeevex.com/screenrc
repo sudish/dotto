@@ -1,9 +1,0 @@
-bindkey -k kb stuff "^?"
-vbell off
-escape ^_^_
-defscrollback 2000
-shelltitle "$ |${SHORTHOST}:"
-setenv INSCREEN 1
-autodetach on
-startup_message off
-
