@@ -1,0 +1,25 @@
+#!/bin/zsh
+
+zctrace() { 
+  if [ "$ZC_TRACE" = 1 ]; then
+    echo "$*"
+  fi
+}
+
+if [ -z "$DOTTODIR" ]; then
+   for dbase in $HOME $HOME/config $HOME/.external $HOME/home; do
+     for dfilesdir in .dotto .config; do
+       if [[ -f $dbase/$dfilesdir/.isdotto ]]; then
+         export DOTTODIR="$dbase/$dfilesdir"
+         break 2
+       fi
+     done
+   done
+fi
+unset dbase dfilesdir
+
+export ZCONFIGDIR=$DOTTODIR/zsh
+
+if [ -n "$ZCONFIGDIR" -a -d "$ZCONFIGDIR" ]; then
+  source $ZCONFIGDIR/core/zshenv
+fi

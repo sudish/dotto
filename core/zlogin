@@ -1,9 +1,0 @@
-#!/bin/zsh
-zctrace "running zlogin.."
-# zsourcedir $ZCONFIGDIR/zlogin.d $ZCONFIGDIR/zlogin.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zlogin.d
-
-zrunsystem zlogin
-
-zctrace "done running zlogin"
-
-

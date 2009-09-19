@@ -7,7 +7,7 @@ if [ -z "$_zconfig_booted" ]; then
   
   setopt function_argzero typeset_silent
   
-  for zcfile in `find $ZCONFIGDIR/local/build/$ZSH_VERSION -name \*.zwc 2>/dev/null `; do
+  for zcfile in `find $DOTTODIR/local/build/zsh/$ZSH_VERSION -name \*.zwc 2>/dev/null `; do
       FPATH=$FPATH:$zcfile
   done
 
@@ -23,8 +23,9 @@ if [ -z "$_zconfig_booted" ]; then
   # load default prefs and local prefs
 
   zrunsystem prefs
+  source $DOTTODIR/prefs
   zsource prefs
-  
+
   zrunsystem newshell
   
   _zconfig_booted=1

@@ -8,8 +8,11 @@ end
 
 ZSH_VERSION=zsh("echo $ZSH_VERSION")
 
-ZCONFIGDIR = Dir.pwd
-BUILDDIR = "local/build/#{ZSH_VERSION}"
+DOTTODIR = Dir.pwd
+ZCONFIGDIR = "#{DOTTODIR}/zsh"
+
+BUILDDIR = "local/build"
+ZSHBUILDDIR = "#{BUILDDIR}/zsh/#{ZSH_VERSION}"
 
 task :default => :help do
 end
@@ -55,17 +58,18 @@ end
 
 file BUILDDIR do |t|
   FileUtils.mkdir_p BUILDDIR
+  FileUtils.mkdir_p ZSHBUILDDIR
 end
 
 desc "Compile all files"
-task :compile => [BUILDDIR,"#{BUILDDIR}/functions.zwc", "#{BUILDDIR}/libfunctions.zwc"]  do
+task :compile => [BUILDDIR,"#{ZSHBUILDDIR}/functions.zwc", "#{ZSHBUILDDIR}/libfunctions.zwc"]  do
   puts "Compile done"
 end
 
-file "#{BUILDDIR}/functions.zwc" => Dir.glob("functions/*") do |t|
+file "#{ZSHBUILDDIR}/functions.zwc" => Dir.glob("functions/*") do |t|
   zsh "zcompile #{t} #{t.prerequisites.join(" ")}"
 end
 
-file "#{BUILDDIR}/libfunctions.zwc" => Dir.glob("lib/*/functions/*") do |t|
+file "#{ZSHBUILDDIR}/libfunctions.zwc" => Dir.glob("lib/*/functions/*") do |t|
   zsh "zcompile #{t} #{t.prerequisites.join(" ")}"
 end

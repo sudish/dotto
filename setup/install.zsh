@@ -1,15 +1,21 @@
 #!/usr/bin/env zsh
-if [ -z "$ZCONFIGDIR" ]; then
-  ZCONFIGDIR=`dirname $0`/..
+if [ -z "$DOTTODIR" ]; then
+  DOTTODIR=`dirname $0`/..
 fi
 
-if grep ZCONFIGDIR $HOME/.zprofile >/dev/null 2>&1; then
+if [ -z "$ZCONFIGDIR" ]; then
+  ZCONFIGDIR=$DOTTODIR/zsh
+fi
+
+if egrep 'DOTTODIR|ZCONFIGDIR' $HOME/.zprofile >/dev/null 2>&1; then
   dozbackup=0
 else
   dozbackup=1
 fi
 
-zbackupdir=$ZCONFIGDIR/backup/`hostname`
+backupbase=$DOTTODIR/backup
+
+zbackupdir=$backupbase/`hostname`
 mkdir -p "$zbackupdir"
 
 for zfile in $ZCONFIGDIR/base/*; do
@@ -19,14 +25,15 @@ for zfile in $ZCONFIGDIR/base/*; do
     echo "Backing up $dotfile"
     cp $HOME/$dotfile $zbackupdir/$basefile
   fi
-  mv -i $HOME/$dotfile $HOME/${dotfile}.prezfiles
+  # mv -i $HOME/$dotfile $HOME/${dotfile}.prezfiles
+  rm -f $HOME/$dotfile
   cp -f $zfile $HOME/$dotfile
 done
 
 #
 # linked config files
 #
-for zfile in $ZCONFIGDIR/conf.d/*; do
+for zfile in $DOTTODIR/conf.d/*; do
   basefile=`basename $zfile`
   dotfile=.$basefile
   install=1
@@ -48,7 +55,7 @@ done
 
 
 if [ "$dozbackup" = 1 ]; then
-  cd $ZCONFIGDIR
+  cd $backupbase
   git add $zbackupdir $zbackupdir/*
   git commit -m"backed up host `hostname`"
   git push --all

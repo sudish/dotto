@@ -1,0 +1,8 @@
+#!/bin/zsh
+zctrace "running zlogin.."
+
+zrunsystem zlogin
+
+zctrace "done running zlogin"
+
+
