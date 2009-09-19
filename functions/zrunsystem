@@ -14,6 +14,8 @@ function zrunsystem() {
   local systemname system
   local domain="$(zdomainname)"
 
+  local sysuser=${ZSH_PREFS_USER:-$USERNAME}
+
   for systemname in "${(@)*}"; do
     zctrace "zrunsystem: $systemname"
     system="${systemname%.d}.d"
