@@ -1,13 +1,9 @@
 #!/usr/bin/env zsh
-if [ -z "$DOTTODIR" ]; then
-  DOTTODIR=`dirname $0`/..
-fi
 
-if [ -z "$ZCONFIGDIR" ]; then
-  ZCONFIGDIR=$DOTTODIR/zsh
-fi
+DOTTODIR=`dirname $0`/..
+ZCONFIGDIR=$DOTTODIR/zsh
 
-if egrep 'DOTTODIR|ZCONFIGDIR' $HOME/.zprofile >/dev/null 2>&1; then
+if egrep 'DOTTODIR' $HOME/.zprofile >/dev/null 2>&1; then
   dozbackup=0
 else
   dozbackup=1
