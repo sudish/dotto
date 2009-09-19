@@ -4,7 +4,7 @@
 function _zmultiroot {
     local droot dir
     for dir in "${(@)*}"; do
-        for droot in "$ZCONFIGDIR" "$ZCONFIGDIR/external" "$ZCONFIGDIR/local"; do
+        for droot in $ZCONFIGDIR $DOTTODIR/external/*/zsh $DOTTODIR/local/zsh; do
             [[ -n "$droot" ]] && droot="${droot%/}/"
             zctrace "checking ${droot}${dir}"
             [[ -d "${droot}${dir}" ]] && zsystemrootdirs+="${droot}${dir}"
