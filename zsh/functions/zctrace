@@ -3,7 +3,9 @@
 zctrace() { 
   emulate -L zsh
 
-  if [ "$ZC_TRACE" = 1 ]; then
+  if [[ $ZC_TRACE == 1 ]]; then
     echo "$*"
   fi
+  
+  zlog "$*"
 }

@@ -3,7 +3,7 @@
 zlog() {
   emulate -L zsh
 
-  if [ "$ZLOG_DEBUG" = 1 ]; then
+  if [[ $DOTTO_DEBUG == 1 || $ZLOG_DEBUG == 1 ]]; then
     echo "`date`: $*" >> $DOTTODIR/log/zlog.log 2>/dev/null
   fi
 }
