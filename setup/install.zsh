@@ -15,7 +15,7 @@ zbackupdir=$backupbase/`hostname`
 
 if [[ ! -d $backupbase || ! -d $backupbase/.git ]]; then
     mkdir -p "$zbackupdir"
-    (cd $zbackupdir && git init)
+    (cd $backupbase && git init)
 fi
 
 for zfile in $ZCONFIGDIR/base/*; do
@@ -55,7 +55,6 @@ done
 
 
 if [ "$dozbackup" = 1 ]; then
-  cd $backupbase
-  git commit -a -m"backed up host `hostname`"
+  cd $backupbase && git add -f `basename $zbackupdir` && git commit -a -m"backed up host `hostname`"
 fi
 
