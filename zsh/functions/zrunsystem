@@ -6,7 +6,8 @@ function zsyssourcedir {
     local -a droots
     
     droots=("")
-    for droot in $ZCONFIGDIR/external/*(N); do
+    for droot in $DOTTODIR/external/*(N); do
+        droots+=${droot#$ZCONFIGDIR/}/zsh
         droots+=${droot#$ZCONFIGDIR/}
     done
     
@@ -28,10 +29,9 @@ function zrunsystem() {
   for systemname in "${(@)*}"; do
     zctrace "zrunsystem: $systemname"
     system="${systemname%.d}.d"
-    zsyssourcedir "$system" "$system/`uname`" "os/`uname`/$system" 
-    [ -n "$domain" ] && zsyssourcedir "$system/domains/$domain" "domains/$domain/$system"
-    zsyssourcedir "$system/hosts/`hostname -s`" "$system/hosts/`hostname`"
-    zsyssourcedir "hosts/`hostname -s`/$system" "hosts/`hostname`/$system"
-    zsyssourcedir "users/$USERNAME/$system"
+    zsyssourcedir "$system" "$system/`uname`" "os/`uname`/zsh/$system" 
+    [ -n "$domain" ] && zsyssourcedir "domains/$domain/zsh/$system"
+    zsyssourcedir "hosts/`hostname -s`/zsh/$system" "hosts/`hostname`/zsh/$system"
+    zsyssourcedir "users/$USERNAME/zsh/$system"
   done
 }
