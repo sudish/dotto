@@ -1,3 +1,0 @@
-# (-*- shell-script -*-)
-
-alias ls="ls --color=auto"
