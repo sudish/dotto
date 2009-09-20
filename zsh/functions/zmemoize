@@ -4,6 +4,8 @@
 ## Standard memoization preserves standard output (if less than XX bytes), and the
 ## return value.
 ##
+## NOTE that none of the options are implemented yet.  Only the plain name form
+## works!
 ##
 ## Syntax:
 ##
@@ -15,9 +17,6 @@
 ##         Memoization timeout -- note that the memoized value is not guaranteed
 ##         to persist for this period, or indeed for any period as the cache may
 ##         be flushed
-##
-##    -s <storagetype>
-##         Memoization storage type.  May be one of "var", "file", "memcache".
 ##
 ##    -E
 ##         Also memoize standard error output.
@@ -48,11 +47,6 @@
 ##        Username.  Set by default. May be disabled with "+u".
 ##
 
-typeset -h -H -A zmemoize_config
-typeset -g -H -A zmemoize_defs
-typeset -g -H -A zmemoize_cache
-
-zmemoize_config[lenlen]=10
 
 function _zmemoize_calculate_key {
   emulate -L zsh
@@ -67,36 +61,57 @@ function _zmemoize_capture {
   local coutput cstatus
   coutput=$(_zmemoize_wrapped_$funcname $*)
   cstatus=$?
-  
-  zmemoize_cache[$key]="$cstatus\0$coutput\0         "
+  cstderr=""
+
+  zmemoize_cache[$key]=$(zavp stdout $coutput status $cstatus stderr $cstderr)
+
+  echo "$coutput"
+  return $cstatus
 }
 
 function _zmemoize_replay {
   emulate -L zsh
   local funcname=$1 key=$2 cached=$3
 
+  local -A decoded
+  if zavp -d -v decoded $cached; then
+    zctrace "decoded keys are ${(k)decoded}"
+    echo $decoded[stdout]
+    return $decoded[status]
+  fi
+
   echo "REPLAY: $cached" && return 254
 }
+
+function zmemoize_reset {
+  unset zmemoize_config zmemoize_defs zmemoize_cache
+
+  typeset -g -H -A zmemoize_config
+  typeset -g -H -A zmemoize_defs
+  typeset -g -H -A zmemoize_cache
+}
+
+function zmemoize_clear {
+  unset zmemoize_cache
+  typeset -g -H -A zmemoize_cache
+}
+
 
 function _zmemoize_wrapper {
   local key cached funcname
   funcname=$1
   key=$(_zmemoize_calculate_key $*)
-  zctrace "func is $1, key is $key" >&2
-  
-  [[ -n $zmemoize_cache[$key] ]] || _zmemoize_capture $key $*
-
-  cached=$zmemoize_cache[$key]
+  zctrace "wrapper: func is $1, key is $key" >&2
 
   zctrace "cached is ..$cached..${#cached}"
   
   ## short result means a status code; unset and return
-  if [[ ${#cached} -lt 4 ]]; then
-    unset "zmemoize_cache[$key]"
-    return $cached
+  if [[ -z $zmemoize_cache[$key] ]]; then
+    _zmemoize_capture $key $*
+    return
   fi
-  
-  _zmemoize_replay $funcname $key $cached
+
+  _zmemoize_replay $funcname $key $zmemoize_cache[$key]
 }
 
 function zmemoize {
@@ -181,11 +196,13 @@ Options:
 
   funcname=$1
   wrappername="_zmemoize_wrapped_$funcname"
-  echo "memoizing $funcname to $wrappername"
+  zctrace "memoizing $funcname to $wrappername"
   
+  unfunction $wrappername &>/dev/null
   zshellfunc_rename $funcname $wrappername || { echo "FAILED TO RENAME: $?"; return 20 }
   function $funcname {
     _zmemoize_wrapper $0 $*
   }
 }
 
+zmemoize_reset
