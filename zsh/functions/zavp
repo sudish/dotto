@@ -29,11 +29,11 @@ function zavp {
   emulate -L zsh
   
   if [[ $1 == "-d" ]]; then
-    zavp_decode $*
+    zavp_decode "${(@)*}"
   elif [[ $1 == "-t" ]]; then
     zavp_test $2
   else
-    zavp_encode $*
+    zavp_encode "${(@)*}"
   fi
 }
 
@@ -63,7 +63,7 @@ function zavp_encode {
   res=$zavp_vars[magic]
   res+=$zavp_vars[null]
 
-  for key value in ${(P)varname}; do
+  for key value in "${(@P)varname}"; do
     res+=${(q)key}
     res+=$zavp_vars[null]
     res+=${(q)value}
