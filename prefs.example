@@ -3,6 +3,9 @@
 ZSH_THEME=rsbox
 ZSH_PREFS_USER=rsanders
 
+# necessary to get prompt themes loaded
+uselib themes
+
 # set up completion magic
 hosts=(example.com www.example.com ftp.example.com shell.example.com)
 
