@@ -1,12 +1,17 @@
 #!/bin/zsh
 zctrace "running zshenv..."
+
 bootzshenv() {
   local dir zdir file relfile
-  for dir in $ZCONFIGDIR/zshenv.d $ZCONFIGDIR/zlogin.d/`uname` $ZCONFIGDIR/hosts/$SHORTHOST/zlogin.d; do
-    for file in $dir/*.zsh(N); do
-      source $file
-    done
+  for file in $ZCONFIGDIR/zshenv.d/*(.N) \
+         $ZCONFIGDIR/external/*/zsh/zshenv.d/*(.N) \
+         $ZCONFIGDIR/external/*/zsh/zshenv.d/`uname`/*(.N) \
+         $ZCONFIGDIR/external/*/hosts/$SHORTHOST/zshenv.d/*(.N)
+  do
+    [[ ${file:e} == "example" ]] && continue
+    source $file
   done
 }
 
 bootzshenv
+unfunction bootzshenv
