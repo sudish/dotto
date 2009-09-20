@@ -65,6 +65,7 @@ function _zmemoize_capture {
   zctrace "capturing $key..."
   local coutput cstatus
   local wrapper="_zmemoize_wrapped_$funcname"
+  typeset -A memoavps
   
   case $(zshellfunc_type $wrapper) in
     alias) 
@@ -72,27 +73,28 @@ function _zmemoize_capture {
          wrapper=${$(builtin alias $wrapper)#${wrapper}=}
          # dequote if necessary
          wrapper=${${wrapper#[\'\"]}%[\'\"]}
-         zctrace "Unwrapped alias of $funcname to $wrapper"
       ;;
   esac
-  coutput=$(${(z)wrapper} "${(@)*}")
-  cstatus=$?
-  cstderr=""
 
-  zmemoize_cache[$key]=$(zavp stdout "$coutput" status "$cstatus" stderr "$cstderr")
+  memoavps[stdout]=$(${(z)wrapper} "${(@)*}")
+  memoavps[status]=$?
 
-  echo "$coutput"
-  return $cstatus
+  zmemoize_cache[$key]=$(zavp -v memoavps)
+  
+  # zlog "MEMOAVP keys are ${(k)memoavps}, stdout is $memoavps[stdout], str is $(echo $zmemoize_cache[$key] | cat -vt)"
+
+  echo -E "$memoavps[stdout]"
+  return $memoavps[status]
 }
 
 function _zmemoize_replay {
   emulate -L zsh
   local funcname=$1 key=$2 cached=$3
 
-  local -A decoded
+  typeset -A decoded
   if zavp -d -v decoded $cached; then
-    zctrace "decoded keys are ${(k)decoded}"
-    echo $decoded[stdout]
+    # zctrace "decoded keys are ${(k)decoded}"
+    echo -E "$decoded[stdout]"
     return $decoded[status]
   fi
 
@@ -105,6 +107,11 @@ function zmemoize_reset {
   typeset -g -H -A zmemoize_config
   typeset -g -H -A zmemoize_defs
   typeset -g -H -A zmemoize_cache
+  
+  local funcname
+  for funcname in "${(@k)zmemoize_defs}"; do
+    zmemoize -U $funcname
+  done
 }
 
 function zmemoize_clear {
@@ -131,9 +138,9 @@ function _zmemoize_wrapper {
   local key cached funcname
   funcname=$1
   key=$(_zmemoize_calculate_key $*)
-  zctrace "wrapper: func is $1, key is $key" >&2
 
-  zctrace "cached is ..$cached..${#cached}"
+  # zctrace "wrapper: func is $1, key is $key" >&2
+  # zctrace "cached is ..$cached..${#cached}"
   
   ## short result means a status code; unset and return
   if [[ -z $zmemoize_cache[$key] ]]; then
@@ -167,6 +174,9 @@ Options:
          be flushed
 
     -c   Clear cache.
+    
+    -r   Reset entire memoization system, clearing cache and unmemoizing 
+         all functions.
 
     -E
          Also memoize standard error output.
@@ -186,7 +196,7 @@ Options:
     -l  Print a list of memoized functions.
 '
 
-  while getopts "cUEphPt:l" opt; do
+  while getopts "crUEphPt:l" opt; do
     case "$opt" in
       U) delete=1; action=unmemoize ;;
       c) action=clear; require_funcname=0 ;;
@@ -196,6 +206,7 @@ Options:
       H) memodef[vary_hostname]=1 ;;
       P) memodef[vary_pwd]=1 ;;
       v) verbose=1 ;;
+      r) action=reset; require_funcname=0;;
       l) action=list
          print ${(k)zmemoize_defs}
          return
@@ -218,6 +229,11 @@ Options:
   case $action in
     clear)
         zmemoize_clear $funcname
+        return
+      ;;
+    reset) 
+        zmemoize_reset
+        return
       ;;
     memoize) ;;
     unmemoize) ;;
@@ -225,16 +241,19 @@ Options:
   esac
 
   # clear all cached bits
+  [[ -n $funcname ]] || { echo "Must provide a function name"; return 1 }
+  
   zmemoize_clear "${funcname}:*"
 
   # if deletion is requested, or function is already memoized
   if [[ $delete == 1 || -n $zmemoize_defs[$funcname] ]]; then
     if [[ -n $zmemoize_defs[$funcname] ]]; then
       zctrace "unmemoizing $funcname from $wrappername"
-      
+
+      unset "zmemoize_defs[$funcname]"      
       unfunction $funcname
-      unset "zmemoize_defs[$funcname]"
-      zshellfunc_rename $wrappername $funcname || { echo "FAILED TO RENAME BACK: $?"; return 21 }
+
+      zshellfunc_rename $wrappername $funcname || { echo "FAILED TO RENAME BACK: $?" >&2; return 21 }
       return 0
     else
       [[ $action == "unmemoize" ]] && return 35
@@ -245,7 +264,7 @@ Options:
     zctrace "memoizing $funcname to $wrappername"
   
     unfunction $wrappername &>/dev/null
-    zshellfunc_rename $funcname $wrappername || { echo "FAILED TO RENAME: $?"; return 20 }
+    zshellfunc_rename $funcname $wrappername || { echo "FAILED TO RENAME: $?" >&2; return 20 }
     function $funcname {
       _zmemoize_wrapper $0 $*
     }
