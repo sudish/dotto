@@ -53,20 +53,28 @@ typeset -g -H -A zmemoize_cache
 
 function _zmemoize_calculate_key {
   emulate -L zsh
-  local funcname=$1
+  local funcname=$1 key=""
+  typeset -A memodef
   shift
-  echo "${funcname}:${(pj:\0:)*}"
+  
+  [[ -n "$zmemoize_defs[$funcname]" ]] && zavp -d -v memodef $zmemoize_defs[$funcname]
+  
+  key="${funcname}:${(pj:\0:)*}"
+  
+  echo -E $key
 }
 
 function _zmemoize_capture {
   local key=$1 funcname=$2
   shift 2
   
-  zctrace "capturing $key..."
+  # zlog "capturing $key..."
   local coutput cstatus
   local wrapper="_zmemoize_wrapped_$funcname"
-  typeset -A memoavps
-  
+  typeset -A memoavps memodef
+
+  [[ -n "$zmemoize_defs[$funcname]" ]] && zavp -d -v memodef $zmemoize_defs[$funcname]
+
   case $(zshellfunc_type $wrapper) in
     alias) 
          # get actual effective command
@@ -78,6 +86,7 @@ function _zmemoize_capture {
 
   memoavps[stdout]=$(${(z)wrapper} "${(@)*}")
   memoavps[status]=$?
+  [[ -n $memodef[timeout] ]] && memoavps[expires]=$(($EPOCHSECONDS + $memodef[timeout]))
 
   zmemoize_cache[$key]=$(zavp -v memoavps)
   
@@ -87,20 +96,9 @@ function _zmemoize_capture {
   return $memoavps[status]
 }
 
-function _zmemoize_replay {
-  emulate -L zsh
-  local funcname=$1 key=$2 cached=$3
-
-  typeset -A decoded
-  if zavp -d -v decoded $cached; then
-    # zctrace "decoded keys are ${(k)decoded}"
-    echo -E "$decoded[stdout]"
-    return $decoded[status]
-  fi
-
-  echo "REPLAY: $cached" && return 254
-}
-
+#
+# Clear the cache and unmemoize all memoized functions
+#
 function zmemoize_reset {
   zmemoize_cache=
 
@@ -114,7 +112,11 @@ function zmemoize_reset {
   done
 }
 
+#
+# Clear all or part of the cache
+#
 function zmemoize_clear {
+  emulate -L zsh
   local pattern=$1
   
   if [[ -n $pattern ]]; then
@@ -135,20 +137,34 @@ function zmemoize_clear {
 
 
 function _zmemoize_wrapper {
-  local key cached funcname
-  funcname=$1
+  local key="" cached="" funcname=$1 capture=1
+
   key=$(_zmemoize_calculate_key $*)
+  cached=$zmemoize_cache[$key]
 
   # zctrace "wrapper: func is $1, key is $key" >&2
   # zctrace "cached is ..$cached..${#cached}"
   
   ## short result means a status code; unset and return
-  if [[ -z $zmemoize_cache[$key] ]]; then
-    _zmemoize_capture $key $*
-    return
+  if [[ -n $cached ]]; then
+    typeset -A zdecoded
+    if zavp -d -v zdecoded $cached 2>/dev/null; then
+      if [[ -n $zdecoded[expires] && $zdecoded[expires] -le $EPOCHSECONDS ]]; then
+        zlog "zmemoize_wrapper: expiring $funcname:$* entry"
+        capture=1
+        unset "zmemoize_cache[$key]"
+      else
+        echo -E "$zdecoded[stdout]"
+        return $zdecoded[status]
+      fi
+    fi
   fi
 
-  _zmemoize_replay $funcname $key $zmemoize_cache[$key]
+  if [[ $capture == 1 ]]; then
+    _zmemoize_capture $key $*
+  else
+    $*
+  fi
 }
 
 function zmemoize {
