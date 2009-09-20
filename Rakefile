@@ -74,6 +74,8 @@ file "#{ZSHBUILDDIR}/functions.zwc" => Dir.glob("#{ZCONFIGDIR}/functions/*") do 
   zsh "zcompile #{t} #{t.prerequisites.join(" ")}"
 end
 
-file "#{ZSHBUILDDIR}/libfunctions.zwc" => Dir.glob("#{ZCONFIGDIR}/lib/*/functions/*") do |t|
-  zsh "zcompile #{t} #{t.prerequisites.join(" ")}"
+FUNCDIRS = ["#{ZCONFIGDIR}/lib/*/functions/*", "#{DOTTODIR}/external/*/zsh/functions/*"]
+
+file "#{ZSHBUILDDIR}/libfunctions.zwc" => Dir.glob(FUNCDIRS) do |t|
+  zsh "zcompile -U #{t} #{t.prerequisites.join(" ")}"
 end
