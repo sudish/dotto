@@ -1,0 +1,116 @@
+#!/bin/zsh
+
+# zavp -v VARNAME  
+#    returns a string encoding the contents of variable named VARNAME
+#    VARNAME must be an associative array
+#
+# zavp key value [(key value)...]
+#    returns a string encoding the key/value pairs passed as args
+#
+# zavp -d -v VARNAME STRING
+#    adds the avps from STRING into an associative array named VARNAME.
+#    the variable VARNAME must already exist and be of type association
+#    (typeset -A hash).  existing contents will not be cleared.
+#
+# zavp -d STRING
+#    sets the positional parameters as M=keyN, M+1=valueN, etc. as
+#    decoded from STRING
+#
+#
+
+typeset -A -H -g zavp_vars
+zavp_vars[magic]='7108008'
+zavp_vars[magicnull]=$(echo -n -e '7108008\x00')
+zavp_vars[null]=$(echo -n -e '\x00')
+  
+##
+## Format:
+##
+##   Magic string @ 0-6  7108008 \0
+##
+##      that's hex: 37 31 00 38 00 00 38
+##
+##   One or more pairs of (key, \0, value, \0)
+##
+##   Magic string 7108008
+##
+
+function zavp_encode {
+  emulate -L zsh
+  unsetopt multibyte
+
+  local res varname="*"
+
+  if [[ $1 == "-v" ]]; then
+    varname=$2
+    shift 2
+  fi
+
+  res=$zavp_vars[magic]
+  res+=$zavp_vars[null]
+
+  for key value in ${(P)varname}; do
+    res+=${(q)key}
+    res+=$zavp_vars[null]
+    res+=${(q)value}
+    res+=$zavp_vars[null]
+  done
+  res+=$zavp_vars[magic]
+  
+  echo -E -n $res
+}
+
+function zavp_decode {
+  emulate -L zsh
+  unsetopt multibyte
+  
+  local varname="" string positional=1
+  typeset -a parts
+  
+  [[ $1 == "-d" ]] && shift
+
+  if [[ $1 == "-v" ]]; then
+    positional=0
+    varname=$2
+    shift 2
+  else
+    echo "-v VARNAME form is required" >&2
+    return 100
+  fi
+  string=$1
+  shift 1
+  
+  zctrace "string is ${(q)string}"
+  
+  set -A parts ${(ps:\0:)string}
+  
+  zctrace "count is $#parts, first is ${(q)parts[1]}, last is ${(q)parts[$#parts]}"
+  [[ $parts[1] == $zavp_vars[magic] && $parts[$#parts] == $zavp_vars[magic] ]] || { 
+      zlog "Bad magic for zavp"
+      echo "Bad magic for zavp" >&2
+      return 20 
+  }
+  
+  # remove magic bits
+  parts[$#parts]=()
+  parts[1]=()
+
+  if [[ $positional == 1 || -z $varname ]]; then
+    ## this is totally broken -- can't set from parent
+  else
+    for key val in $parts; do
+      # zctrace "DECODE: key is ${(Q)key}, val is ${(Q)val}"
+      eval "${varname}[\${(Q)key}]=\${(Q)val}"
+    done
+  fi
+}
+
+function zavp {
+  emulate -L zsh
+  
+  if [[ $1 == "-d" ]]; then
+    zavp_decode $*
+  else
+    zavp_encode $*
+  fi
+}
