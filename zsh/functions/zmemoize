@@ -4,8 +4,8 @@
 ## Standard memoization preserves standard output (if less than XX bytes), and the
 ## return value.
 ##
-## NOTE that none of the options are implemented yet.  Only the plain name form
-## works!
+## NOTE that none of the options showh here are implemented yet.  See the usage text
+## from "zmemoize -h" to see what works!
 ##
 ## Syntax:
 ##
@@ -13,25 +13,13 @@
 ##
 ## General options
 ##
-##    -t <seconds> 
-##         Memoization timeout -- note that the memoized value is not guaranteed
-##         to persist for this period, or indeed for any period as the cache may
-##         be flushed
-##
 ##    -E
 ##         Also memoize standard error output.
 ##
 ## In addition to the arguments, the following components may be added to the
 ## memoization key:
 ##
-##    -P   
-##         Current working directory ($PWD)
-##
-##    -f <function>
-##         a function name to be evaluated at call time
-##
-##    -v <varstring>
-##         a variable reference to be evaluated at call time - full expansion is performed
+##    -P   Current working directory ($PWD)
 ##
 ##    -g <glob>
 ##         a glob to be evaluated at call time
@@ -40,12 +28,6 @@
 ##        ZSH option settings; option names are expressed as space or comma separated
 ##        names in string form, e.g. "login,promptpercent"
 ##
-##    -H
-##        Hostname.  Set by default. May be disabled with "+h".
-##
-##    -u
-##        Username.  Set by default. May be disabled with "+u".
-##
 
 typeset -g -H -A zmemoize_config
 typeset -g -H -A zmemoize_defs
@@ -53,13 +35,24 @@ typeset -g -H -A zmemoize_cache
 
 function _zmemoize_calculate_key {
   emulate -L zsh
-  local funcname=$1 key=""
-  typeset -A memodef
+  local funcname=$1 key="" funcall=""
+  typeset -A memodef addons
   shift
   
   [[ -n "$zmemoize_defs[$funcname]" ]] && zavp -d -v memodef $zmemoize_defs[$funcname]
   
   key="${funcname}:${(pj:\0:)*}"
+  
+  [[ $memodef[vary_pwd] == 1 ]] && addons[pwd]=$PWD
+  [[ $memodef[vary_username] == 1 ]] && addons[username]=$USERNAME
+  [[ $memodef[vary_hostname] == 1 ]] && addons[hostname]=$HOSTNAME
+  [[ -n $memodef[vary_function] ]] && funcall=$memodef[vary_function] && \
+      addons[funcall]=$(${(z)funcall} 2>/dev/null)
+  [[ -n $memodef[vary_eval] ]] && addons[evalcall]=$(eval "echo $memodef[vary_eval]" 2>/dev/null)
+
+  if [[ ${#addons} -gt 0 ]]; then
+    key+=":${(pj:\0:)${(kv)addons}}"
+  fi
   
   echo -E $key
 }
@@ -188,31 +181,23 @@ Options:
          Memoization timeout -- note that the memoized value is not guaranteed
          to persist for this period, or indeed for any period as the cache may
          be flushed
-
     -c   Clear cache.
-    
     -r   Reset entire memoization system, clearing cache and unmemoizing 
          all functions.
-
-    -E
-         Also memoize standard error output.
-         
+    -E   Also memoize standard error output.
     -U   Unmemoize function
-
-    -P   
-         Current working directory ($PWD)
-    -H
-        Hostname.  Set by default. May be disabled with "+h".
-
-    -u
-        Username.  Set by default. May be disabled with "+u".
-    
-    -h  This help.
-    
-    -l  Print a list of memoized functions.
+    -P   Current working directory ($PWD)
+    -f <function>
+         a function name to be evaluated at call time
+    -v <varstring>
+         a variable reference to be evaluated at call time - full expansion is performed
+    -H   Hostname.  Set by default. May be disabled with "+h".
+    -u   Username.  Set by default. May be disabled with "+u".
+    -l   Print a list of memoized functions.
+    -h   This help.
 '
 
-  while getopts "crUEphPt:l" opt; do
+  while getopts "VcrUEphPt:lf:v:" opt; do
     case "$opt" in
       U) delete=1; action=unmemoize ;;
       c) action=clear; require_funcname=0 ;;
@@ -221,7 +206,9 @@ Options:
       p) memodef[vary_hostname]=1 ;;
       H) memodef[vary_hostname]=1 ;;
       P) memodef[vary_pwd]=1 ;;
-      v) verbose=1 ;;
+      f) memodef[vary_function]=$OPTARG ;;
+      v) memodef[vary_eval]=$OPTARG ;;
+      V) verbose=1 ;;
       r) action=reset; require_funcname=0;;
       l) action=list
          print ${(k)zmemoize_defs}
@@ -270,7 +257,6 @@ Options:
       unfunction $funcname
 
       zshellfunc_rename $wrappername $funcname || { echo "FAILED TO RENAME BACK: $?" >&2; return 21 }
-      return 0
     else
       [[ $action == "unmemoize" ]] && return 35
     fi
