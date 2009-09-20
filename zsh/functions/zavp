@@ -123,6 +123,7 @@ function zavp_decode {
   if [[ $positional == 1 || -z $varname ]]; then
     ## this is totally broken -- can't set from parent
   else
+    local key="" val=""
     for key val in $parts; do
       # zctrace "DECODE: key is ${(Q)key}, val is ${(Q)val}"
       eval "${varname}[\${(Q)key}]=\${(Q)val}"
