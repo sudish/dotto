@@ -63,12 +63,23 @@ function zavp_encode {
   res=$zavp_vars[magic]
   res+=$zavp_vars[null]
 
-  for key value in "${(@P)varname}"; do
-    res+=${(q)key}
-    res+=$zavp_vars[null]
-    res+=${(q)value}
-    res+=$zavp_vars[null]
-  done
+  if [[ $varname == "*" || -z ${(t)varname:#*array*} ]]; then
+    for key value in "${(@P)varname}"; do
+      # zlog "ENCODE *: $key=$value"
+      res+=${(q)key}
+      res+=$zavp_vars[null]
+      res+=${(q)value}
+      res+=$zavp_vars[null]
+    done
+  else
+    for key value in "${(@Pvk)varname}"; do
+      # zlog "ENCODE $varname: $key=$value"
+      res+=${(q)key}
+      res+=$zavp_vars[null]
+      res+=${(q)value}
+      res+=$zavp_vars[null]
+    done
+  fi
   res+=$zavp_vars[magic]
   
   echo -E -n $res
