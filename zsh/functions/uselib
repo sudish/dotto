@@ -35,6 +35,8 @@ function _zfindlib {
 function uselib {
   local lib libdir
 
+  [[ $# == 0 ]] && { echo "${(k)zloaded_libs}"; return 0 }
+
   for lib in "${(@)*}"; do
     [[ -n $zloaded_libs[$lib] ]] && return 0
     libdir=$(_zfindlib $lib) || { echo "Cannot find library: $lib"; return 1 }
