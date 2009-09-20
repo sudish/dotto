@@ -27,13 +27,20 @@ if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
 
     # globally used variables
     zinclude_path=("$ZCONFIGDIR")
-    # zinclude_path+= 
+    # for zcfile in 
 
 
     # load default prefs and local prefs
     zrunsystem prefs
-    [[ -d $DOTTODIR/prefs ]] && source $DOTTODIR/prefs
-    zsource prefs
+    [[ -f $DOTTODIR/prefs ]] && source $DOTTODIR/prefs
+    [[ -f $DOTTODIR/zsh/prefs ]] && source $DOTTODIR/zsh/prefs
+    for zcfile in $DOTTODIR/external/*/prefs(.N) \
+                  $DOTTODIR/external/*/zsh/prefs(.N) \
+                  $DOTTODIR/external/*/users/$USERNAME/zsh/prefs(.N) \
+                  $DOTTODIR/local/prefs(.N)
+    do
+      [[ -f $zcfile ]] && source $zcfile
+    done
 
     zrunsystem newshell
   

@@ -29,12 +29,17 @@ function zrunsystem() {
   for systemname in "${(@)*}"; do
     zctrace "zrunsystem: $systemname"
     system="${systemname%.d}.d"
-    zsyssourcedir "$system" 
-    zsyssourcedir "$system/`uname`" 
-    zsyssourcedir "os/`uname`/zsh/$system" 
-    [ -n "$domain" ] && zsyssourcedir "domains/$domain/zsh/$system"
-    zsyssourcedir "hosts/`hostname -s`/zsh/$system" 
-    zsyssourcedir "hosts/`hostname`/zsh/$system"
-    zsyssourcedir "users/$USERNAME/zsh/$system"
+    
+    typeset -a dirs
+    
+    dirs+="$system" 
+    dirs+="$system/`uname`" 
+    dirs+="os/`uname`/zsh/$system" 
+    [ -n "$domain" ] && dirs+="domains/$domain/zsh/$system"
+    dirs+="hosts/`hostname -s`/zsh/$system" 
+    dirs+="hosts/`hostname`/zsh/$system"
+    dirs+="users/$USERNAME/zsh/$system"
+    
+    zsyssourcedir $dirs
   done
 }
