@@ -36,8 +36,18 @@ task :pull do
   system %Q{git pull}
   Dir.glob("external/*/.git").each do |gitdir|
     dir=File.dirname gitdir
-    puts "Pulling external dir #{dir}"
+    puts "Pulling external dir #{dir} with Git"
     system %Q{cd #{dir} && git pull}
+  end
+  Dir.glob("external/*/.svn").each do |gitdir|
+    dir=File.dirname gitdir
+    puts "Pulling external dir #{dir} with Subversion"
+    system %Q{cd #{dir} && svn update}
+  end
+  Dir.glob("external/*/.hg").each do |gitdir|
+    dir=File.dirname gitdir
+    puts "Pulling external dir #{dir} with Mercurial"
+    system %Q{cd #{dir} && hg pull}
   end
 end
 
