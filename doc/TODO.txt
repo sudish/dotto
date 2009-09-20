@@ -9,3 +9,21 @@
 
 - break out the git stuff from rsbox
 - speed up shell launch with caching/precompilation
+
+
+
+
+External libs to receive inspiration from / write lib shims for:
+  anything-zsh-screen
+  apinstein-dotfiles
+  bkerley-zshkit
+  chrononaut-my-zsh
+  jcorbin-zsh-git
+  mattfoster-dotfiles
+  oh-my-zsh
+  ryanb-dotfiles
+  senny-dotfiles
+  simonoff-zsh
+  stephencelis-dotfiles
+  wadey-zshscripts
+

@@ -34,6 +34,20 @@ task :update => [:pull, :updatelocal]
 desc "Pull latest from repository"
 task :pull do
   system %Q{git pull}
+  Dir.glob("external/*/.git").each do |gitdir|
+    dir=File.dirname gitdir
+    puts "Pulling external dir #{dir}"
+    system %Q{cd #{dir} && git pull}
+  end
+end
+
+desc "Push external dir changes into upstream repository"
+task :pull do
+  Dir.glob("external/*/.git").each do |gitdir|
+    dir=File.dirname gitdir
+    puts "Pulling external dir #{dir}"
+    system %Q{cd #{dir} && git push}
+  end
 end
 
 desc "Install in home directory"
