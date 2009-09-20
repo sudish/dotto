@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+uselib zgit
+
 function dotto_version {
   emulate -L zsh
   local ver description tag  
