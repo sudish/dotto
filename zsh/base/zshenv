@@ -2,7 +2,7 @@
 
 zctrace() { 
   if [ "$ZC_TRACE" = 1 ]; then
-    echo "$*"
+    echo "$*" >&2
   fi
 }
 

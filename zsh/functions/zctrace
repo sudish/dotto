@@ -4,7 +4,7 @@ zctrace() {
   emulate -L zsh
 
   if [[ $ZC_TRACE == 1 ]]; then
-    echo "$*"
+    echo "$*">&2
   fi
   
   zlog "$*"
