@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-zlog() {
+function zlog {
   emulate -L zsh
 
   if [[ $DOTTO_DEBUG == 1 || $ZLOG_DEBUG == 1 ]]; then
