@@ -38,7 +38,8 @@ if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
     for zcfile in $DOTTODIR/external/*/prefs(.N) \
                   $DOTTODIR/external/*/zsh/prefs(.N) \
                   $DOTTODIR/external/*/users/$USERNAME/zsh/prefs(.N) \
-                  $DOTTODIR/local/prefs(.N)
+                  $DOTTODIR/local/prefs \
+                  $DOTTODIR/local/zsh/prefs
     do
       [[ -f $zcfile ]] && source $zcfile
     done
