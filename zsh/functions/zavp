@@ -16,13 +16,27 @@
 #    sets the positional parameters as M=keyN, M+1=valueN, etc. as
 #    decoded from STRING
 #
+# zavp -t STRING
+#    true if STRING appears to be an AVP-encoded string; false otherwise
 #
 
 typeset -A -H -g zavp_vars
 zavp_vars[magic]='7108008'
 zavp_vars[magicnull]=$(echo -n -e '7108008\x00')
 zavp_vars[null]=$(echo -n -e '\x00')
+
+function zavp {
+  emulate -L zsh
   
+  if [[ $1 == "-d" ]]; then
+    zavp_decode $*
+  elif [[ $1 == "-t" ]]; then
+    zavp_test $2
+  else
+    zavp_encode $*
+  fi
+}
+
 ##
 ## Format:
 ##
@@ -105,12 +119,8 @@ function zavp_decode {
   fi
 }
 
-function zavp {
-  emulate -L zsh
-  
-  if [[ $1 == "-d" ]]; then
-    zavp_decode $*
-  else
-    zavp_encode $*
-  fi
+function zavp_test {
+  local val=$1
+  [[ $val[1,7] == $zavp_vars[magic] && $val[-7,-1] == $zavp_vars[magic] ]]
 }
+
