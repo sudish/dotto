@@ -1,8 +1,8 @@
 
 # -- start rip config -- #
 
-RIPDIR=$HOME/.rip
-RUBYLIB="$RUBYLIB:$RIPDIR/active/lib"
+typeset -g RIPDIR=$HOME/.rip
+typeset -g RUBYLIB="$RUBYLIB:$RIPDIR/active/lib"
 PATH="$PATH:$RIPDIR/active/bin"
 export RIPDIR RUBYLIB PATH
 

@@ -134,7 +134,7 @@ function prompt_rsbox_precmd {
     ###
     # Truncate the path if it's too long.
     
-    PR_FILLBAR=""
+    rsboxvars[PR_FILLBAR]=""
     local PR_PWDLEN=""
     
     typeset -A -L altchar
@@ -147,13 +147,13 @@ function prompt_rsbox_precmd {
     if [[ "$promptsize + $pwdsize" -gt $TERMWIDTH ]]; then
 	    (( PR_PWDLEN=$TERMWIDTH - $promptsize ))
     else
-	    PR_FILLBAR="\${(l.(($TERMWIDTH - ($promptsize + $pwdsize)))..${PR_HBAR}.)}"
+	    rsboxvars[PR_FILLBAR]="\${(l.(($TERMWIDTH - ($promptsize + $pwdsize)))..${PR_HBAR}.)}"
     fi
 
     prompt_rsbox_vcsupdate 2>/dev/null
 
-    PR_APM=''
-    PR_APM_RESULT=''
+    rsboxvars[PR_APM]=''
+    rsboxvars[PR_APM_RESULT]=''
     
     rsboxvars[preexec_ran]=0
 }
@@ -310,18 +310,18 @@ function prompt_rsbox_setup() {
 
     local RSBOXHOST=`hostname -s`
 
-    rsboxvars[LEFTPART]="--(%(?..%?:)${(e)PR_APM}${RSBOXHOST}:%(!..)%#)-- "
+    rsboxvars[LEFTPART]="--(%(?..%?:)${(e)rsboxvars[PR_APM]}${RSBOXHOST}:%(!..)%#)-- "
 
     PROMPT="$PR_SET_CHARSET$PR_STITLE${(e)PR_TITLEBAR}\
 $PR_CYAN$PR_SHIFT_IN$PR_ULCORNER$PR_BLUE$PR_HBAR$PR_SHIFT_OUT(\
 $PR_MAGENTA%$PR_PWDLEN<...<%~%<<\
-$PR_BLUE)$PR_SHIFT_IN$PR_HBAR$PR_CYAN$PR_HBAR\${(e)PR_FILLBAR}$PR_BLUE$PR_HBAR$PR_SHIFT_OUT(\
+$PR_BLUE)$PR_SHIFT_IN$PR_HBAR$PR_CYAN$PR_HBAR\${(e)rsboxvars[PR_FILLBAR]}$PR_BLUE$PR_HBAR$PR_SHIFT_OUT(\
 $PR_GREEN%(!.%SROOT%s.%n)$PR_GREEN@%m:%l\${rsboxvars[PR_SHLVL]}-%j\
 $PR_BLUE)$PR_SHIFT_IN$PR_HBAR$PR_CYAN$PR_URCORNER$PR_SHIFT_OUT\
 
 $PR_CYAN$PR_SHIFT_IN$PR_LLCORNER$PR_BLUE$PR_HBAR$PR_SHIFT_OUT(\
 %(?..$PR_LIGHT_RED%?$PR_BLUE:)\
-${(e)PR_APM}$PR_YELLOW${RSBOXHOST}\
+${(e)rsboxvars[PR_APM]}$PR_YELLOW${RSBOXHOST}\
 $PR_LIGHT_BLUE:%(!.$PR_RED.$PR_WHITE)%#$PR_BLUE)$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT\
 $PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT\
 $PR_NO_COLOUR "

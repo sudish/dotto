@@ -5,7 +5,7 @@ function dotto_version {
   local ver description tag  
 
   if [[ -z $dotto_vars[version] ]]; then
-    oldpwd=$PWD
+    local oldpwd=$PWD
   
     {
       cd $DOTTODIR

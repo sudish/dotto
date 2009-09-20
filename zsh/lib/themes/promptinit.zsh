@@ -6,9 +6,10 @@
 ## Type `prompt -h' for help.
 ##
 
+typeset -g -a -U prompt_themes
+typeset -g -a prompt_theme >/dev/null
+
 prompt_themes=()
-typeset -gU prompt_themes
-typeset -g prompt_theme >/dev/null
 
 promptinit () {
   emulate -L zsh
@@ -34,7 +35,7 @@ promptinit () {
   autoload -U add-zsh-hook
 
   # Variables common to all prompt styles
-  prompt_newline=$'\n%{\r%}'
+  typeset -g prompt_newline=$'\n%{\r%}'
 }
 
 prompt_preview_safely() {

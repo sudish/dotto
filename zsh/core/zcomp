@@ -93,6 +93,9 @@ compctl -g '*.gz *.z *.Z' + -g '*(-/)' gunzip
 compctl -g '*.Z' + -g '*(-/)' uncompress
 
 # rudimentary completion for gcc
+
+typeset -a gccfopts gccwopts gccopts gcclibs gccsource
+
 gccfopts=(caller-saves cse-follow-jumps \
   cse-skip-blocks delayed-branch elide-constructors \
   expensive-optimizations fast-math float-store force-addr \
@@ -125,6 +128,7 @@ gccopts=(c S E o pipe v s l \
 
 gcclibs=(c m termcap curses dbm g++)
 gccsource="*.c *.cc *.cxx *.C *.S *.s *.i *.ii *.m"
+
 compctl -g "$gccsource *.o *.a *(/)" -x 's[-l]' -k "($gcclibs)" - \
         's[--W][-W]' -k "($gccwopts)" - \
         's[--f][-f]' -k "($gccfopts)" - \
