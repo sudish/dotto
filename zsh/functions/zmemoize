@@ -64,11 +64,22 @@ function _zmemoize_capture {
   
   zctrace "capturing $key..."
   local coutput cstatus
-  coutput=$(_zmemoize_wrapped_$funcname $*)
+  local wrapper="_zmemoize_wrapped_$funcname"
+  
+  case $(zshellfunc_type $wrapper) in
+    alias) 
+         # get actual effective command
+         wrapper=${$(builtin alias $wrapper)#${wrapper}=}
+         # dequote if necessary
+         wrapper=${${wrapper#[\'\"]}%[\'\"]}
+         zctrace "Unwrapped alias of $funcname to $wrapper"
+      ;;
+  esac
+  coutput=$(${(z)wrapper} "${(@)*}")
   cstatus=$?
   cstderr=""
 
-  zmemoize_cache[$key]=$(zavp stdout $coutput status $cstatus stderr $cstderr)
+  zmemoize_cache[$key]=$(zavp stdout "$coutput" status "$cstatus" stderr "$cstderr")
 
   echo "$coutput"
   return $cstatus
@@ -89,10 +100,6 @@ function _zmemoize_replay {
 }
 
 function zmemoize_reset {
-
-
-  zmemoize_config=
-  zmemoize_defs=
   zmemoize_cache=
 
   typeset -g -H -A zmemoize_config
@@ -181,7 +188,6 @@ Options:
 
   while getopts "cUEphPt:l" opt; do
     case "$opt" in
-      h) print $usage; exit 0 ;;
       U) delete=1; action=unmemoize ;;
       c) action=clear; require_funcname=0 ;;
       E) memodef[stderr]=1 ;;
@@ -194,6 +200,7 @@ Options:
          print ${(k)zmemoize_defs}
          return
          ;;
+      h) print $usage; return 0 ;;
       *) print $usage; return 1;;
     esac
   done
