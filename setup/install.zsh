@@ -1,16 +1,50 @@
 #!/usr/bin/env zsh
 
-DOTTODIR=`dirname $0`/..
-ZCONFIGDIR=$DOTTODIR/zsh
-
 
 function zgit_dirty () {
     emulate -L zsh
     local gitstatus
+    local dir=$1
     
-    gitstatus=$(git status 2>/dev/null) && [[ -n ${gitstatus:#*nothing to commit*} ]] && return 0
+    (
+      [[ -n $dir ]] && { cd $dir || return 1 }
+      [[ -d .git ]] || return 1
+ 
+      gitstatus=$(git status 2>/dev/null)
+      [[ -z ${gitstatus:#*working directory clean*} ]] && return 1
+      return 0
+    )
 }
 
+function zrealpath() {
+  emulate -L zsh
+
+  local pth="$1"
+  
+  [[ $pth[1] == "/" ]] || pth="$PWD/$pth"
+
+  if [ "${pth:t}" = "." -o "${pth:t}" = ".." -o -d "$pth" ]; then
+      (cd -P "$pth" && pwd -P)
+      return
+  fi
+
+  if [[ "${pth:h}" == "/" ]]; then
+      echo "$pth"
+      return
+  fi
+  
+  local dir=${pth:h}
+  dir=$(cd -P "$dir" && pwd -P)
+  
+  echo "$dir/${pth:t}"
+}
+
+
+DOTTODIR=$(zrealpath ${0:h}/..)
+ZCONFIGDIR=$DOTTODIR/zsh
+
+
+dobackup=1
 if egrep 'DOTTODIR' $HOME/.zprofile >/dev/null 2>&1; then
   dozbackup=0
 else
@@ -20,10 +54,14 @@ fi
 backupbase=$DOTTODIR/local/backup
 
 zbackupdir=$backupbase/`hostname`
+dotbackupdir=$zbackupdir/conf.d
 
-if [[ ! -d $backupbase || ! -d $backupbase/.git ]]; then
-    mkdir -p "$zbackupdir"
-    (cd $backupbase && git init)
+if [[ $dobackup == 1 ]]; then
+  if [[ ! -d $backupbase || ! -d $backupbase/.git ]]; then
+      mkdir -p "$zbackupdir"
+      (cd $backupbase && git init)
+  fi
+  mkdir -p $dotbackupdir
 fi
 
 #
@@ -36,11 +74,10 @@ for zfile in $ZCONFIGDIR/base/*; do
   # skip if no change
   cmp $HOME/$dotfile $zfile &>/dev/null && continue
   
-  if [[ -f $HOME/$dotfile && $dozbackup = 1 ]]; then
+  if [[ $dobackup == 1 && -f $HOME/$dotfile && $dozbackup = 1 ]]; then
     echo "Backing up $dotfile"
     cp $HOME/$dotfile $zbackupdir/$basefile
   fi
-  # mv -i $HOME/$dotfile $HOME/${dotfile}.prezfiles
   rm -f $HOME/$dotfile
   cp -f $zfile $HOME/$dotfile
 done
@@ -51,10 +88,11 @@ done
 
 typeset -A installed_dotfiles
 
-for zfile in $DOTTODIR/external/conf.d/*(N) $DOTTODIR/conf.d/*(N); do
+for zfile in $DOTTODIR/external/*/conf.d/*(N) $DOTTODIR/conf.d/*(N); do
   basefile=`basename $zfile`
   dotfile=.$basefile
   install=1
+  linkdest=${zfile#$HOME/}
 
   if [[ -n $installed_dotfiles[$dotfile] ]]; then
     echo "Skipping ${zfile#$DOTTODIR/}; already installed $dotfile"
@@ -66,32 +104,38 @@ for zfile in $DOTTODIR/external/conf.d/*(N) $DOTTODIR/conf.d/*(N); do
     continue
   fi
   
-  # skip if no change
-  cmp $HOME/$dotfile $zfile >/dev/null && continue
+  # echo "dotfile=$dotfile, linkdest=$linkdest, rl=$(readlink $HOME/$dotfile), basefile=$basefile, target=$HOME/$dotfile"
+  
+  # skip if already set properly
+  if [[ -h $HOME/$dotfile && $(readlink $HOME/$dotfile) == $linkdest ]]; then
+    continue
+  fi
   
   if [[ -h $HOME/$dotfile ]]; then
     echo "Removing old symlink for .$basefile"
     rm -f $HOME/$dotfile
   elif [[ -f $HOME/$dotfile || -d $HOME/$dotfile ]]; then
-    echo "Backing up conf.d $dotfile and creating symlink"
-    mv $HOME/$dotfile $zbackupdir/$basefile
-  else
-    echo "No backup necessary for $basefile"
+    if [[ $dobackup == 1 ]]; then
+      echo "Backing up conf.d/$basefile"
+      mv $HOME/$dotfile $dotbackupdir/$basefile
+    fi
   fi
 
   # make relative symlink
   if [ "$install" = "1" ]; then
     installed_dotfiles[$dotfile]=$zfile
     echo "Installing .$basefile symlink"
-    ln -s ${zfile#$HOME/} $HOME/$dotfile
+    ln -s $linkdest $HOME/$dotfile
   fi
 done
 
 
-if [ "$dozbackup" = 1 ]; then
-  cd $backupbase && zgit_dirty && \
-         git add -f `basename $zbackupdir` && \
-         git commit -a -m"backed up host `hostname`"
+if [[ $dobackup == 1 ]]; then
+  if cd $backupbase && zgit_dirty; then
+    echo "Your existing files were backed up into $zbackupdir"
+    git add -f `basename $zbackupdir`
+    git commit -a -m"backed up host `hostname`"
+  fi
 fi
 
 echo "Done installing Dotto into $HOME.  Now re-login or 'exec zsh -l' to activate."
