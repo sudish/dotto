@@ -31,7 +31,5 @@ unset _zlib _zfile
 
 zrunsystem zshrc
 
-echo "DOTTO version: $(dotto_version)"
-
 zsource core/zcomp
 zsource core/zperiodic 
