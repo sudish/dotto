@@ -15,19 +15,19 @@ zctrace "running zshrc.."
 # set hostname
 HOSTNAME=`hostname`
 
-for _zlib in $ZCONFIGDIR/lib/*(/); do
-  zctrace "Loading lib $_zlib"
-  if [ -d $_zlib/functions ]; then
-      fpath+=$_zlib/functions
-  fi
-  if [ -d $_zlib/include ]; then
-      zinclude_path+=$_zlib/include
-  fi
-  if [ -f "$_zlib/librc.zsh" ]; then
-    zsource "$_zlib/librc.zsh"
-  fi
-done
-unset _zlib _zfile
+# for _zlib in $ZCONFIGDIR/lib/*(/); do
+#   zctrace "Loading lib $_zlib"
+#   if [ -d $_zlib/functions ]; then
+#       fpath+=$_zlib/functions
+#   fi
+#   if [ -d $_zlib/include ]; then
+#       zinclude_path+=$_zlib/include
+#   fi
+#   if [ -f "$_zlib/librc.zsh" ]; then
+#     zsource "$_zlib/librc.zsh"
+#   fi
+# done
+# unset _zlib _zfile
 
 zrunsystem zshrc
 

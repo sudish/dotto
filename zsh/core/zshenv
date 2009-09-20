@@ -11,6 +11,15 @@ bootzshenv() {
     [[ ${file:e} == "example" ]] && continue
     source $file
   done
+  
+  typeset -g -a -H -U zlib_paths zprofile_files zshrc_files \
+        zcomp_files zperiodic_files zlogin_files zlogout_files
+  
+  for dir in $DOTTODIR/local/zsh/lib $DOTTODIR/external/*/zsh/lib(N) \
+           $ZCONFIGDIR/lib
+  do
+    [[ -d $dir ]] && zlib_paths+=$dir
+  done
 }
 
 bootzshenv

@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+typeset -g -a -H -U zprofile_files zshrc_files \
+        zcomp_files zperiodic_files zlogin_files zlogout_files
+
 function zsyssourcedir {
     emulate zsh
     local droot dir
@@ -21,16 +24,16 @@ function zsyssourcedir {
 
 function zrunsystem() {
   emulate zsh
-  local systemname system
+  local systemname system zfile arrayname
   local domain="$(zdomainname)"
 
   local sysuser=${ZSH_PREFS_USER:-$USERNAME}
 
+  typeset -a dirs
   for systemname in "${(@)*}"; do
+    dirs=()
     zctrace "zrunsystem: $systemname"
     system="${systemname%.d}.d"
-    
-    typeset -a dirs
     
     dirs+="$system" 
     dirs+="$system/`uname`" 
@@ -39,7 +42,14 @@ function zrunsystem() {
     dirs+="hosts/`hostname -s`/zsh/$system" 
     dirs+="hosts/`hostname`/zsh/$system"
     dirs+="users/$USERNAME/zsh/$system"
-    
     zsyssourcedir $dirs
+    
+    arrayname=${systemname%.d}_files
+    for zfile in ${(P)arrayname}; do
+      zctrace "Sourcing $zfile"
+      source $zfile
+    done
   done
+  
+  
 }
