@@ -128,10 +128,21 @@ function prompt_rsbox_precmd {
     local TERMWIDTH
     (( TERMWIDTH = ${COLUMNS} - 1 ))
 
-    if [ "$rsboxvars[preexec_ran]" = "0" ]; then
-        prompt_rsbox_eraseprompt
-        echo
+    # handle a couple of conditions in which our preexec hook wouldn't run:
+    #   syntax error, and empty input
+    if [[ $rsboxvars[preexec_ran] == 0 ]]; then
+        # we incremented history number but didn't run preexec? must be a syntax
+        # error
+        if [[ -n $rsboxvars[last_histcmd] && $rsboxvars[last_histcmd] != $HISTCMD ]]; then
+          zlog "Syntax error detected in rsbox theme: $(fc -l -1)"
+        else  
+          # must be an empty cmd line; just clear and redraw prompt one line down
+          prompt_rsbox_eraseprompt
+          echo
+        fi
     fi
+
+    rsboxvars[last_histcmd]=$HISTCMD
 
     ###
     # Truncate the path if it's too long.
