@@ -40,9 +40,9 @@ Installation
 
 First you need to grab a copy of the framework from GitHub.
 
-  cd $HOME
-  git clone git://github.com/rsanders/dotto.git .dotto
-  zsh .dotto/setup/install.zsh
+    cd $HOME
+    git clone git://github.com/rsanders/dotto.git .dotto
+    zsh .dotto/setup/install.zsh
 
 You don't need to name the local directory ".dotto".  It may also be named one of
 the following things:
@@ -65,18 +65,19 @@ Alternately, if you have a system-wide installation, you can just define
 the environment variable DOTTODIR in your system-wide environment file (e.g.,
 /etc/zshenv), like so:
 
-  DOTTODIR=/usr/local/share/dotto
+    DOTTODIR=/usr/local/share/dotto
 
 Next, if you're a new user, you need to create a directory for personalization.
 
-  cd $HOME/.dotto
-  zsh setup/create_external.zsh
+    cd $HOME/.dotto
+    zsh setup/create_external.zsh
 
 The script will tell you which directory it created, more than likely 
 
-  `$HOME/.dotto/external/$USERNAME`
+    $HOME/.dotto/external/$USERNAME
   
 The most important file in that directory is "prefs".  That is where you'll
+put the configuration items that drive Dotto.
 
 
 License
@@ -92,8 +93,12 @@ for those potions.
 See Also
 --------
 
+Dotto has received inspiration or code from the following projects:
+
+* The Z-Shell distribution itself.  http://zsh.org/
 * Oh My Zsh: http://github.com/robbyrussell/oh-my-zsh/
 * Emacs Starter Kit:  http://github.com/technomancy/emacs-starter-kit/
+
 
 Bugs and Feedback
 -----------------
