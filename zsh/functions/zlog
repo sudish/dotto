@@ -4,7 +4,7 @@ function zlog {
   emulate -L zsh
 
   if [[ $DOTTO_DEBUG == 1 || $ZLOG_DEBUG == 1 ]]; then
-    echo "`date`: $*" >> $DOTTODIR/log/zlog.log 2>/dev/null
+    echo "`date`: $*" >>! $DOTTODIR/log/zlog.log 2>/dev/null
   fi
 }
 
