@@ -52,11 +52,16 @@ task :pull do
 end
 
 desc "Push external dir changes into upstream repository"
-task :pull do
+task :push do
   Dir.glob("external/*/.git").each do |gitdir|
     dir=File.dirname gitdir
-    puts "Pulling external dir #{dir}"
+    puts "Pushing external dir #{dir} upstream with Git"
     system %Q{cd #{dir} && git push}
+  end
+  Dir.glob("external/*/.hg").each do |gitdir|
+    dir=File.dirname gitdir
+    puts "Pushing external dir #{dir} upstream with Mercurial"
+    system %Q{cd #{dir} && hg push}
   end
 end
 
