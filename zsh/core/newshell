@@ -1,11 +1,14 @@
 #!/bin/zsh
 
-typeset -a -g -U       zinclude_path
-typeset -a -g -U -H    zrequired_files
-typeset -A -g -U -H    zloaded_libs
-typeset -A -g -H       dotto_vars  
 
 if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
+  typeset -a -g -U       zinclude_path
+  typeset -a -g -U -H    zrequired_files
+  typeset -A -g -U -H    zloaded_libs
+  typeset -A -g -H       dotto_vars
+
+  typeset -a -g -H       dotto_disabled_components dotto_disabled_systems
+
   function _dotto_newshell {
     local zcfile 
     

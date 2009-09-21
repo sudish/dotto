@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 function zsourcedir() {
-  local dir zdir file relfile
+  local dir zdir file relfile checkstring
   for dir in "${(@)*}"; do
     zdir=`zdirname $dir`
     zctrace "zsourcedir: dir=$dir, zdir=$zdir"
@@ -9,6 +9,14 @@ function zsourcedir() {
     for file in $zdir/*.zsh(N); do
       relfile=${file#$ZCONFIGDIR/}
       zctrace "zsourcedir: dir=$dir, file=$file relfile=$relfile"
+      
+      checkstring=${file:t}
+      checkstring=${checkstring:r}
+      checkstring=${checkstring#[A-Z][0-9][0-9]}
+      checkstring=${checkstring#[0-9][0-9]}
+      
+      [[ -n ${dotto_disabled_components[(r)$checkstring]} ]] && continue
+      
       source $file
     done
   done
