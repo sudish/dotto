@@ -7,7 +7,7 @@ setopt HIST_FIND_NO_DUPS
 setopt HIST_NO_STORE
 
 # you may wish to override this if your HOME is on a network filesystem (NFS/AFS/SMB)
-setopt HIST_FCNTL_LOCK
+setopt HIST_FCNTL_LOCK 2>/dev/null
 
 # prefix commands with a space to keep them out of permanent history
 # like "Private Browsing" mode for commands
