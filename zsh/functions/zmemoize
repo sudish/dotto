@@ -93,11 +93,13 @@ function _zmemoize_capture {
 # Clear the cache and unmemoize all memoized functions
 #
 function zmemoize_reset {
-  zmemoize_cache=
+  typeset -g -H -A zmemoize_cache
+  for key in "${(@k)zmemoize_cache}"; do
+    unset "zmemoize_cache[$key]"
+  done
 
   typeset -g -H -A zmemoize_config
   typeset -g -H -A zmemoize_defs
-  typeset -g -H -A zmemoize_cache
   
   local funcname
   for funcname in "${(@k)zmemoize_defs}"; do
@@ -110,7 +112,7 @@ function zmemoize_reset {
 #
 function zmemoize_clear {
   emulate -L zsh
-  local pattern=$1
+  local pattern=$1 key
   
   if [[ -n $pattern ]]; then
     local isdone=0
