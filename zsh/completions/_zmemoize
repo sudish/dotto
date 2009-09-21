@@ -1,0 +1,15 @@
+#compdef zmemoize
+
+_arguments -s \
+    '-t[timeout in seconds]:*:' \
+    '-c[Clear cache]:*:' \
+    '-r[Reset entire memoization system, clearing cache and unmemoizing all functions.]:*:' \
+    '-U[Unmemoize function]:*:' \
+    '-P[Use current working directory as implicit argument]:*:' \
+    '-f[Call this named function as an implicit argument]:*:function:' \
+    '-v[Evaluate this variable as an implicit argument]:*:variable:' \
+    '-H[Use hostname as implicit argument.  Set by default. May be disabled with "+H"]:*:' \
+    '-u[Use username as implicit argument.  Set by default. May be disabled with "+u"]:*:' \
+    '-l[Print a list of memoized functions.]:*:' \
+    '-h[This help]:*:'
+

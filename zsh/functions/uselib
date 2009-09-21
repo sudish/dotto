@@ -10,6 +10,7 @@ function _zloadlib {
   done
 
   [[ -d $libdir/functions ]] && fpath+=($libdir/functions)  
+  [[ -d $libdir/completions ]] && fpath+=($libdir/completions)  
   [[ -d $libdir/include ]] && zinclude_path+=($libdir/include)
   [[ -f $libdir/init.zsh ]] && { source $libdir/init.zsh || return }
   

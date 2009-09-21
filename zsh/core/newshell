@@ -12,7 +12,7 @@ if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
   function _dotto_newshell {
     local zcfile 
     
-    FPATH=$ZCONFIGDIR/functions:$FPATH
+    FPATH=$ZCONFIGDIR/functions:$ZCONFIGDIR/completions:$FPATH
   
     setopt function_argzero typeset_silent
   
