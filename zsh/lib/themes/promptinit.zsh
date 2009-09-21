@@ -63,7 +63,6 @@ prompt_preview_safely() {
 }
 
 set_prompt() {
-  emulate -L zsh
   local opt preview theme usage old_theme
 
   usage='Usage: prompt <options>
