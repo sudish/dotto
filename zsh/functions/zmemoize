@@ -77,7 +77,11 @@ function _zmemoize_capture {
       ;;
   esac
 
-  memoavps[stdout]=$(${(z)wrapper} "${(@)*}")
+  local stdout= newline=
+  stdout=$(${(z)wrapper} "${(@)*}")
+  newline+=$(print -l "" "tail")
+  stdout+="${newline%tail}"
+  memoavps[stdout]=$stdout
   memoavps[status]=$?
   [[ -n $memodef[timeout] ]] && memoavps[expires]=$(($EPOCHSECONDS + $memodef[timeout]))
 
@@ -85,7 +89,7 @@ function _zmemoize_capture {
   
   # zlog "MEMOAVP keys are ${(k)memoavps}, stdout is $memoavps[stdout], str is $(echo $zmemoize_cache[$key] | cat -vt)"
 
-  echo -E "$memoavps[stdout]"
+  echo -n -E "$memoavps[stdout]"
   return $memoavps[status]
 }
 
@@ -149,7 +153,10 @@ function _zmemoize_wrapper {
         capture=1
         unset "zmemoize_cache[$key]"
       else
-        echo -E "$zdecoded[stdout]"
+        echo -n -E "$zdecoded[stdout]"
+        if [[ -n $zdecoded[has_stderr] ]]; then
+          echo -n -E "$zdecoded[stderr]" >&2
+        fi
         return $zdecoded[status]
       fi
     fi
