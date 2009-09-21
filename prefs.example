@@ -6,10 +6,17 @@
 ZSH_THEME=rsbox
 uselib themes
 
-### for debugging
-# setopt XTRACE VERBOSE
+## disable some standard parts of Dotto, if you prefer
+## the following prevents Dotto from loading 
+## $DOTTODIR/zsh/zshrc.d/dottocomps.zsh and any init file
+## named ohmyzsh.zsh, whether it's in zprofile.d, zshrc.d, etc.
+#
+# dotto_disabled_components=(zshrc/dottocomps ohmyzsh)
+#
 
 ###############
+# Feel free to delete the stuff below; it's just an example of the sorts
+# of stuff you might set here
 
 export EDITOR=vi
 
