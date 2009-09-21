@@ -22,17 +22,15 @@ if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
 
     typeset -a funcpaths
     funcpaths=("$ZCONFIGDIR/functions/*(.N)" "$DOTTODIR/external/*/zsh/functions/*(.N)")
+    set -A funcpaths ${~funcpaths}
+    typeset -a funcnames
+    set -A funcnames ${${funcpaths%.zsh}:t}
 
-    for zcfile in ${~funcpaths}; do
-      autoload -Uk ${zcfile:t}
-    done
-
-    unset zcfile
+    autoload -Uk "${(@)funcnames}"
 
     # globally used variables
     zinclude_path=("$ZCONFIGDIR")
     # for zcfile in 
-
 
     # load default prefs and local prefs
     zrunsystem prefs
