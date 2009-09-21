@@ -8,6 +8,7 @@
 #   +    staged changes
 #   ?    untracked files
 #   $    stashed changes
+#   ^    Local branch ahead of tracking branch by 1 or more commits
 #
 #
 # Returns 0 for clean, 1 for dirty
@@ -29,8 +30,10 @@ function zgit_status {
            statstring+='+'
         fi
 
-
+        [[ -z ${gitstatus:#*Your branch is ahead of*} ]] && statstring+='>'
+        
         [[ -z ${gitstatus:#*Untracked files*} ]] && statstring+='?'
+        
         [[ -f ${git_dir}/refs/stash ]] && statstring+='$'
 
         # set return code
