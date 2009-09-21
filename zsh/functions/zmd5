@@ -1,0 +1,21 @@
+#!/bin/zsh
+
+#
+# Produce the md5 checksum of a string argument
+#
+
+function zmd5 {
+  emulate -L zsh
+  local string=$1
+  
+  local cmdname= cmdpath= res= sum=
+  
+  for cmdname args in md5 "" md5sum ""; do
+    if which $cmdname &>/dev/null; then
+      res=$(echo -n -E "$string" | $cmdname ${=args})
+      sum=${${=res}[1]}
+    fi
+  done
+  
+  echo -n -E $sum
+}

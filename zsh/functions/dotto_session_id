@@ -1,0 +1,23 @@
+#!/bin/zsh
+
+#
+# Return a session identifier which roughly groups together 
+#
+function dotto_session_id {
+  emulate -L zsh
+  
+  local var= val= dohash=1
+  
+  # try various ways to get a "session", in decreasing levels of
+  # specificity
+
+  for var in SECURITYSESSIONID DISPLAY SSH_CONNECTION DOTTO_LOGIN_ID TTY PPID; do
+    if [[ -n ${(P)var} ]]; then
+      val="$var=${(P)var}"
+      break
+    fi
+  done
+  zctrace "session prehash is $val"
+  [[ $dohash == 1 ]] && val="$(zmd5 $val)"
+  echo -n -E $val
+}

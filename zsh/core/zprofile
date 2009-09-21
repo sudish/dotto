@@ -13,6 +13,9 @@ fi
 
 export SHORTHOST=$(hostname -s)
 
+typeset -g -x DOTTO_LOGIN_ID
+[[ -z $DOTTO_LOGIN_ID ]] && DOTTO_LOGIN_ID="${TTY}:${$}:${HOST}"
+
 # load all base functions
 source $ZCONFIGDIR/core/newshell
 
