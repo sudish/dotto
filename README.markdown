@@ -67,12 +67,44 @@ the environment variable DOTTODIR in your system-wide environment file (e.g.,
 
     DOTTODIR=/usr/local/share/dotto
 
+Customization
+-------------
+
 Next, if you're a new user, you need to create a directory for personalization.
+There are two ways to do that: fork an example configuration (preferred), or
+create one from scratch.
+
+### Forking an Example Configuration Package
+
+A simple Dotto configuration package is available at the following GitHub URL.
+You should use your GitHub account to fork it.
+
+    http://github.com/rsanders/dotto_example_config
+
+After installing Dotto to your home directory, fork this repository.  Pull
+it into your Dotto installation like so:
+
+    cd $HOME/.dotto/external
+
+    git clone http://github.com/YOUR-GITHUB-USERNAME/dotto_example_config $USERNAME
+
+    # or if you didn't fork it, use the following command to get started:
+    #  git clone http://github.com/rsanders/dotto_example_config $USERNAME
+    
+    cd $USERNAME
+    vi prefs
+    ...
+
+
+### Creating a Configuration Package from Scratch
+
+The other way to get your configuration package started is to use the
+template tool included with Dotto, as follows:
 
     cd $HOME/.dotto
     zsh setup/create_external.zsh
 
-The script will tell you which directory it created, more than likely 
+The script will tell you which directory it created, more than likely at:
 
     $HOME/.dotto/external/$USERNAME
   
