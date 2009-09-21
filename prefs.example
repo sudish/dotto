@@ -1,14 +1,10 @@
 #!/bin/zsh
 
-ZSH_THEME=rsbox
-ZSH_PREFS_USER=rsanders
+# ZSH_PREFS_USER=${USERNAME}
 
 # necessary to get prompt themes loaded
+ZSH_THEME=rsbox
 uselib themes
-
-# set up completion magic
-hosts=(example.com www.example.com ftp.example.com shell.example.com)
-
 
 ### for debugging
 # setopt XTRACE VERBOSE
@@ -19,13 +15,10 @@ export EDITOR=vi
 
 bindkey -me 2>/dev/null
 
-# 20 MB coredump limit
-ulimit -c 20000
-
 export LESS="efiMqR"
 export PAGER=less
 
-HISTSIZE=400
+HISTSIZE=500
 
 # set up terminal defaults	
 stty echoe susp ^z intr ^c lnext undef kill undef werase undef start undef stop undef erase '^?'
