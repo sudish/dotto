@@ -1,5 +1,9 @@
 #!/bin/zsh
 
+#
+# Covered by the original ZSH license.
+#
+
 # Add to HOOK the given FUNCTION.
 # HOOK is one of chpwd, precmd, preexec, periodic, zshaddhistory,
 # zshexit (the _functions subscript is not required).

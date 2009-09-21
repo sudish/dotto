@@ -1,8 +1,7 @@
 Dotto - the Dotfile Framework
 =============================
 
-License: MIT
-Version: 0.9.1
+Version: 0.1
 
 Description
 -----------
@@ -78,7 +77,17 @@ The script will tell you which directory it created, more than likely
   `$HOME/.dotto/external/$USERNAME`
   
 The most important file in that directory is "prefs".  That is where you'll
-  
+
+
+License
+-------
+
+Original portions of Dotto are covered by the MIT License; see the LICENSE file
+for the complete text.
+
+Some third party code has been included; where noted, other licenses may apply
+for those potions.
+
 
 See Also
 --------
