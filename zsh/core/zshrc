@@ -17,4 +17,5 @@ HOSTNAME=`hostname`
 
 zrunsystem zshrc
 
-zsource core/zcomp
+zrunsystem zcomp
+
