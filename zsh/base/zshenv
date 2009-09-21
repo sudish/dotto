@@ -7,8 +7,8 @@ zctrace() {
 }
 
 if [ -z "$DOTTODIR" ]; then
-   for dbase in $HOME $HOME/config $HOME/.external $HOME/home; do
-     for dfilesdir in .dotto .config; do
+   for dbase in $HOME $HOME/config $HOME/lib $HOME/.external $HOME/home; do
+     for dfilesdir in .dotto dotto .dotfiles dotfiles; do
        if [[ -f $dbase/$dfilesdir/.isdotto ]]; then
          export DOTTODIR="$dbase/$dfilesdir"
          break 2
