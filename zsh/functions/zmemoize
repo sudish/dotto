@@ -77,12 +77,28 @@ function _zmemoize_capture {
       ;;
   esac
 
-  local stdout= newline=
-  stdout=$(${(z)wrapper} "${(@)*}")
-  newline+=$(print -l "" "tail")
-  stdout+="${newline%tail}"
+  local stdout= newline= stderr= tmpfile=
+  newline=$(print -l "" "tail")
+  newline="${newline%tail}"
+
+  # stderr capturing version
+  if [[ $memodef[stderr] == 1 ]]; then
+    tmpfile=${TMPPREFIX:-"/tmp/zsh"}.zmemoize.$$.$SECONDS
+    stdout=$(${(z)wrapper} "${(@)*}" 2>! $tmpfile)
+    
+    if [[ -s $tmpfile ]]; then
+      memoavps[has_stderr]=1
+      memoavps[stderr]=$(< $tmpfile)
+      memoavps[stderr]+=$newline
+    fi
+  else
+    stdout=$(${(z)wrapper} "${(@)*}")
+  fi
+
+  stdout+="${newline}"  
   memoavps[stdout]=$stdout
   memoavps[status]=$?
+
   [[ -n $memodef[timeout] ]] && memoavps[expires]=$(($EPOCHSECONDS + $memodef[timeout]))
 
   zmemoize_cache[$key]=$(zavp -v memoavps)
@@ -90,6 +106,7 @@ function _zmemoize_capture {
   # zlog "MEMOAVP keys are ${(k)memoavps}, stdout is $memoavps[stdout], str is $(echo $zmemoize_cache[$key] | cat -vt)"
 
   echo -n -E "$memoavps[stdout]"
+  [[ $memoavps[has_stderr] == 1 ]] && echo -n -E $memoavps[stderr] >&2
   return $memoavps[status]
 }
 
@@ -181,8 +198,8 @@ function zmemoize {
   memodef[timeout]=90
   memodef[stderr]=0
   memodef[vary_pwd]=0
-  memodef[vary_hostname]=0
-  memodef[vary_username]=0
+  memodef[vary_hostname]=1
+  memodef[vary_username]=1
 
   usage='Usage: zmemoize <options> functionname
 Options:
@@ -212,8 +229,11 @@ Options:
       c) action=clear; require_funcname=0 ;;
       E) memodef[stderr]=1 ;;
       t) memodef[timeout]=$OPTARG ;;
-      p) memodef[vary_hostname]=1 ;;
+      u) memodef[vary_username]=1 ;;
       H) memodef[vary_hostname]=1 ;;
+      +u) memodef[vary_username]=0 ;;
+      +H) memodef[vary_hostname]=0 ;;
+      p) action=print; require_funcname=1 ;;
       P) memodef[vary_pwd]=1 ;;
       f) memodef[vary_function]=$OPTARG ;;
       v) memodef[vary_eval]=$OPTARG ;;
