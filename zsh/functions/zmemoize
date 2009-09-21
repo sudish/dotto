@@ -4,25 +4,8 @@
 ## Standard memoization preserves standard output (if less than XX bytes), and the
 ## return value.
 ##
-## NOTE that none of the options showh here are implemented yet.  See the usage text
-## from "zmemoize -h" to see what works!
-##
-## Syntax:
-##
-##    zmemoize [<options>] functionname
-##
-## General options
-##
-##    -E
-##         Also memoize standard error output.
-##
 ## In addition to the arguments, the following components may be added to the
 ## memoization key:
-##
-##    -P   Current working directory ($PWD)
-##
-##    -g <glob>
-##         a glob to be evaluated at call time
 ##
 ##    -o <optionlist>
 ##        ZSH option settings; option names are expressed as space or comma separated
@@ -45,10 +28,25 @@ function _zmemoize_calculate_key {
   
   [[ $memodef[vary_pwd] == 1 ]] && addons[pwd]=$PWD
   [[ $memodef[vary_username] == 1 ]] && addons[username]=$USERNAME
-  [[ $memodef[vary_hostname] == 1 ]] && addons[hostname]=$HOSTNAME
+  [[ $memodef[vary_hostname] == 1 ]] && addons[hostname]=$HOST
+  [[ $memodef[vary_pid] == 1 ]] && addons[pid]=$$
+  [[ $memodef[vary_session] == 1 ]] && addons[session]=$(dotto_session_id)
+  [[ $memodef[vary_tty] == 1 ]] && addons[tty]=$TTY
+  [[ $memodef[vary_euid] == 1 ]] && addons[euid]="${EUID}"
+  [[ $memodef[vary_egid] == 1 ]] && addons[egid]="${EGID}"
+
+  addons[options]=
+  if [[ -n $memodef[vary_options] ]]; then
+    local option=
+    for option in "${(ops:,:)memodef[vary_options]}"; do
+      zctrace "Checking options: $option..."
+      addons[options]+=":${option//_/}=$options[$option]:"
+    done
+  fi
+
   [[ -n $memodef[vary_function] ]] && funcall=$memodef[vary_function] && \
       addons[funcall]=$(${(z)funcall} 2>/dev/null)
-  [[ -n $memodef[vary_eval] ]] && addons[evalcall]=$(eval "echo $memodef[vary_eval]" 2>/dev/null)
+  [[ -n $memodef[vary_eval] ]] && addons[evalcall]=${(e)~memodef[vary_eval]} 2>/dev/null
 
   if [[ ${#addons} -gt 0 ]]; then
     key+=":${(pj:\0:)${(kv)addons}}"
@@ -195,63 +193,94 @@ function zmemoize {
   typeset -A memodef
 
   # defaults
-  memodef[timeout]=90
+  memodef[timeout]=1800
   memodef[stderr]=0
   memodef[vary_pwd]=0
   memodef[vary_hostname]=1
   memodef[vary_username]=1
 
-  usage='Usage: zmemoize <options> functionname
+  usage="Usage: zmemoize <options> FUNCTIONNAME
+  
+    Many of the options below inject additional data into the memoization key,
+    and are additive. This can be used to make manifest the implicit arguments
+    like environment that may be important to correct memoization of a non-pure
+    function.
+    
 Options:
+    -h   Show this help.
+    -l   Print a list of memoized functions.
+    -c   Clear memoization cache.  If a function name is supplied, clear the
+         entries only for that funciton.
+    -m   Memoize the named function (default action)
+    -r   Reset entire memoization system, clearing cache and unmemoizing 
+         all functions.
+    -u   Unmemoize named function
     -t <seconds> 
          Memoization timeout -- note that the memoized value is not guaranteed
          to persist for this period, or indeed for any period as the cache may
-         be flushed
-    -c   Clear cache.
-    -r   Reset entire memoization system, clearing cache and unmemoizing 
-         all functions.
-    -E   Also memoize standard error output.
-    -U   Unmemoize function
-    -P   Current working directory ($PWD)
-    -f <function>
-         a function name to be evaluated at call time
-    -v <varstring>
-         a variable reference to be evaluated at call time - full expansion is performed
-    -H   Hostname.  Set by default. May be disabled with "+h".
-    -u   Username.  Set by default. May be disabled with "+u".
-    -l   Print a list of memoized functions.
-    -h   This help.
-'
+         be flushed.  Default is 30 minutes (1800 seconds)
+    -e   Also memoize and replay standard error output.
+    -p   Print the parameters of a function
+    -P   Inject current working directory (\$PWD)
+    -O <optionlist>
+         Inject the setting status of ZSH options given in a comma separated list
+         of option names (e.g. automenu,warn_create_global,promptsubst).
+    -F <functionname>
+         Inject the output of a named function evaluated each time the memoized
+         function is called.
+    -V <varstring>
+         Inject the output of expanding a string at call time.  The argument
+         should be a variable reference, parameter expansion, process substitution,
+         or arithmetic expansion, or some combination of those.  Examples:
+            -V '$foo'        -> the run-time value of the variable 'foo'
+            -V '$(ls -l)'    -> The output of running ls -l
+            -V '${(k)assoc}' -> the keys of the array names 'assoc'
+            -V '*'           -> all files in the current directory
+    -I   Inject process ID (\$\$)
+    -S   Inject the dotto_session_id
+    -T   Inject the TTY name
+    -G   Inject the EGID (effective GID)
+    -E   Inject the EUID (effective UID)
+    -H   Hostname.  Set by default. May be disabled with '+h'.
+    -U   Username.  Set by default. May be disabled with '+u'.
+"
 
-  while getopts "VcrUEphPt:lf:v:" opt; do
+  while getopts "cehlmprt:uvEF:GHIO:PSTUV:" opt; do
     case "$opt" in
-      U) delete=1; action=unmemoize ;;
+      h) echo -E $usage; return 0 ;;
+      m) action=memoize; require_funcname=1;;
+      u) delete=1; action=unmemoize ;;
       c) action=clear; require_funcname=0 ;;
-      E) memodef[stderr]=1 ;;
-      t) memodef[timeout]=$OPTARG ;;
-      u) memodef[vary_username]=1 ;;
-      H) memodef[vary_hostname]=1 ;;
-      +u) memodef[vary_username]=0 ;;
-      +H) memodef[vary_hostname]=0 ;;
       p) action=print; require_funcname=1 ;;
-      P) memodef[vary_pwd]=1 ;;
-      f) memodef[vary_function]=$OPTARG ;;
-      v) memodef[vary_eval]=$OPTARG ;;
-      V) verbose=1 ;;
       r) action=reset; require_funcname=0;;
       l) action=list
          print ${(k)zmemoize_defs}
          return
          ;;
-      h) print $usage; return 0 ;;
-      *) print $usage; return 1;;
+      e) memodef[stderr]=1 ;;
+      t) memodef[timeout]=$OPTARG ;;
+      U) memodef[vary_username]=1 ;;
+      H) memodef[vary_hostname]=1 ;;
+      +U) memodef[vary_username]=0 ;;
+      +H) memodef[vary_hostname]=0 ;;
+      P) memodef[vary_pwd]=1 ;;
+      I) memodef[vary_pid]=1 ;;
+      S) memodef[vary_session]=1 ;;
+      T) memodef[vary_tty]=1 ;;
+      G) memodef[vary_egid]=1 ;;
+      E) memodef[vary_euid]=1 ;;
+      F) memodef[vary_function]=$OPTARG ;;
+      V) memodef[vary_eval]=$OPTARG ;;
+      O) memodef[vary_options]=$OPTARG ;;
+      v) verbose=1 ;;
+      *) echo -E $usage; return 1;;
     esac
   done
 
   shift $(( OPTIND - 1 ))
 
   if [[ $require_funcname == 1 ]] && (( $# != 1 )); then
-    print $usage
+    echo -E $usage
     return 1
   fi
 
@@ -265,6 +294,17 @@ Options:
       ;;
     reset) 
         zmemoize_reset
+        return
+      ;;
+    print)
+        local key=""
+        typeset -A printdef
+        [[ -z $zmemoize_defs[$funcname] ]] && { echo "Function $funcname not memoized." >&2; return 1 }
+        
+        zavp -d -v printdef $zmemoize_defs[$funcname]
+        for key in ${(ko)printdef}; do
+          echo -E "$key: ${printdef[$key]}"
+        done
         return
       ;;
     memoize) ;;
