@@ -6,7 +6,9 @@ typeset -g -a -H -U zprofile_files zshrc_files \
 function zsyssourcedir {
     emulate zsh
     local droot dir
+    local systemname=$1
     local -a -U droots
+    shift
     
     droots=("")
     for droot in $DOTTODIR/external/*(N); do
@@ -17,7 +19,7 @@ function zsyssourcedir {
     for dir in "${(@)*}"; do
         for droot in "${(@)droots}"; do
             [[ -n "$droot" ]] && droot="${droot%/}/"
-            zsourcedir "${droot}${dir}"
+            zsourcedir -s $systemname "${droot}${dir}"
         done
     done
 }
@@ -33,8 +35,11 @@ function zrunsystem() {
   for systemname in "${(@)*}"; do
 
     dirs=()
-    system="${systemname%.d}.d"
+    systemname=${systemname%.d}
+    system="${systemname}.d"
+    
     [[ -n ${dotto_disabled_systems[(r)$system]} ]] && continue
+    [[ -n ${dotto_disabled_systems[(r)$systemname]} ]] && continue
 
     zctrace "zrunsystem: $systemname"
             
@@ -45,7 +50,7 @@ function zrunsystem() {
     dirs+="hosts/`hostname -s`/zsh/$system" 
     dirs+="hosts/`hostname`/zsh/$system"
     dirs+="users/$sysuser/zsh/$system"
-    zsyssourcedir $dirs
+    zsyssourcedir $systemname $dirs
     
     arrayname=${systemname%.d}_files
     for zfile in ${(P)arrayname}; do

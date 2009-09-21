@@ -1,7 +1,13 @@
 #!/bin/zsh
 
 function zsourcedir() {
-  local dir zdir file relfile checkstring
+  local dir zdir file relfile component systemname
+  
+  if [[ $1 == "-s" ]]; then
+    systemname=$2
+    shift 2
+  fi
+  
   for dir in "${(@)*}"; do
     zdir=`zdirname $dir`
     zctrace "zsourcedir: dir=$dir, zdir=$zdir"
@@ -10,12 +16,17 @@ function zsourcedir() {
       relfile=${file#$ZCONFIGDIR/}
       zctrace "zsourcedir: dir=$dir, file=$file relfile=$relfile"
       
-      checkstring=${file:t}
-      checkstring=${checkstring:r}
-      checkstring=${checkstring#[A-Z][0-9][0-9]}
-      checkstring=${checkstring#[0-9][0-9]}
+      component=${file:t}
+      component=${component:r}
       
-      [[ -n ${dotto_disabled_components[(r)$checkstring]} ]] && continue
+      # strip off any cron-style 00 or A00 prefixes, used to provide a natural
+      # ordering
+      component=${component#[A-Z][0-9][0-9]}
+      component=${component#[0-9][0-9]}
+      
+      [[ -n ${dotto_disabled_components[(r)$component]} ]] && continue
+      [[ -n ${dotto_disabled_components[(r)${systemname}/${component}]} ]] && continue
+
       
       source $file
     done
