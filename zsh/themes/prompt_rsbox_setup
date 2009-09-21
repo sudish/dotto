@@ -154,7 +154,7 @@ function prompt_rsbox_precmd {
     set -A altchar ${(s..)terminfo[acsc]}
     local PR_HBAR=${altchar[q]:--}
     
-    local promptsize=${#${(%):---(%n@%m:%l${rsboxvars[PR_SHLVL]}-%j)---()--}}
+    local promptsize=${#${(%):---(%n@%m:%l${rsboxvars[PR_SHLVL]}%(1j.-%j.))---()--}}
     local pwdsize=${#${(%):-%~}}
     
     if [[ "$promptsize + $pwdsize" -gt $TERMWIDTH ]]; then
@@ -329,7 +329,7 @@ function prompt_rsbox_setup() {
 $PR_CYAN$PR_SHIFT_IN$PR_ULCORNER$PR_BLUE$PR_HBAR$PR_SHIFT_OUT(\
 $PR_MAGENTA%$PR_PWDLEN<...<%~%<<\
 $PR_BLUE)$PR_SHIFT_IN$PR_HBAR$PR_CYAN$PR_HBAR\${(e)rsboxvars[PR_FILLBAR]}$PR_BLUE$PR_HBAR$PR_SHIFT_OUT(\
-$PR_GREEN%(!.%SROOT%s.%n)$PR_GREEN@%m:%l\${rsboxvars[PR_SHLVL]}-%j\
+$PR_GREEN%(!.%SROOT%s.%n)$PR_GREEN@%m:%l\${rsboxvars[PR_SHLVL]}%(1j.-%K{yellow}%j%k.)\
 $PR_BLUE)$PR_SHIFT_IN$PR_HBAR$PR_CYAN$PR_URCORNER$PR_SHIFT_OUT\
 
 $PR_CYAN$PR_SHIFT_IN$PR_LLCORNER$PR_BLUE$PR_HBAR$PR_SHIFT_OUT(\
