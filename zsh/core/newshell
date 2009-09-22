@@ -13,7 +13,7 @@ if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
     local zcfile 
     
     FPATH=$ZCONFIGDIR/functions:$ZCONFIGDIR/completions:$FPATH
-  
+
     setopt function_argzero typeset_silent
   
     for zcfile in $DOTTODIR/local/build/zsh/$ZSH_VERSION/**/*.zwc(N.); do
@@ -26,6 +26,8 @@ if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
     typeset -a funcnames
     set -A funcnames ${${funcpaths%.zsh}:t}
 
+    # load post-bootstrap version
+    unfunction zctrace
     autoload -Uk "${(@)funcnames}"
 
     # globally used variables
