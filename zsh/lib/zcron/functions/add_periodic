@@ -1,0 +1,17 @@
+#!/bin/zsh
+
+zctrace "running zperiodic..."
+
+zmodload -i zsh/stat
+
+export PERIOD=30
+typeset -Ag PERIOD_FUNCS
+typeset -Ag ZCRON_TIMESTAMPS
+typeset -Ag ZCRON_FUNCTIONS
+
+# old style
+add_periodic() {
+	for func in $*; do
+		PERIOD_FUNCS[$func]=$func
+	done
+}

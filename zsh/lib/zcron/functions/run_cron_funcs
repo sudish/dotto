@@ -1,0 +1,23 @@
+#!/bin/zsh
+
+
+function run_cron_funcs() {
+  emulate -L zsh
+
+    local func last dir seconds key period
+
+    for func in ${(k)ZCRON_FUNCTIONS}; do
+        last=$ZCRON_TIMESTAMPS[$func]
+        period=$ZCRON_FUNCTIONS[$func]
+    
+        if [[ $last != <-> ]]; then
+             last=0
+        fi
+
+        if [[ $((SECONDS - last)) -gt $period ]]; then
+            ZCRON_TIMESTAMPS[$func]=$SECONDS
+            $func
+        fi
+    done
+}
+

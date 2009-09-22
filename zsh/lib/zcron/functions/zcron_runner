@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+#
+# not currently used; the recursive add crashes zsh for me
+#
+zcron_runner() {
+    run_cron_funcs
+    sched +30 zcron_runner
+}

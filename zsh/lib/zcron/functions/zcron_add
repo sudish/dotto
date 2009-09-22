@@ -1,0 +1,11 @@
+#!/bin/zsh
+
+zcron_add() {
+    local period=$1 func=$2
+    #local OLDIFS="$IFS"
+    #IFS="\0"
+    ZCRON_FUNCTIONS[$func]=$period
+    #unset "ZCRON_TIMESTAMPS[$func]"
+    #IFS="$OLDIFS"
+}
+

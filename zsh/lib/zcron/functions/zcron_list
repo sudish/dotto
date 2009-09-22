@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+zcron_list() {
+    local func period
+    #local OLDIFS="$IFS"
+    #IFS="\0"
+    for func in ${(k)ZCRON_FUNCTIONS}; do
+        echo $ZCRON_FUNCTIONS[$func] - $func
+    done
+    #IFS="$OLDIFS"
+}
+

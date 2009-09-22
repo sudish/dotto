@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+delete_periodic() {
+	for func in $*; do
+		delete "PERIOD_FUNCS[$func]"
+	done
+}
+

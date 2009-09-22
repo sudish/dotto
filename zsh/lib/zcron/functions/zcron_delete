@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+
+zcron_delete() {
+    local func=$1
+    #local OLDIFS="$IFS"
+    #IFS="\0"
+
+    unset "ZCRON_FUNCTIONS[$func]"
+    unset "ZCRON_TIMESTAMPS[$func]"
+    #IFS="$OLDIFS"
+}
