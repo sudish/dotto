@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+function zraketargets {
+  command rake -T $*
+  DOTTO_DEBUG=1 zlog "called zraketargets: ${*}"
+}
+
+
