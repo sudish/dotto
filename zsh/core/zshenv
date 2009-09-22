@@ -24,3 +24,5 @@ bootzshenv() {
 
 bootzshenv
 unfunction bootzshenv
+
+typeset -g skip_global_compinit=1

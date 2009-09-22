@@ -7,9 +7,8 @@ autoload -U compinit
 
 # compinit, but don't dump if we're sudo/su
 local compinit_arg
-
 [[ -O $HOME && -z $SUDO_USER ]] || compinit_arg="-D"
-compinit -C ${compinit_arg}
+compinit -u ${compinit_arg}
 
 zctrace "compinit args was ${compinit_arg}"
 

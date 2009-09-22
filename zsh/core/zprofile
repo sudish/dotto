@@ -19,5 +19,8 @@ typeset -g -x DOTTO_LOGIN_ID
 # load all base functions
 source $ZCONFIGDIR/core/newshell
 
+# for Ubuntu's /etc/zsh being too clever
+typeset -g skip_global_compinit=1
+
 zrunsystem zprofile
 
