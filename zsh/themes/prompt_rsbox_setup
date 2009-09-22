@@ -122,10 +122,10 @@ function prompt_rsbox_chpwd {
 
 
 function prompt_rsbox_precmd {
+    local exitstatus=$?
     emulate -L zsh
-
+    
     zctrace "precmd...$*"
-
     local TERMWIDTH
     (( TERMWIDTH = ${COLUMNS} - 1 ))
 
@@ -141,6 +141,8 @@ function prompt_rsbox_precmd {
           prompt_rsbox_eraseprompt
           echo
         fi
+    else
+      prompt_rsbox_showexitstatus $exitstatus
     fi
 
     rsboxvars[last_histcmd]=$HISTCMD
@@ -178,20 +180,39 @@ function prompt_rsbox_eraseprompt () {
 
     local typed="$1"
     local i upcount
-    
+
     local visible="${rsboxvars[LEFTPART]}${typed}"
     local visiblesize=$(display_dimensions "$visible")
     
     (( upcount = 1 + ${visiblesize} ))
-    
+
+    local up=$(echotc up) ce=$(echotc ce) out=""
     if [ $upcount -lt $LINES ]; then
         for (( i=0; i < $upcount; i++ )); do
-            echotc up
-            echotc ce
+            out+="${up}${ce}"
         done
-        echotc ce
+        echo -n -E "${out}${ce}"
     fi
 }
+
+function prompt_rsbox_showexitstatus () {
+    emulate -L zsh
+    local exitstatus=$1
+    # echo "status is $exitstatus"
+    [[ $exitstatus == 0 ]] && return
+      
+    local typed="$1"
+    
+    local string="[$exitstatus]"
+    local visiblesize=$#string
+    local col=$(( COLUMNS - $visiblesize ))
+
+    echotc up
+    echotc ch $col
+    echo -n -E "$bg[red]$fg[black]"
+    echo -E $string
+}
+
 
 function prompt_rsbox_showhistoryline () {
     emulate -L zsh
