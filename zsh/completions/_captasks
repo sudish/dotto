@@ -1,0 +1,20 @@
+#autoload
+
+local expl oldest
+local -a pubfuns
+
+_description captasks expl "capistrano tasks"
+
+oldest=$(( EPOCHSECONDS - (6*3600) ))
+
+local regen=0
+[[ ! -f .cap_tasks~ || config/deploy.rb -nt .cap_tasks~ || config/cap_deploy.rb -nt .cap_tasks~ ]] && regen=1
+age_greater_than $oldest config/deploy.rb config/cap_deploy.rb && regen=1
+
+if [[ -f config/deploy.rb || -f config/cap_deploy.rb ]]; then
+  if [[ $regen == 1 ]]; then
+    cap -T | grep "^cap " | cut -d " " -f 2 | sed -e '/^ *$/D' -e '1,2D' >! .cap_tasks~
+  fi
+  compadd "$expl[@]" - `cat .cap_tasks~`
+fi
+

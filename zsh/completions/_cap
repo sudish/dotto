@@ -1,0 +1,39 @@
+#compdef cap
+
+# local regen=0
+# [[ ! -f .cap_tasks~ || config/deploy.rb -nt .cap_tasks~ ]] && regen=1
+# 
+# if [ -f config/deploy.rb ]; then
+#   if [[ $regen == 1 ]]; then
+#     cap -T | grep "^cap " | cut -d " " -f 2 | sed -e '/^ *$/D' -e '1,2D' >! .cap_tasks~
+#   fi
+#   compadd `cat .cap_tasks~`
+# fi
+# echo "_cap called" >&2
+# return 0
+
+local state line expl ret=1
+
+_arguments -C -s -S \
+    '(-d --debug)'{-d,--debug}'[Prompts before each remote command execution.]' \
+    '(-e --explain)'{-d,--explain}'[Displays help (if available) for the task.]:task:_captasks' \
+    '(-f --file)'{-f,--file}'[A recipe file to load. May be given more than once.]:file:_files' \
+    '(-H --long-help)'{-H,--long-help}'[Explain these options and environment variables.]' \
+    '(-n --dry-run)'{-n,--dry-run}'[Prints out commands without running them.]' \
+    '(-T --tasks)'{-T,--tasks}'[List all tasks (matching optional PATTERN) in the loaded recipe files.]' \
+    '-h[This help]' \
+    '(-F --default-config)'{-F,--default-config}'[Always use default config, even with -f.]' \
+    '(-p --password)'{-p,--password}'[Immediately prompt for the password.]' \
+    '(-q --quiet)'{-q,--quiet}'[Make the output as quiet as possible.]' \
+    '(-S --set-before)'{-S,--set-before}'[Set a variable before the recipes are loaded.]:NAME=VALUE:' \
+    '(-s --set)'{-s,--set}'[Set a variable after the recipes are loaded.]:NAME=VALUE:' \
+    '(-t --tool)'{-t,--tool}'[Abbreviates the output of -T for tool integration.]' \
+    '(-V --version)'{-V,--version}'[Display the Capistrano version, and exit.]' \
+    '(-v --verbose)'{-v,--verbose}'[Be more verbose. May be given more than once.]' \
+    '(-X --skip-system-config)'{-X,--skip-system-config}"[Don't load the system config file (capistrano.conf)]" \
+    '(-x --skip-user-config)'{-x,--skip-user-config}"[Don't load the user config file (.caprc)]" \
+    '*:task:_captasks' && ret=0
+
+    # 
+
+
