@@ -214,8 +214,7 @@ function prompt_rsbox_showexitstatus () {
       echotc nd
     done
     
-    echo -n -E "$bg[red]$fg[black]"
-    echo -E $string
+    echo -E "$(echotc mr)$fg[red]${string}$(echotc me)"
 }
 
 
