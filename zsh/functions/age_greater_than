@@ -1,0 +1,14 @@
+#!/bin/zsh
+
+function age_greater_than {
+  local ageseconds=$1 file=
+  shift 1
+  
+  local oldest=$(( EPOCHSECONDS - $ageseconds ))
+  
+  for file in "${(@)*}"; do
+    [[ -f $file && $(builtin stat +mtime $file 2>/dev/null) -lt $oldest ]] && return 0
+  done
+
+  return 1
+}
