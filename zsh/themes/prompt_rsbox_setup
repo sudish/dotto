@@ -108,12 +108,13 @@ function prompt_rsbox_chpwd {
         [[ "$git_dir" != "$rsboxvars[git_dir]" ]] && update=1
 
         # are we in the root of the working copy or git repo?
-        [[ $git_dir == $PWD || ${git_dir:h} == $PWD ]] && update=1
+        #[[ $git_dir == $PWD || ${git_dir:h} == $PWD ]] && update=1
 
         rsboxvars[git_dir]="$git_dir"
     fi
     
     if [ $update = 1 ]; then
+        zctrace "Running update in prompt_rsbox_chpwd"
         prompt_rsbox_vcsupdate -f 2>/dev/null
     fi
     rsboxvars[in_git]=$in_git
