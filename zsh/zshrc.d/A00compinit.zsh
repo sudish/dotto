@@ -9,7 +9,9 @@ autoload -U compinit
 local compinit_args
 compinit_args=(-C)
 
-[[ ! -O $HOME ]] && compinit_args+=(-D)
+[[ -O $HOME && -z $SUDO_USER ]] || compinit_args+=(-D)
 compinit ${compinit_args}
+
+zctrace "compinit args were ${compinit_args}"
 
 # -*- Mode: Shell Script; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
