@@ -1,0 +1,7 @@
+#compdef unfunction
+
+local expl 
+local -a pubfuns
+
+_description pubfunctions expl function 
+compadd "$expl[@]" - ${(@k)functions//_*/}

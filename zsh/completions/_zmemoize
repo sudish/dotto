@@ -1,15 +1,29 @@
 #compdef zmemoize
 
 _arguments -s \
-    '-t[timeout in seconds]:*:' \
-    '-c[Clear cache]:*:' \
-    '-r[Reset entire memoization system, clearing cache and unmemoizing all functions.]:*:' \
-    '-U[Unmemoize function]:*:' \
-    '-P[Use current working directory as implicit argument]:*:' \
-    '-f[Call this named function as an implicit argument]:*:function:' \
-    '-v[Evaluate this variable as an implicit argument]:*:variable:' \
-    '-H[Use hostname as implicit argument.  Set by default. May be disabled with "+H"]:*:' \
-    '-u[Use username as implicit argument.  Set by default. May be disabled with "+u"]:*:' \
+    '-m[Memoize the named function (default action)]:*:' \
+    '-u[Unmemoize named function]:*:' \
+    '-c[Clear cache; if function name or pattern given, clear only for that function]:*:' \
     '-l[Print a list of memoized functions.]:*:' \
-    '-h[This help]:*:'
+    '-p[Print the parameters of a function]:*:' \
+    '-r[Reset entire memoization system, clearing cache and unmemoizing all functions.]:*:' \
+    '-t[timeout in seconds; default 1800 (30 minutes)]:*:' \
+    '-e[also capture and replay standard error]:*:' \
+    '-P[Use current working directory as implicit argument]:*:' \
+    '-E[Inject effective UID]:*:' \
+    '-G[Inject effective GID]:*:' \
+    '-I[Inject process ID (\$\$)]:*:' \
+    '-S[Inject the dotto_session_id]:*:' \
+    '-T[Inject the tty name]:*:' \
+    '-D[Inject a dependency on the timestamp and size of one or more files, colon separated]:*:' \
+    '-O[Option list]:*:' \
+    '-F[Call this named function as an implicit argument]:*:function:' \
+    '-V[Preform parameter expansion on this as an implicit argument]:*:variable:' \
+    '-H[Use hostname as implicit argument.  Set by default. May be disabled with "+H"]:*:' \
+    '-U[Use username as implicit argument.  Set by default. May be disabled with "+u"]:*:' \
+    '+H[Do NOT use hostname as implicit argument]:*:' \
+    '+U[Do NOT use username as implicit argument.]:*:' \
+    '-h[This help]:*:' \
+    '*:function:_pubfunctions' && ret=0
 
+return ret

@@ -245,9 +245,9 @@ Options:
          Inject the output of expanding a string at call time.  The argument
          should be a variable reference, parameter expansion, process substitution,
          or arithmetic expansion, or some combination of those.  Examples:
-            -V '$foo'        -> the run-time value of the variable 'foo'
-            -V '$(ls -l)'    -> The output of running ls -l
-            -V '${(k)assoc}' -> the keys of the array names 'assoc'
+            -V '\$foo'        -> the run-time value of the variable 'foo'
+            -V '\$(ls -l)'    -> The output of running ls -l
+            -V '\${(k)assoc}' -> the keys of the array names 'assoc'
             -V '*'           -> all files in the current directory
     -I   Inject process ID (\$\$)
     -S   Inject the dotto_session_id
@@ -256,12 +256,12 @@ Options:
          Inject a dependency on the timestamp and size of one or more files
          which are contained in a path-like, colon separated string FILENAMEs.
          Each filename is subjected to parameter expansion at runtime.  If it
-         does not contain a '$' character, each path is converted to an absolute
+         does not contain a '\$' character, each path is converted to an absolute
          path at definition time.  e.g. (-D '/tmp/file1:$PWD/.git')
     -G   Inject the EGID (effective GID)
     -E   Inject the EUID (effective UID)
-    -H   Hostname.  Set by default. May be disabled with '+h'.
-    -U   Username.  Set by default. May be disabled with '+u'.
+    -H   Hostname.  Set by default. May be disabled with '+H'.
+    -U   Username.  Set by default. May be disabled with '+U'.
 "
 
   while getopts "cehlmprt:uvD:EF:GHIO:PSTUV:" opt; do
