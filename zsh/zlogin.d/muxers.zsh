@@ -3,7 +3,7 @@
 zctrace "running muxers..."
 
 local output
-if [ -n "$SSH_TTY" ]; then
+if [ -n "$SSH_TTY" && -z "$TMUX" && "$SHLVL" -le 1 && "$TERM" != "screen" ]; then
     if which tmux >/dev/null; then
         if output=`tmux list-sessions 2>/dev/null`; then
             echo "** TMUX\n$output"
