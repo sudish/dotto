@@ -264,6 +264,8 @@ Options:
     -U   Username.  Set by default. May be disabled with '+U'.
 "
 
+  local -a arg_functions arg_evals arg_options arg_files
+
   while getopts "cehlmprt:uvD:EF:GHIO:PSTUV:" opt; do
     case "$opt" in
       h) echo -E $usage; return 0 ;;
@@ -288,24 +290,33 @@ Options:
       T) memodef[vary_tty]=1 ;;
       G) memodef[vary_egid]=1 ;;
       E) memodef[vary_euid]=1 ;;
-      F) memodef[vary_function]=$OPTARG ;;
-      V) memodef[vary_eval]=$OPTARG ;;
-      O) memodef[vary_options]=$OPTARG ;;
-      D) 
-          local dfile= 
-          typeset -a dfiles
-          for dfile in "${(ops.:.)OPTARG}"; do
-            # resolve to absolute path unless it contains a '$'
-            [[ $dfile == *\$* ]] || dfile=$(zrealpath $dfile)
-            dfiles+=$dfile
-          done
-          memodef[vary_file]="${(j.:.)dfiles}"
-          ;;
+      F) arg_functions+=$OPTARG ;;
+      V) arg_evals+=$OPTARG ;;
+      O) arg_options+=$OPTARG ;;
+      D) arg_files+=$OPTARG ;;
       v) verbose=1 ;;
       *) echo -E $usage; return 1;;
     esac
   done
+  
+  # split and canonicalize paths
+  if [[ $action == "memoize" && $#arg_files -gt 0 ]]; then
+    local dfile= 
+    typeset -a dfiles
+    for dfile in $arg_files; do
+      for dfile in "${(ops.:.)OPTARG}"; do
+        # resolve to absolute path unless it contains a '$'
+        [[ $dfile == *\$* ]] || dfile=$(zrealpath $dfile)
+        dfiles+=$dfile
+      done
+    done  
+    memodef[vary_file]="${(j.:.)dfiles}"
+  fi
 
+  [[ $#arg_functions -gt 0 ]] && memodef[vary_functions]=${(j.\0.)arg_functions}
+  [[ $#arg_evals -gt 0 ]] && memodef[vary_eval]=${(j.\0.)arg_evals}
+  [[ $#arg_options -gt 0 ]] && memodef[vary_options]=${(j.,.)arg_options}
+  
   shift $(( OPTIND - 1 ))
 
   if [[ $require_funcname == 1 ]] && (( $# != 1 )); then
