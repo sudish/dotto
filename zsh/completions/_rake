@@ -14,7 +14,10 @@ _arguments -C -s -S \
   '(--dry-run -n)'{--dry-run,-n}'[do a dry run without executing actions]' \
   '(- *)'{--help,-H}'[display help information]' \
   \*{--libdir,-I}'[include specified directory in the search path for required modules]:library directory:_files -/' \
+  \*{--rakelib,-R}'[include specified directory in the search for task files]:library directory:_files -/' \
   '(--nosearch -N)'{--nosearch,-N}'[do not search parent directories for the Rakefile]' \
+  '(--no-system -G)'{--no-system,-G}'[do not search system Rakefiles for tasks]' \
+  '(--system -g)'{--system,-g}'[search system Rakefiles for tasks]' \
   '(- *)'{--prereqs,-P}'[display the tasks and prerequisites, then exit]' \
   '(--quiet -q --silent -s --verbose -v)'{--quiet,-q}'[do not log messages to standard output]' \
   '(--rakefile -f)'{--rakefile,-f}'[use specified file as the rakefile]:rake file:_files' \
@@ -36,7 +39,11 @@ case "$state" in
   target)
     local -a targets 
     local zrtout fname=/tmp/zrake.$$
-    zraketargets -s $opt_args[(I)(-N|--nosearch)] ${(kv)opt_args[(I)(-f|--rakefile)]} > $fname 2>/dev/null
+    zraketargets -s $opt_args[(I)(-N|--nosearch)] $opt_args[(I)(-G|--no-system|--nosystem)] \
+        $opt_args[(I)(-g|--system)] \
+        ${(kv)opt_args[(I)(-I|--libdir)]} \
+        ${(kv)opt_args[(I)(-R|--rakelib)]} \
+        ${(kv)opt_args[(I)(-f|--rakefile)]} > $fname 2>/dev/null
     targets=$?
     zrtout=$(< $fname)
     rm -f $fname
