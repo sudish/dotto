@@ -15,11 +15,14 @@ Using a Library
 ---------------       
 
 A library is dormant until it is activated via the "uselib" shell function, which
-is called with one or more library names.  For example:
+is called with one or more library names.  For example, you might put the following
+lines in your "prefs" file:
 
     # load the Dotto bundled libraries
     
-    uselib zcron zgit themes
+    uselib zcron 
+    uselib zgit 
+    uselib themes
 
 The library may document the functions it provides, but you can get a good idea by just
 looking into its "functions" directory and its init.zsh file.
@@ -45,7 +48,7 @@ init.zsh is expected to handle the following responsibilities, if needed:
 
 * Load any zsh modules needed for the library to work.
 
-* Call uselib on any required libraries
+* Call uselib on any libraries it requires
 
 * Autoload the library's functions (but uselib takes care of adding the library's 
   functions and completions directories to FPATH)
