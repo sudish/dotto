@@ -1,6 +1,6 @@
-setopt noautomenu
-setopt COMPLETE_IN_WORD
-setopt ALWAYS_TO_END
+#setopt noautomenu
+#setopt COMPLETE_IN_WORD
+#setopt ALWAYS_TO_END
 
 unsetopt flowcontrol
 
