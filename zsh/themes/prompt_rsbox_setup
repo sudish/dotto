@@ -342,7 +342,7 @@ function prompt_rsbox_setup() {
 	  PR_STITLE=''
     fi
 
-    [[ $SHLVL > 1 ]] && rsboxvars[PR_SHLVL]="/$SHLVL"
+    [[ $SHLVL > 1 ]] && rsboxvars[PR_SHLVL]=":$SHLVL"
 
     # 
     ###
