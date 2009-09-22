@@ -206,9 +206,14 @@ function prompt_rsbox_showexitstatus () {
     local string="[$exitstatus]"
     local visiblesize=$#string
     local col=$(( COLUMNS - $visiblesize ))
-
+    local i
+    
     echotc up
-    echotc ch $col
+    # echotc ch $col
+    repeat $col; do
+      echotc nd
+    done
+    
     echo -n -E "$bg[red]$fg[black]"
     echo -E $string
 }
