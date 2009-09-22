@@ -6,12 +6,11 @@ zmodload -i zsh/complist
 autoload -U compinit
 
 # compinit, but don't dump if we're sudo/su
-local compinit_args
-compinit_args=(-C)
+local compinit_arg
 
-[[ -O $HOME && -z $SUDO_USER ]] || compinit_args+=(-D)
-compinit ${compinit_args}
+[[ -O $HOME && -z $SUDO_USER ]] || compinit_arg="-D"
+compinit -C ${compinit_arg}
 
-zctrace "compinit args were ${compinit_args}"
+zctrace "compinit args was ${compinit_arg}"
 
 # -*- Mode: Shell Script; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
