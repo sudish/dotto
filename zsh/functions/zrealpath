@@ -3,21 +3,24 @@
 function zrealpath() {
   emulate -L zsh
 
-  local pth="$1"
+  local chpwd_functions
+  unset chpwd_functions
+
+  local pth="$1" dir="" 
   
-  [ $pth[1] == "/" ] || pth="$PWD/$pth"
+  [[ $pth[1] == "/" ]] || pth="$PWD/$pth"
 
   if [ "${pth:t}" = "." -o "${pth:t}" = ".." -o -d "$pth" ]; then
       (cd -P "$pth" && pwd -P)
       return
   fi
 
-  if [ "${pth:h}" == "/" ]; then
+  if [[ "${pth:h}" == "/" ]]; then
       echo "$pth"
       return
   fi
   
-  local dir=${pth:h}
+  dir=${pth:h}
   dir=$(cd -P "$dir" && pwd -P)
   
   echo "$dir/${pth:t}"

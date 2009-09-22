@@ -12,12 +12,11 @@ function zgit_dir() {
 
     if [ -z "$zgit_dirs[$PWD]" ]; then
         if dir="$(git rev-parse --git-dir 2> /dev/null)"; then
-            [ "$dir[1]" = "/" ] || dir="${PWD}/$dir"
-            zgit_dirs[$PWD]="$dir"
+            zgit_dirs[$PWD]=$(zrealpath $dir)
         fi
     fi
     
-    echo -n "$zgit_dirs[$PWD]"
+    echo -n -E "$zgit_dirs[$PWD]"
     [ -n "$zgit_dirs[$PWD]" ]
 }
 
