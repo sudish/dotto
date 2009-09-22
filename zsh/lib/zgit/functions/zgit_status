@@ -29,12 +29,16 @@ function zgit_status {
         if [[ -z ${gitstatus:#*Changes to be committed*} ]]; then
            statstring+='+'
         fi
-
-        [[ -z ${gitstatus:#*Your branch is ahead of*} ]] && statstring+='>'
-        
+      
         [[ -z ${gitstatus:#*Untracked files*} ]] && statstring+='?'
         
         [[ -f ${git_dir}/refs/stash ]] && statstring+='$'
+
+        if [[ -z ${gitstatus:#*Your branch is ahead of*} ]]; then
+          local count=
+          count=$(echo "$gitstatus" | grep "ahead of" | sed -e's/^.*by \([0-9][0-9]*\) commit.*$/\1/')
+          statstring+=">$count"
+        fi
 
         # set return code
         [[ -n ${gitstatus:#*nothing to commit*} ]] && res=1
