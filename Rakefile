@@ -1,26 +1,16 @@
-require 'fileutils'
+$:.unshift File.join(File.dirname(__FILE__), 'lib', 'ruby')
 
-ZSH=ENV['SHELL'] || '/bin/zsh'
+require 'rake'
+require 'rubygems'
+require 'dotto'
 
-def zsh(commandline)
-  %x[#{ZSH} -c '#{commandline}'].chomp
+BUILDDIR=Dotto::BUILD_DIR
+
+Dir['lib/tasks/**/*.rake', 'zsh/tasks/*.rake', 'apps/*/tasks/*.rake'].each do |taskfile|
+   load taskfile
 end
-
-ZSH_VERSION=zsh("echo $ZSH_VERSION")
-
-DOTTODIR = Dir.pwd
-ZCONFIGDIR = "#{DOTTODIR}/zsh"
-
-BUILDDIR = "local/build"
-ZSHBUILDDIR = "#{BUILDDIR}/zsh/#{ZSH_VERSION}"
 
 task :default => :help do
-end
-
-desc "Show ZSH versions and variables"
-task :info do
-  puts "ZSH_VERSION is #{ZSH_VERSION}, #{ZSH}"
-  puts "BUILDDIR is #{BUILDDIR}"
 end
 
 desc "Show help"
@@ -75,9 +65,7 @@ task :updatelocal => [:clean, :install, :compile]
 
 desc "Clean compiled zwc files"
 task :clean do
-  puts "Cleaning..."
-  system %Q{find . -name \*.zwc | xargs rm -f}
-  system %Q{rm -rf "./local/build/*"}
+  puts "Doing clean..."
 end
 
 desc "Clean all junk"
@@ -85,26 +73,11 @@ task :realclean => [:clean, :clearlog] do
   puts "Doing realclean..."
 end
 
-file BUILDDIR do |t|
-  FileUtils.mkdir_p BUILDDIR
+file Dotto.build_dir do |t|
+  FileUtils.mkdir_p Dotto.build_dir
 end
-
-file ZSHBUILDDIR do |t|
-  FileUtils.mkdir_p ZSHBUILDDIR
-end
-
 
 desc "Compile all files"
-task :compile => [BUILDDIR,ZSHBUILDDIR,"#{ZSHBUILDDIR}/functions.zwc", "#{ZSHBUILDDIR}/libfunctions.zwc"]  do
+task :compile do
   puts "Compile done"
-end
-
-file "#{ZSHBUILDDIR}/functions.zwc" => Dir.glob("#{ZCONFIGDIR}/functions/*") do |t|
-  zsh "zcompile #{t} #{t.prerequisites.join(" ")}"
-end
-
-FUNCDIRS = ["#{ZCONFIGDIR}/lib/*/functions/*", "#{DOTTODIR}/external/*/zsh/functions/*"]
-
-file "#{ZSHBUILDDIR}/libfunctions.zwc" => Dir.glob(FUNCDIRS) do |t|
-  zsh "zcompile -U #{t} #{t.prerequisites.join(" ")}"
 end
