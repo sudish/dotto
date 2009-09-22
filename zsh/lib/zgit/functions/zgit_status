@@ -36,8 +36,8 @@ function zgit_status {
 
         if [[ -z ${gitstatus:#*Your branch is ahead of*} ]]; then
           local count=
-          count=$(echo "$gitstatus" | grep "ahead of" | sed -e's/^.*by \([0-9][0-9]*\) commit.*$/\1/')
-          statstring+=">$count"
+          count=$(echo "$gitstatus" | sed -n -E -e'/ahead of/ s/^.*by ([0-9]+) commit.*$/\1/ p')
+          statstring+=">{$count}"
         fi
 
         # set return code
