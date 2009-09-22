@@ -49,6 +49,7 @@ function _zmemoize_calculate_key {
     local vfile= fsize= mtime=
     for vfile in "${(ops.:.)memodef[vary_file]}"; do
       # no file, mark as such
+      vfile="${(e)vfile}"
       [[ ! -f $vfile ]] && { addons[files]+="(^$vfile)"; continue }
       mtime=$(builtin stat +mtime $vfile)
       fsize=$(builtin stat +size $vfile)
@@ -254,7 +255,9 @@ Options:
     -D <FILENAMES>
          Inject a dependency on the timestamp and size of one or more files
          which are contained in a path-like, colon separated string FILENAMEs.
-         e.g. (-D /tmp/file1:/etc/passwd)
+         Each filename is subjected to parameter expansion at runtime.  If it
+         does not contain a '$' character, each path is converted to an absolute
+         path at definition time.  e.g. (-D '/tmp/file1:$PWD/.git')
     -G   Inject the EGID (effective GID)
     -E   Inject the EUID (effective UID)
     -H   Hostname.  Set by default. May be disabled with '+h'.
@@ -292,7 +295,9 @@ Options:
           local dfile= 
           typeset -a dfiles
           for dfile in "${(ops.:.)OPTARG}"; do
-            dfiles+=$(zrealpath $dfile)
+            # resolve to absolute path unless it contains a '$'
+            [[ $dfile == *\$* ]] || dfile=$(zrealpath $dfile)
+            dfiles+=$dfile
           done
           memodef[vary_file]="${(j.:.)dfiles}"
           ;;
