@@ -18,9 +18,9 @@ function dotto_version {
         [[ -n "$tag" ]] && ver="$tag "
         if [[ $description != */$tag ]]; then
           local pats pat
-          pats=("refs/heads/" "refs/tags/" "tags/")
+          pats=("refs/heads/" "refs/tags/" "tags/" "heads/")
           for pat in $pats; do
-            description=${description//$pat/}
+            description=${description#${pat}}
           done
           [[ -n $description && $description != $tag ]] & ver+="($description) "
         fi
