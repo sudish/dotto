@@ -34,6 +34,4 @@ _arguments -C -s -S \
     '(-x --skip-user-config)'{-x,--skip-user-config}"[Don't load the user config file (.caprc)]" \
     '*:task:_captasks' && ret=0
 
-    # 
-
 

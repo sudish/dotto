@@ -13,8 +13,19 @@ age_greater_than $oldest config/deploy.rb config/cap_deploy.rb && regen=1
 
 if [[ -f config/deploy.rb || -f config/cap_deploy.rb ]]; then
   if [[ $regen == 1 ]]; then
-    cap -T | grep "^cap " | cut -d " " -f 2 | sed -e '/^ *$/D' -e '1,2D' >! .cap_tasks~
+    cap -T | egrep "^cap " >! .cap_tasks~
   fi
-  compadd "$expl[@]" - `cat .cap_tasks~`
+  
+  local tasks
+  tasks="$(< .cap_tasks~)"
+  local -a targets
+  targets=( ${${(f)tasks}/(#b)cap ([^ ]##) ##\# (*)/${${match[1]}//:/\\:}:${match[2]:l}} )
+  if (( ! ${targets[(I)capistrano aborted!]} )) then
+    _describe -t targets 'cap target' targets && ret=0
+  else
+    _message -e targets 'cap target'
+  fi
+
+  # compadd "$expl[@]" - `cat .cap_tasks~`
 fi
 
