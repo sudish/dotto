@@ -43,16 +43,28 @@ function _zmemoize_calculate_key {
       addons[options]+=":${option//_/}=$options[$option]:"
     done
   fi
+  
+  addons[files]=
+  if [[ -n $memodef[vary_file] ]]; then
+    local vfile= fsize= mtime=
+    for vfile in "${(ops.:.)memodef[vary_file]}"; do
+      # no file, mark as such
+      [[ ! -f $vfile ]] && { addons[files]+="(^$vfile)"; continue }
+      mtime=$(builtin stat +mtime $vfile)
+      fsize=$(builtin stat +size $vfile)
+      addons[files]+="($file,$mtime,$fsize)"
+    done
+  fi 2>/dev/null
 
   [[ -n $memodef[vary_function] ]] && funcall=$memodef[vary_function] && \
       addons[funcall]=$(${(z)funcall} 2>/dev/null)
   [[ -n $memodef[vary_eval] ]] && addons[evalcall]=${(e)~memodef[vary_eval]} 2>/dev/null
 
   if [[ ${#addons} -gt 0 ]]; then
-    key+=":${(pj:\0:)${(kv)addons}}"
+    key+=":${(pj:\0:)${(@kv)addons}}"
   fi
   
-  echo -E $key
+  echo -n -E $key
 }
 
 function _zmemoize_capture {
@@ -122,7 +134,7 @@ function zmemoize_reset {
   
   local funcname
   for funcname in "${(@k)zmemoize_defs}"; do
-    zmemoize -U $funcname
+    zmemoize -u $funcname
   done
 }
 
@@ -239,13 +251,17 @@ Options:
     -I   Inject process ID (\$\$)
     -S   Inject the dotto_session_id
     -T   Inject the TTY name
+    -D <FILENAMES>
+         Inject a dependency on the timestamp and size of one or more files
+         which are contained in a path-like, colon separated string FILENAMEs.
+         e.g. (-D /tmp/file1:/etc/passwd)
     -G   Inject the EGID (effective GID)
     -E   Inject the EUID (effective UID)
     -H   Hostname.  Set by default. May be disabled with '+h'.
     -U   Username.  Set by default. May be disabled with '+u'.
 "
 
-  while getopts "cehlmprt:uvEF:GHIO:PSTUV:" opt; do
+  while getopts "cehlmprt:uvD:EF:GHIO:PSTUV:" opt; do
     case "$opt" in
       h) echo -E $usage; return 0 ;;
       m) action=memoize; require_funcname=1;;
@@ -272,6 +288,14 @@ Options:
       F) memodef[vary_function]=$OPTARG ;;
       V) memodef[vary_eval]=$OPTARG ;;
       O) memodef[vary_options]=$OPTARG ;;
+      D) 
+          local dfile= 
+          typeset -a dfiles
+          for dfile in "${(ops.:.)OPTARG}"; do
+            dfiles+=$(zrealpath $dfile)
+          done
+          memodef[vary_file]="${(j.:.)dfiles}"
+          ;;
       v) verbose=1 ;;
       *) echo -E $usage; return 1;;
     esac
@@ -318,7 +342,7 @@ Options:
   zmemoize_clear "${funcname}:*"
 
   # if deletion is requested, or function is already memoized
-  if [[ $delete == 1 || -n $zmemoize_defs[$funcname] ]]; then
+  if [[ $action == "unmemoize" || $delete == 1 || -n $zmemoize_defs[$funcname] ]]; then
     if [[ -n $zmemoize_defs[$funcname] ]]; then
       zctrace "unmemoizing $funcname from $wrappername"
 
