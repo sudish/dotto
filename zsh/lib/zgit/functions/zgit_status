@@ -21,6 +21,16 @@ function zgit_status {
     
     if zgit_in_p; then
         gitstatus=$(git status 2>/dev/null)
+        if [[ -z $(ztrim $gitstatus) ]]; then
+          zctrace "No output from git status"
+          return 1
+        fi
+
+        # if it works, git status should tell us this
+        if [[ -n ${gitstatus:#*On branch*} ]]; then
+          zctrace "No branch listed"
+          return 1
+        fi
 
         if [[ -z ${gitstatus:#*Changed but not updated*} ]]; then
            statstring+='*'
@@ -42,6 +52,8 @@ function zgit_status {
 
         # set return code
         [[ -n ${gitstatus:#*nothing to commit*} ]] && res=1
+    else
+      return 1
     fi
 
     echo -nE $statstring
