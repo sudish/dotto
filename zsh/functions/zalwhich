@@ -1,0 +1,54 @@
+#!/bin/zsh
+
+#
+# Find a function definition in the FPATH
+#
+
+function _zwc_contains {
+  emulate -L zsh
+  local file=$1 name= output
+  local -a lines
+  shift 1
+  
+  [[ ! -r $file ]] && return 1
+  output=$(zcompile -t $file)
+  set -A lines ${(f)output}
+  
+  # get rid of header line
+  lines[1]=()
+  for name in $*; do
+    [[ -z $lines[(r)*/${name}] ]] && return 1
+  done
+  return 0
+}
+
+function zalwhich {
+  emulate -L zsh
+  
+  local fname=$1 dir zwc 
+  local -a zwpaths
+  
+  local checkzwc=1
+  local ftype=$(zshellfunc_type $fname)
+  
+  case $ftype in
+    function) ;; 
+    autoload) echo "$fname is autoloaded" ;;
+    none) echo "$fname is currently not defined" ;;
+    *) echo "$fname is of type $ftype"; return 1 ;;
+  esac
+  
+  for dir in $fpath; do
+    zwc=${dir%.zwc}.zwc
+    if [[ $checkzwc == 1 && -f $zwc ]]; then
+      _zwc_contains $zwc $fname && echo "Contained in compiled file $zwc"
+    fi
+    if [[ -f $dir/$fname ]]; then
+      echo "Defined in $dir/$fname"
+      return 0
+    fi
+  done
+  
+  echo "$fname not found."
+  return 1
+}
