@@ -1,0 +1,77 @@
+#!/bin/zsh
+
+#
+# capture stdout / stderr from a command without forking a subshell.
+# uses temporary files instead.  You can provide it with a 
+# function/command/builtin and its arguments, but you cannot use special
+# shell syntax like redirections, job control, etc.
+#
+# It expects the command name and args as an array in its positional parameters,
+# not as a single string.
+#
+# This is most useful when calling functions that mutate shell state (like
+# variables, fds, etc.), as doing that in a subshell wouldn't have an effect
+# in *this* shell
+#
+# Usage:
+#
+#    zcapture [-o STDOUTVAR] [-e STDERRVAR] <command_or_function> [<argN>...]
+#
+# Example:
+#
+#    typeset -A cache
+#    function cachedcommand {
+#       local key="$0:${(j.:.)$*}"
+#       [[ -n $cache[$key] ]] || cache[$key]=$($*)
+#       echo $cache[$key]
+#    }
+# 
+#    zcapture -o PSOUT -e PSERR cachedcommand ps auxw
+#    echo "Processes: $PSOUT"
+#     
+#
+# Returns the stdout string in the REPLY variable by default
+#
+
+function zcapture {
+  emulate -L zsh
+
+  typeset -g REPLY
+  ztmpfile
+  local opt OPTIND OPTARG retstat=2 stdout_file="$REPLY" stderr_file="/dev/null"
+  local stdout_var=REPLY stderr_var="" funcname=""
+
+  while getopts "o:e:" opt; do
+    case "$opt" in
+      e) stderr_var=$OPTARG; ztmpfile; stderr_file=$REPLY ;;
+      o) stdout_var=$OPTARG ;;
+      *) echo "$0: unknown option: $opt"; return 1;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+
+  [[ $# -lt 1 ]] && return 2
+
+  funcname=$1
+  shift 1
+
+  case $(zshellfunc_type $funcname) in
+    alias) 
+         # get actual effective command
+         funcname=${$(builtin alias $funcname)#${funcname}=}
+         # dequote if necessary
+         funcname=${${funcname#[\'\"]}%[\'\"]}
+      ;;
+  esac
+
+  { $funcname "${(@)*}" } > "$stdout_file" 2> "$stderr_file"
+  retstat=$?
+  
+  eval "${stdout_var}=\"\$(< $stdout_file)\""
+  [[ -n $stderr_var ]] && eval "${stderr_var}=\"\$(< $stderr_file)\""
+
+  [[ -f $stdout_file ]] && rm -f $stdout_file
+  [[ -f $stderr_file ]] && rm -f $stderr_file
+
+  return $retstat
+}
