@@ -35,8 +35,8 @@
 
 function zcapture {
   emulate -L zsh
-
-  typeset -g REPLY
+  setopt typeset_silent
+  typeset -g REPLY=
   ztmpfile
   local opt OPTIND OPTARG retstat=2 stdout_file="$REPLY" stderr_file="/dev/null"
   local stdout_var=REPLY stderr_var="" funcname=""
