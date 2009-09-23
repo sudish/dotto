@@ -2,7 +2,7 @@
 zctrace "running zshenv..."
 
 bootzshenv() {
-  local dir zdir file relfile
+  local dir zdir file relfile sysname
   for file in $ZCONFIGDIR/zshenv.d/*(.N) \
          $ZCONFIGDIR/external/*/zsh/zshenv.d/*(.N) \
          $ZCONFIGDIR/external/*/zsh/zshenv.d/`uname`/*(.N) \
@@ -12,9 +12,9 @@ bootzshenv() {
     source $file
   done
   
-  typeset -g -a -H -U zlib_paths zprofile_files zshrc_files \
-        zcomp_files zperiodic_files zlogin_files zlogout_files
-  
+  typeset -g -a -H -U zlib_paths 
+  typeset -g -a -U precmd_functions preexec_functions chpwd_functions zshexit_functions periodic_functions
+
   for dir in $DOTTODIR/local/zsh/lib $DOTTODIR/external/*/zsh/lib(N) \
            $ZCONFIGDIR/lib
   do

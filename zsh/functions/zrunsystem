@@ -57,6 +57,12 @@ function zrunsystem() {
       zctrace "Sourcing $zfile"
       source $zfile
     done
+    
+    arrayname=${systemname%.d}_functions
+    for zfile in ${(P)arrayname}; do
+      zctrace "Running function '$zfile'"
+      ${=zfile}
+    done
   done
   
   

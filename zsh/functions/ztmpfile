@@ -1,0 +1,70 @@
+#!/bin/zsh
+
+#
+# Create a temporary file which is unlinked at prompt display or
+# shell exit.  Returns the filename in the REPLY variable.  do NOT
+# call this as $(ztmpfile) or the file will leak -- it must run in
+# your current process.
+#
+# If given one or more arguments, it instead schedules that filename or file descriptor
+# for auto-deletion/closing
+#
+# File descriptors are closed by a zsh that's opened from this one by
+# explicitly 
+#
+
+typeset -x -g -H ztmpfds
+typeset -a -g -H ztmpfiles
+
+function ztmpfile {
+  emulate -L zsh
+  local name
+  typeset -g REPLY=
+
+  if [[ ${#*} == 0 ]]; then
+    set -- ${TMPPREFIX}.dottmp.$$.$RANDOM
+    REPLY=$1
+  fi
+
+  for name in $*; do; _ztmp_register $name; done
+}
+
+function _ztmp_register {
+  local name=$1
+  zctrace "Registering tmpfile/fd $name"
+  if [[ $name == <-> ]]; then
+    ztmpfds+="${name}:"
+  else
+    ztmpfiles+=$name
+  fi
+}
+
+function _ztmp_newshell {
+  emulate -L zsh
+  
+  typeset -g -a -U zshexit_functions precmd_functions
+  zshexit_functions+=_ztmp_cleanup
+  precmd_functions+=_ztmp_cleanup
+}
+
+function _ztmp_cleanup {
+  emulate -L zsh
+  local filen= completed=0
+
+  zctrace "ztmpfile cleaning up..."
+
+  # close all open descriptors
+  for filen in ${(ps.:.)ztmpfds}; do
+    [[ $filen == <-> ]] && : {filen}<&- 
+  done &> /dev/null
+  ztmpfds=
+
+  for filen in ${ztmpfiles}; do
+    [[ -f $filen ]] && rm -f $filen
+  done
+  set -A ztmpfiles
+  return 0
+}
+
+
+_ztmp_newshell

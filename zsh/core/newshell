@@ -3,15 +3,25 @@
 
 if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
   typeset -a -g -U       zinclude_path
-  typeset -a -g -U -H    zrequired_files
-  typeset -A -g -U -H    zloaded_libs
+  typeset -a -g -U       zrequired_files
+  typeset -A -g -U       zloaded_libs
   typeset -A -g -H       dotto_vars
 
-  typeset -a -g -H       dotto_disabled_components dotto_disabled_systems
+  typeset -a -g          dotto_disabled_components dotto_disabled_systems
+
+  typeset -g -a -U zlib_paths 
+  for _zsysname in zprofile zshrc zcomp zperiodic zlogin zlogout newshell 
+  do
+    typeset -g -a -U ${_zsysname}_files ${_zsysname}_functions
+  done
+  unset _zsysname
+  
+  typeset -g REPLY=
+  typeset -g -a reply
 
   function _dotto_newshell {
     local zcfile 
-    
+
     FPATH=$ZCONFIGDIR/functions:$ZCONFIGDIR/completions:$FPATH
 
     setopt function_argzero typeset_silent
