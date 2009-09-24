@@ -13,20 +13,22 @@
 # explicitly 
 #
 
-typeset -x -g -H ztmpfds
+typeset -x -g -H ztmpfds=""
 typeset -a -g -H ztmpfiles
 
 function ztmpfile {
   emulate -L zsh
   local name
-  typeset -g REPLY=
+  typeset -g REPLY=""
 
   if [[ ${#*} == 0 ]]; then
-    set -- ${TMPPREFIX}.dottmp.$$.$RANDOM
-    REPLY=$1
+    #set -- ${TMPPREFIX}.dottmp.$$.$RANDOM
+    REPLY="${TMPPREFIX}.dottmp.$$.$RANDOM"
+    _ztmp_register $REPLY
+  else
+    for name in $*; do; _ztmp_register $name; done
   fi
 
-  for name in $*; do; _ztmp_register $name; done
 }
 
 function _ztmp_register {
@@ -43,15 +45,18 @@ function _ztmp_newshell {
   emulate -L zsh
   
   typeset -g -a -U zshexit_functions precmd_functions
-  zshexit_functions+=_ztmp_cleanup
-  precmd_functions+=_ztmp_cleanup
+  zshexit_functions+=ztmp_cleanup
+  
+  # if you put this in precmd_functions zsh 4.3.9 and .10 segfault on OS X
+  preexec_functions+=ztmp_cleanup
 }
 
-function _ztmp_cleanup {
-  emulate -L zsh
-  local filen= completed=0
-
-  zctrace "ztmpfile cleaning up..."
+function ztmp_cleanup {
+  local filen=""
+  for filen in ${ztmpfiles}; do
+    [[ -f $filen ]] && rm -f $filen
+  done
+  ztmpfiles=()
 
   # close all open descriptors
   for filen in ${(ps.:.)ztmpfds}; do
@@ -59,10 +64,6 @@ function _ztmp_cleanup {
   done &> /dev/null
   ztmpfds=
 
-  for filen in ${ztmpfiles}; do
-    [[ -f $filen ]] && rm -f $filen
-  done
-  set -A ztmpfiles
   return 0
 }
 
