@@ -4,24 +4,63 @@ typeset -g -a -H -U zprofile_files zshrc_files \
         zcomp_files zperiodic_files zlogin_files zlogout_files zsystem_done
 
 typeset -g zsystem_current
+typeset -g -x -a -U -T ZSYSTEM_ROOTS zsystem_roots
+typeset -g -x -a -U -T ZSYSTEM_PATHS zsystem_paths
+
+function _zrunsystem_setup {
+  emulate -L zsh
+  local droot dir 
+  local -a dirs
+  
+  if [[ $DOTTO_ZSH_RELOAD != 1 && ${#zsystem_roots} -gt 0 ]]; then
+    return 0
+  fi
+  
+  local sysuser=${ZSH_PREFS_USER:-$USERNAME}
+  zsystem_paths=()
+  zsystem_roots=($ZCONFIGDIR)
+
+  for droot in $DOTTODIR/external/*(N); do
+    [[ -d $droot/zsh ]] && zsystem_roots+=${droot}/zsh
+    [[ -d $droot ]] && zsystem_roots+=${droot}
+  done
+
+  dirs+="os/`uname`/zsh"
+  [[ -n $domain ]] && dirs+="domains/$domain/zsh"
+  dirs+="hosts/`hostname -s`/zsh" 
+  dirs+="hosts/`hostname`/zsh"
+  dirs+="users/$sysuser/zsh"
+
+  _zsys_add_rooted_dirs zsystem_paths $dirs
+}
+
+function _zsys_add_rooted_dirs {
+  emulate -L zsh
+  local var=$1 dir
+  shift
+
+  for dir in $*; do
+      for droot in $zsystem_roots; do
+          [[ -n "$droot" ]] && droot="${droot%/}/"
+          [[ -d "${droot}${dir}" ]] && eval "${var}+='${droot}${dir}'"
+      done  
+  done
+}
 
 function zsyssourcedir {
-    emulate zsh
-    local droot dir
+    local droot dir sysdir syssubdir
     local systemname=$1
-    local -a -U droots
     shift
-    
-    droots=("")
-    for droot in $DOTTODIR/external/*(N); do
-      [[ -d $droot/zsh ]] && droots+=${droot#$ZCONFIGDIR/}/zsh
-      [[ -d $droot ]] && droots+=${droot#$ZCONFIGDIR/}
-    done
-    
+
     for dir in "${(@)*}"; do
-        for droot in "${(@)droots}"; do
-            [[ -n "$droot" ]] && droot="${droot%/}/"
-            zsourcedir -s $systemname "${droot}${dir}"
+        # for droot in "${(@)zsystem_roots}"; do
+        #     [[ -n "$droot" ]] && droot="${droot%/}/"
+        #     zsourcedir -s $systemname "${droot}${dir}"
+        # done
+        for syssubdir in $dir "${dir}/${systemname}.d"; do
+          if [[ -d $syssubdir  ]]; then
+            zsourcedir -s $systemname $syssubdir
+          fi
         done
     done
 }
@@ -79,14 +118,9 @@ function zrunsystem() {
     zctrace "zrunsystem: $systemname"
     
     if ! zsystem_done $systemname; then
-      dirs+="$system" 
-      dirs+="$system/`uname`" 
-      dirs+="os/`uname`/zsh/$system" 
-      [[ -n $domain ]] && dirs+="domains/$domain/zsh/$system"
-      dirs+="hosts/`hostname -s`/zsh/$system" 
-      dirs+="hosts/`hostname`/zsh/$system"
-      dirs+="users/$sysuser/zsh/$system"
-      zsyssourcedir $systemname $dirs
+      _zsys_add_rooted_dirs dirs "$system"  "$system/`uname`"
+      dirs+=($zsystem_paths)
+      zsyssourcedir $systemname $dirs      
     fi
 
     # execute any phased files/functions that have been set
@@ -96,3 +130,5 @@ function zrunsystem() {
     zsystem_done+=$systemname
   done
 }
+
+_zrunsystem_setup

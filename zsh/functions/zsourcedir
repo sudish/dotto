@@ -7,14 +7,16 @@ function zsourcedir() {
     systemname=$2
     shift 2
   fi
-  
+
   for dir in "${(@)*}"; do
-    zdir=`zdirname $dir`
-    zctrace "zsourcedir: dir=$dir, zdir=$zdir"
+    #zdir=`zdirname $dir`
+    zdir=$dir
+    # zctrace "zsourcedir: dir=$dir, zdir=$zdir"
+
+    [[ -d $zdir ]] || continue
 
     for file in $zdir/*.zsh(N); do
-      relfile=${file#$ZCONFIGDIR/}
-      zctrace "zsourcedir: dir=$dir, file=$file relfile=$relfile"
+      # zctrace "zsourcedir: dir=$dir, file=$file"
       
       component=${file:t}
       component=${component:r}
@@ -26,7 +28,6 @@ function zsourcedir() {
       
       [[ -n ${dotto_disabled_components[(r)$component]} ]] && continue
       [[ -n ${dotto_disabled_components[(r)${systemname}/${component}]} ]] && continue
-
       
       source $file
     done
