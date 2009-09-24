@@ -8,6 +8,11 @@ function dotto_version {
 
   [[ -z $dotto_vars[version] && -n $DOTTO_VERSION ]] && dotto_vars[version]=$DOTTO_VERSION
 
+  if [[ -z $dotto_vars[version] && -f "$DOTTODIR/.version~" ]] && \
+      [[ ! -d $DOTTODIR/.git || "$DOTTODIR/.version~" -nt $DOTTODIR/.git/HEAD ]]; then
+    $dotto_vars[version]=$(< "$DOTTODIR/.version~")
+  fi
+
   if [[ -z $dotto_vars[version] ]]; then
     local oldpwd=$PWD
   
@@ -36,6 +41,7 @@ function dotto_version {
     }
 
     dotto_vars[version]="$(ztrim $ver)"
+    echo $dotto_vars[version] >! "$DOTTODIR/.version~" 2>/dev/null
   fi
   
   export DOTTO_VERSION=$dotto_vars[version]
