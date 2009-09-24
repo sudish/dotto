@@ -7,21 +7,20 @@ function zrealpath() {
   unset chpwd_functions
 
   local pth="$1" dir="" 
-  
+  REPLY=""
+
   [[ $pth[1] == "/" ]] || pth="$PWD/$pth"
 
   if [ "${pth:t}" = "." -o "${pth:t}" = ".." -o -d "$pth" ]; then
-      (cd -P "$pth" && pwd -P)
-      return
-  fi
-
-  if [[ "${pth:h}" == "/" ]]; then
-      echo "$pth"
-      return
+    REPLY=$(cd -P "$pth" && pwd -P)
+  elif [[ "${pth:h}" == "/" ]]; then
+    REPLY="$pth"
+  else
+    dir=${pth:h}
+    dir=$(cd -P "$dir" && pwd -P)
+  
+    REPLY="$dir/${pth:t}"
   fi
   
-  dir=${pth:h}
-  dir=$(cd -P "$dir" && pwd -P)
-  
-  echo "$dir/${pth:t}"
+  echo $REPLY
 }

@@ -14,7 +14,9 @@ bootzshenv() {
   
   typeset -g -a -H -U zlib_paths 
   typeset -g -a -U precmd_functions preexec_functions chpwd_functions zshexit_functions periodic_functions
-
+  typeset -g REPLY
+  typeset -g -a reply
+  
   for dir in $DOTTODIR/local/zsh/lib $DOTTODIR/external/*/zsh/lib(N) \
            $ZCONFIGDIR/lib
   do

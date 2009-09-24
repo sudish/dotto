@@ -16,9 +16,6 @@ if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
   done
   unset _zsysname
   
-  typeset -g REPLY=
-  typeset -g -a reply
-
   function _dotto_newshell {
     local zcfile 
 
