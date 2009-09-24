@@ -32,6 +32,7 @@ function zshellfunc_type {
     fi
   } &> /dev/null
   
+  REPLY=$ftype
   echo $ftype
   [[ -n $ftype && $ftype != "none" ]]
 }

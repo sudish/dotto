@@ -55,7 +55,8 @@ function zcapture {
   funcname=$1
   shift 1
 
-  case $(zshellfunc_type $funcname) in
+  zshellfunc_type $funcname >/dev/null
+  case $REPLY in
     alias) 
          # get actual effective command
          funcname=${$(builtin alias $funcname)#${funcname}=}

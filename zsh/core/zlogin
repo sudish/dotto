@@ -3,6 +3,7 @@ zctrace "running zlogin.."
 
 zrunsystem zlogin
 
-zctrace "done running zlogin"
+dotto_version > /dev/null
+echo "DOTTO version: $REPLY"
 
-echo "DOTTO version: $(dotto_version)"
+zctrace "done running zlogin"
