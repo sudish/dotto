@@ -10,7 +10,7 @@ function dotto_version {
 
   if [[ -z $dotto_vars[version] && -f "$DOTTODIR/.version~" ]] && \
       [[ ! -d $DOTTODIR/.git || "$DOTTODIR/.version~" -nt $DOTTODIR/.git/HEAD ]]; then
-    $dotto_vars[version]=$(< "$DOTTODIR/.version~")
+    dotto_vars[version]=$(< "$DOTTODIR/.version~")
   fi
 
   if [[ -z $dotto_vars[version] ]]; then
