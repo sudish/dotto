@@ -89,7 +89,7 @@ function my_vcs_info {
 }
 
 function update_rprompt_vcs {
-  if [[ -n $rsboxvars[rprompt_vcs] ]]; then
+  if [[ -n $vcs_info_msg_0_ ]]; then
     rsboxvars[rprompt_vcs]="${vcs_info_msg_0_}${rsboxvars[vcs_fresh]}"
   else
     rsboxvars[rprompt_vcs]=""
