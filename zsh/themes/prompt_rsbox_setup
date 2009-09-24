@@ -228,7 +228,7 @@ function prompt_rsbox_showexitstatus () {
       over+=$rsboxvars[echotc_nd]
     done
     
-    echo -E "${rsboxvars[echotc_mr]}$fg[red]${string}${rsboxvars[echotc_me]}"
+    echo -E "${over}${rsboxvars[echotc_mr]}$fg[red]${string}${rsboxvars[echotc_me]}"
 }
 
 
