@@ -21,6 +21,12 @@ rsboxvars[last_vcs_update]=$EPOCHSECONDS
 rsboxvars[git_update_period]=${GIT_UPDATE_PERIOD:-30}
 rsboxvars[git_scan_period]=${GIT_SCAN_PERIOD:-30}
 
+rsboxvars[echotc_up]=$(echotc up)
+rsboxvars[echotc_ce]=$(echotc ce)
+rsboxvars[echotc_me]=$(echotc me)
+rsboxvars[echotc_mr]=$(echotc mr)
+rsboxvars[echotc_nd]=$(echotc nd)
+
 function prompt_rsbox_vcsupdate {
     emulate -L zsh
 
@@ -193,7 +199,7 @@ function prompt_rsbox_eraseprompt () {
     
     (( upcount = 1 + ${visiblesize} ))
 
-    local up=$(echotc up) ce=$(echotc ce) out=""
+    local up=$rsboxvars[echotc_up] ce=$rsboxvars[echotc_ce] out=""
     if [ $upcount -lt $LINES ]; then
         for (( i=0; i < $upcount; i++ )); do
             out+="${up}${ce}"
@@ -215,16 +221,14 @@ function prompt_rsbox_showexitstatus () {
     local col=$(( COLUMNS - $visiblesize ))
     local i
     
-    echotc up
     # echotc ch $col
+
+    local over=$rsboxvars[echotc_up]
     repeat $col; do
-      echotc nd
+      over+=$rsboxvars[echotc_nd]
     done
     
-    echotc mr
-    echo -E -n "$fg[red]${string}"
-    echotc me
-    echo
+    echo -E "${rsboxvars[echotc_mr]}$fg[red]${string}${rsboxvars[echotc_me]}"
 }
 
 
@@ -232,7 +236,7 @@ function prompt_rsbox_showhistoryline () {
     emulate -L zsh
 
     local histcmd="% $1"
-    echo "`echotc mr`${(r:$COLUMNS:: :)histcmd}`echotc me`"
+    echo "${rsboxvars[echotc_mr]}${(r:$COLUMNS:: :)histcmd}${rsboxvars[echotc_me]}"
 }
 
 function prompt_rsbox_preexec () {
