@@ -29,8 +29,13 @@ function zgit_dir() {
       if [[ -z $dir && $runrevparse == 1 ]]; then
         dir=$(git rev-parse --git-dir) 2>/dev/null || return 1
       fi
-      zrealpath $dir >/dev/null
-      zgit_dirs[$PWD]=$REPLY
+      
+      if [[ -n $dir ]]; then
+        zrealpath $dir >/dev/null
+        zgit_dirs[$PWD]=$REPLY
+      else  
+        REPLY=
+      fi
     else
       REPLY=$zgit_dirs[$PWD]
     fi
