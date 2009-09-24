@@ -130,7 +130,8 @@ Dotto has received inspiration or code from the following projects:
 * The Z-Shell distribution itself.  http://zsh.org/
 * Oh My Zsh: http://github.com/robbyrussell/oh-my-zsh/
 * Emacs Starter Kit:  http://github.com/technomancy/emacs-starter-kit/
-
+* Scientifing Computing on OS X ZSH mega-config:
+   http://sage.ucsc.edu/~wgscott/xtal/wiki/index.php/Explanations_for_each_zsh_template_file
 
 Bugs and Feedback
 -----------------
