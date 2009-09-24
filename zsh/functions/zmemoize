@@ -21,6 +21,7 @@ function _zmemoize_calculate_key {
   local funcname=$1 key="" funcall=""
   typeset -A memodef addons
   shift
+  REPLY=""
   
   [[ -n "$zmemoize_defs[$funcname]" ]] && zavp -d -v memodef $zmemoize_defs[$funcname]
   
@@ -65,21 +66,22 @@ function _zmemoize_calculate_key {
     key+=":${(pj:\0:)${(@kv)addons}}"
   fi
   
-  echo -n -E $key
+  REPLY=$key
 }
 
 function _zmemoize_capture {
   local key=$1 funcname=$2
   shift 2
   
-  # zlog "capturing $key..."
+  zlog "capturing $key..."
   local coutput cstatus
   local wrapper="_zmemoize_wrapped_$funcname"
   typeset -A memoavps memodef
 
   [[ -n "$zmemoize_defs[$funcname]" ]] && zavp -d -v memodef $zmemoize_defs[$funcname]
 
-  case $(zshellfunc_type $wrapper) in
+  zshellfunc_type $wrapper >/dev/null
+  case $REPLY in
     alias) 
          # get actual effective command
          wrapper=${$(builtin alias $wrapper)#${wrapper}=}
@@ -112,9 +114,10 @@ function _zmemoize_capture {
 
   [[ -n $memodef[timeout] ]] && memoavps[expires]=$(($EPOCHSECONDS + $memodef[timeout]))
 
-  zmemoize_cache[$key]=$(zavp -v memoavps)
+  zavp -v memoavps >/dev/null
+  zmemoize_cache[$key]=$REPLY
   
-  # zlog "MEMOAVP keys are ${(k)memoavps}, stdout is $memoavps[stdout], str is $(echo $zmemoize_cache[$key] | cat -vt)"
+  # zlog "MEMOAVP keys are ${(k)memoavps}, stdout is $memoavps[stdout], str is $(echo $zmemoize_cache[$key] | cat -vt)" 
 
   echo -n -E "$memoavps[stdout]"
   [[ $memoavps[has_stderr] == 1 ]] && echo -n -E $memoavps[stderr] >&2
@@ -166,11 +169,12 @@ function zmemoize_clear {
 function _zmemoize_wrapper {
   local key="" cached="" funcname=$1 capture=1
 
-  key=$(_zmemoize_calculate_key $*)
+  _zmemoize_calculate_key $*
+  key=$REPLY
   cached=$zmemoize_cache[$key]
 
-  # zctrace "wrapper: func is $1, key is $key" >&2
-  # zctrace "cached is ..$cached..${#cached}"
+  zctrace "wrapper: func is $1, key is $key" >&2
+  zctrace "cached is ..$cached..${#cached}"
   
   ## short result means a status code; unset and return
   if [[ -n $cached ]]; then
@@ -306,7 +310,7 @@ Options:
     for dfile in $arg_files; do
       for dfile in "${(ops.:.)OPTARG}"; do
         # resolve to absolute path unless it contains a '$'
-        [[ $dfile == *\$* ]] || dfile=$(zrealpath $dfile)
+        [[ $dfile == *\$* ]] || { zrealpath $dfile >/dev/null; dfile=$REPLY }
         dfiles+=$dfile
       done
     done  
@@ -341,7 +345,7 @@ Options:
         typeset -A printdef
         [[ -z $zmemoize_defs[$funcname] ]] && { echo "Function $funcname not memoized." >&2; return 1 }
         
-        zavp -d -v printdef $zmemoize_defs[$funcname]
+        zavp -d -v printdef $zmemoize_defs[$funcname] >/dev/null
         for key in ${(ko)printdef}; do
           echo -E "$key: ${printdef[$key]}"
         done
@@ -380,7 +384,8 @@ Options:
       _zmemoize_wrapper $0 $*
     }
     
-    zmemoize_defs[$funcname]=$(zavp -v memodef)
+    zavp -v memodef >/dev/null
+    zmemoize_defs[$funcname]=$REPLY
   fi
 }
 

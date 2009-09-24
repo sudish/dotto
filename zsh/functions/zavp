@@ -52,8 +52,9 @@ function zavp {
 function zavp_encode {
   emulate -L zsh
   unsetopt multibyte
-
-  local res varname="*"
+  REPLY=""
+  
+  local res= varname="*" key="" value=""
 
   if [[ $1 == "-v" ]]; then
     varname=$2
@@ -82,15 +83,18 @@ function zavp_encode {
   fi
   res+=$zavp_vars[magic]
   
-  echo -E -n $res
+  REPLY=$res
+  # echo -n -E $REPLY
 }
 
 function zavp_decode {
   emulate -L zsh
   unsetopt multibyte
-  
+  REPLY=""
+
   local varname="" string positional=1
   typeset -a parts
+  local key="" val=""
   
   [[ $1 == "-d" ]] && shift
 
@@ -123,7 +127,6 @@ function zavp_decode {
   if [[ $positional == 1 || -z $varname ]]; then
     ## this is totally broken -- can't set from parent
   else
-    local key="" val=""
     for key val in $parts; do
       # zctrace "DECODE: key is ${(Q)key}, val is ${(Q)val}"
       eval "${varname}[\${(Q)key}]=\${(Q)val}"
