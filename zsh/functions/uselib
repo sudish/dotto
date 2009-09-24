@@ -12,7 +12,18 @@ function _zloadlib {
   [[ -d $libdir/functions ]] && fpath+=($libdir/functions)  
   [[ -d $libdir/completions ]] && fpath+=($libdir/completions)  
   [[ -d $libdir/include ]] && zinclude_path+=($libdir/include)
+  [[ -d $libdir/bin ]] && path+=($libdir/bin)
+  [[ -d $libdir/man ]] && manpath+=($libdir/man)
+  
   [[ -f $libdir/init.zsh ]] && { source $libdir/init.zsh || return }
+  
+  # now run the boot phase files/functions that won't get run because
+  # we've already booted
+  
+  local bootphase=""
+  for bootphase in prefs newshell zprofile zshrc zcomp zlogin; do
+    zsystem_done $bootphase && zrunsystem_libs $bootphase
+  done
   
   return 0
 }

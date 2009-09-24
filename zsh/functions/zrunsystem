@@ -1,7 +1,9 @@
 #!/bin/zsh
 
 typeset -g -a -H -U zprofile_files zshrc_files \
-        zcomp_files zperiodic_files zlogin_files zlogout_files
+        zcomp_files zperiodic_files zlogin_files zlogout_files zsystem_done
+
+typeset -g zsystem_current
 
 function zsyssourcedir {
     emulate zsh
@@ -24,10 +26,41 @@ function zsyssourcedir {
     done
 }
 
+function zsystem_done {
+  emulate -L zsh
+  local name=$1
+  name=${name%.d}
+
+  [[ -n ${zsystem_done[(r)$name]} ]]
+}
+
+function zrunsystem_libs() {
+  local systemname=$1
+  local arrayname zfile 
+  local -a zrlfiles zrlfunctions
+
+  arrayname=${systemname%.d}_files
+  zrlfiles=(${(P)arrayname})
+  set -A $arrayname
+
+  for zfile in $zrlfiles; do
+    source $zfile
+  done
+  
+  arrayname=${systemname%.d}_functions
+  zrlfunctions=(${(P)arrayname})
+  set -A $arrayname
+  
+  for zfile in $zrlfunctions; do
+    ${=zfile}
+  done
+}
+
 function zrunsystem() {
   emulate zsh
   local systemname system zfile arrayname
   local domain="$(zdomainname)"
+  local zsystem_current=""
 
   local sysuser=${ZSH_PREFS_USER:-$USERNAME}
 
@@ -36,34 +69,30 @@ function zrunsystem() {
 
     dirs=()
     systemname=${systemname%.d}
+
+    zsystem_current=$systemname
     system="${systemname}.d"
     
     [[ -n ${dotto_disabled_systems[(r)$system]} ]] && continue
     [[ -n ${dotto_disabled_systems[(r)$systemname]} ]] && continue
 
     zctrace "zrunsystem: $systemname"
-            
-    dirs+="$system" 
-    dirs+="$system/`uname`" 
-    dirs+="os/`uname`/zsh/$system" 
-    [[ -n $domain ]] && dirs+="domains/$domain/zsh/$system"
-    dirs+="hosts/`hostname -s`/zsh/$system" 
-    dirs+="hosts/`hostname`/zsh/$system"
-    dirs+="users/$sysuser/zsh/$system"
-    zsyssourcedir $systemname $dirs
     
-    arrayname=${systemname%.d}_files
-    for zfile in ${(P)arrayname}; do
-      zctrace "Sourcing $zfile"
-      source $zfile
-    done
-    
-    arrayname=${systemname%.d}_functions
-    for zfile in ${(P)arrayname}; do
-      zctrace "Running function '$zfile'"
-      ${=zfile}
-    done
+    if ! zsystem_done $systemname; then
+      dirs+="$system" 
+      dirs+="$system/`uname`" 
+      dirs+="os/`uname`/zsh/$system" 
+      [[ -n $domain ]] && dirs+="domains/$domain/zsh/$system"
+      dirs+="hosts/`hostname -s`/zsh/$system" 
+      dirs+="hosts/`hostname`/zsh/$system"
+      dirs+="users/$sysuser/zsh/$system"
+      zsyssourcedir $systemname $dirs
+    fi
+
+    # execute any phased files/functions that have been set
+    # since -- this is used by the 'uselib' function
+    zrunsystem_libs $systemname
+
+    zsystem_done+=$systemname
   done
-  
-  
 }
