@@ -6,8 +6,10 @@ require 'dotto'
 
 BUILDDIR=Dotto::BUILD_DIR
 
-Dir['lib/tasks/**/*.rake', 'zsh/tasks/*.rake', 'apps/*/tasks/*.rake'].each do |taskfile|
-   load taskfile
+Dir['tasks/**/*.rake', 'zsh/tasks/**/*.rake', 'apps/*/tasks/**/*.rake', 
+    'lib/*/tasks/**/*.rake', 'external/*/tasks/**/*.rake', 
+    'external/*/lib/*/tasks/**/*.rake'].each do |taskfile|
+   import taskfile
 end
 
 task :default => :help do
@@ -18,66 +20,13 @@ task :help do
   system %Q{rake -T}
 end
 
-desc "Pull and update from repository"
-task :update => [:pull, :updatelocal]
+# desc "Clean compiled zwc files"
+# task :clean do
+#   puts "Doing clean..."
+# end
+# 
+# desc "Clean all junk"
+# task :realclean => [:clean, :clearlog] do
+#   puts "Doing realclean..."
+# end
 
-desc "Pull latest from repository"
-task :pull do
-  system %Q{git pull}
-  Dir.glob("external/*/.git").each do |gitdir|
-    dir=File.dirname gitdir
-    puts "Pulling external dir #{dir} with Git"
-    system %Q{cd #{dir} && git pull}
-  end
-  Dir.glob("external/*/.svn").each do |gitdir|
-    dir=File.dirname gitdir
-    puts "Pulling external dir #{dir} with Subversion"
-    system %Q{cd #{dir} && svn update}
-  end
-  Dir.glob("external/*/.hg").each do |gitdir|
-    dir=File.dirname gitdir
-    puts "Pulling external dir #{dir} with Mercurial"
-    system %Q{cd #{dir} && hg pull}
-  end
-end
-
-desc "Push external dir changes into upstream repository"
-task :push do
-  Dir.glob("external/*/.git").each do |gitdir|
-    dir=File.dirname gitdir
-    puts "Pushing external dir #{dir} upstream with Git"
-    system %Q{cd #{dir} && git push}
-  end
-  Dir.glob("external/*/.hg").each do |gitdir|
-    dir=File.dirname gitdir
-    puts "Pushing external dir #{dir} upstream with Mercurial"
-    system %Q{cd #{dir} && hg push}
-  end
-end
-
-desc "Install in home directory"
-task :install do
-  system %Q{yes n | ./setup/install.zsh}
-end
-
-desc "Update installation from local files"
-task :updatelocal => [:clean, :install, :compile]
-
-desc "Clean compiled zwc files"
-task :clean do
-  puts "Doing clean..."
-end
-
-desc "Clean all junk"
-task :realclean => [:clean, :clearlog] do
-  puts "Doing realclean..."
-end
-
-file Dotto.build_dir do |t|
-  FileUtils.mkdir_p Dotto.build_dir
-end
-
-desc "Compile all files"
-task :compile do
-  puts "Compile done"
-end
