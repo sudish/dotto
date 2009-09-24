@@ -26,7 +26,7 @@ function prompt_rsbox_vcsupdate {
 
     local arg="$1"
 
-    local update=0 git_dir
+    local update=0 git_dir=
 
     # mark as cached pessimistically
     rsboxvars[vcs_fresh]="~"
@@ -39,24 +39,19 @@ function prompt_rsbox_vcsupdate {
     elif [ "$delta" -gt "$rsboxvars[git_update_period]" -o "$rsboxvars[git_update_period]" = 0 ]; then
         zctrace "TIME FORCED VCS UPDATE"
         update=1
-    elif zgit_in_p; then
-        git_dir=$(zgit_dir)
-        
+    elif zcapture -o git_dir zgit_dir; then
         if newer_than $rsboxvars[last_vcs_update] "$git_dir/HEAD" "$git_dir" \
                  "$git_dir/.." "$git_dir/refs" "$git_dir/rebase_merge" "$git_dir/rebase_apply" \
-                 "$git_dir/.dotest" "$git_dir/BISECT_LOG" "$git_dir/BISECT_LOG" \
+                 "$git_dir/.dotest" "$git_dir/BISECT_LOG" \
                  "$git_dir/.dotest-merge" "$git_dir/MERGE_HEAD"
         then
             zctrace "HEAD timestamp is newer!"
             update=1
-        elif [[ $(zgit_revision) != $rsboxvars[git_revision] ]]; then
+        elif ! zcapture zgit_revision || [[ $REPLY != $rsboxvars[git_revision] ]]; then
             zctrace "Revision changed!"
             update=1
         elif [[ -n "$(fc -l -m '*git *' -1)" ]]; then
             zctrace "last cmd was git"
-            update=1
-        elif [[ $(builtin stat +mtime "$git_dir") -gt rsboxvars[last_vcs_update] ]]; then
-            zctrace ".git dir mtime changed!"
             update=1
         fi
     fi
@@ -66,16 +61,18 @@ function prompt_rsbox_vcsupdate {
         rsboxvars[last_vcs_update]=$EPOCHSECONDS
         my_vcs_info
     fi
+
+    update_rprompt_vcs
 }
 
 function my_vcs_info {
     emulate -L zsh
     local output branch op dirty
     if zgit_in_p; then
-        rsboxvars[git_branch]=$(zgit_branch)
-        rsboxvars[git_revision]=$(zgit_revision)
-        rsboxvars[git_op]=$(zgit_op)
-        rsboxvars[git_status]=$(zgit_status)
+        zcapture -o 'rsboxvars[git_branch]' zgit_branch
+        zcapture -o 'rsboxvars[git_revision]' zgit_revision
+        zcapture -o 'rsboxvars[git_op]' zgit_op
+        zcapture -o 'rsboxvars[git_status]' zgit_status
         rsboxvars[git_dirty]=$(($status == 0 ? 0 : 1 ))
 
         [[ -n "$rsboxvars[git_op]" ]] && op="[$rsboxvars[git_op]]"
@@ -88,6 +85,16 @@ function my_vcs_info {
         vcs_info_msg_0_=""
         rsboxvars[vcs_fresh]=""
     fi
+    update_rprompt_vcs
+}
+
+function update_rprompt_vcs {
+  if [[ -n $rsboxvars[rprompt_vcs] ]]; then
+    rsboxvars[rprompt_vcs]="${vcs_info_msg_0_}${rsboxvars[vcs_fresh]}"
+  else
+    rsboxvars[rprompt_vcs]=""
+  fi
+    
 }
 
 function prompt_rsbox_chpwd {
@@ -103,7 +110,7 @@ function prompt_rsbox_chpwd {
     fi
 
     if [ $in_git = 0 ]; then
-        git_dir="$(zgit_dir)"
+        zcapture -o git_dir zgit_dir
         # did we change repos?
         [[ "$git_dir" != "$rsboxvars[git_dir]" ]] && update=1
 
@@ -214,7 +221,10 @@ function prompt_rsbox_showexitstatus () {
       echotc nd
     done
     
-    echo -E "$(echotc mr)$fg[red]${string}$(echotc me)"
+    echotc mr
+    echo -E -n "$fg[red]${string}"
+    echotc me
+    echo
 }
 
 
@@ -243,42 +253,6 @@ function prompt_rsbox_preexec () {
     rsboxvars[preexec_ran]=1
 }
 
-
-function old_box_prompt_info() {
-  local CURRENT_BRANCH
-  if [[ -d .git ]]; then
-    local ref=$(git symbolic-ref HEAD 2> /dev/null) || return
-    local branch=${ref#refs/heads/}
-    CURRENT_BRANCH="git:($PR_MAGENTA${branch}$PR_YELLOW)$PR_NO_COLOUR$(parse_git_dirty)"
-  else
-    CURRENT_BRANCH='%D{%a,%b%d}'
-  fi
-
-  echo $CURRENT_BRANCH
-}
-
-
-function box_prompt_info() {
-  emulate -L zsh
-  local CURRENT_BRANCH
-
-  if [ -n "$vcs_info_msg_0_" ]; then
-    # CURRENT_BRANCH="git:($PR_MAGENTA${branch}$PR_YELLOW)$PR_NO_COLOUR$(parse_git_dirty)"
-    CURRENT_BRANCH="${vcs_info_msg_0_}${rsboxvars[vcs_fresh]}"
-  else
-    # CURRENT_BRANCH="($PR_YELLOW%D{%a,%b%d}$PR_BLUE)"
-    CURRENT_BRANCH=""
-  fi
-
-  echo $CURRENT_BRANCH
-}
-
-
-function parse_git_dirty () {
-  emulate -L zsh
-
-  [[ $(git status | tail -n1) != "nothing to commit (working directory clean)" ]] && echo " %{$fg[yellow]%}x$PR_NO_COLOUR"
-}
 
 function prompt_rsbox_setup() {
     ###
@@ -366,7 +340,7 @@ $PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT\
 $PR_NO_COLOUR "
 
     RPROMPT=" $PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_BLUE$PR_HBAR$PR_SHIFT_OUT\
-\$(box_prompt_info)$PR_SHIFT_IN$PR_HBAR$PR_CYAN$PR_LRCORNER$PR_SHIFT_OUT$PR_NO_COLOUR"
+\${rsboxvars[rprompt_vcs]}$PR_SHIFT_IN$PR_HBAR$PR_CYAN$PR_LRCORNER$PR_SHIFT_OUT$PR_NO_COLOUR"
 
     PS2="$PR_CYAN$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT\
 $PR_BLUE$PR_SHIFT_IN$PR_HBAR$PR_SHIFT_OUT(\
