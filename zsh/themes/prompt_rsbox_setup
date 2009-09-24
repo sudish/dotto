@@ -233,10 +233,8 @@ function prompt_rsbox_showexitstatus () {
 
 
 function prompt_rsbox_showhistoryline () {
-    emulate -L zsh
-
     local histcmd="% $1"
-    echo "${rsboxvars[echotc_mr]}${(r:$COLUMNS:: :)histcmd}${rsboxvars[echotc_me]}"
+    echo -E "${rsboxvars[echotc_mr]}${(r:$COLUMNS:: :)histcmd}${rsboxvars[echotc_me]}"
 }
 
 function prompt_rsbox_preexec () {
