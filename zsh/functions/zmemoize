@@ -74,7 +74,7 @@ function _zmemoize_capture {
   shift 2
   
   zlog "capturing $key..."
-  local coutput cstatus
+  local coutput cstatus varname=""
   local wrapper="_zmemoize_wrapped_$funcname"
   typeset -A memoavps memodef
 
@@ -107,6 +107,16 @@ function _zmemoize_capture {
   else
     stdout=$(${(z)wrapper} "${(@)*}")
   fi
+  
+  for varname in ${(ps.:.)memodef[reply_scalars]}; do
+    [[ -z $varname ]] && continue
+    memoavps["reply_scalar_${varname}"]=${(P)varname}
+  done
+
+  for varname in ${(ps.:.)memodef[reply_arrays]}; do
+    [[ -z $varname ]] && continue
+    memoavps[reply_array_${varname}]=${(pj."".)${(Pq)varname}} 
+  done
 
   stdout+="${newline}"  
   memoavps[stdout]=$stdout
@@ -165,6 +175,50 @@ function zmemoize_clear {
   fi
 }
 
+function _zmemoize_replay {
+  local __funcname=$1 __key=$2 __hashname=$3
+  local ref="" val="" __has_stderr=0 __varname=""
+
+  if [[ -z $__hashname ]]; then
+    typeset -A _zdecoded
+    cached=$zmemoize_cache[$key]
+    if [[ -z "$cached" ]]; then
+      return 234
+    fi
+    if ! zavp -d -v _zdecoded $cached 2>/dev/null; then
+      return 235
+    fi
+    __hashname="_zdecoded"
+  fi
+  
+  # dear lord there has to be a prettier way to do this, but I'm
+  # tired of playing line noise with zsh parameter substitution
+  
+  ref="${__hashname}[stdout]"
+  echo -n -E "${(P)ref}"
+  
+  ref="${__hashname}[__has_stderr]"
+  if [[ -n "${(P)ref}" ]]; then
+    ref="${__hashname}[stderr]"
+    echo -n -E "${(P)ref}" >&2
+  fi
+  
+  ref="${__hashname}[(I)reply_scalar_*]"
+  for __varname in ${(P)ref}; do
+    ref="${__hashname}[${__varname}]"
+    eval "${__varname#reply_scalar_}=\$${__hashname}[${__varname}]"
+  done
+
+  ref="${__hashname}[(I)reply_array_*]"
+  for __varname in ${(P)ref}; do
+    ref="${__hashname}[${__varname}]"
+    typeset -g -a "${__varname#reply_array_}"
+    set -A "${__varname#reply_array_}" ${(Q)${(Pps:"":)ref}} 
+  done
+
+  ref="${__hashname}[status]"
+  return ${(P)ref}
+}
 
 function _zmemoize_wrapper {
   local key="" cached="" funcname=$1 capture=1
@@ -185,11 +239,8 @@ function _zmemoize_wrapper {
         capture=1
         unset "zmemoize_cache[$key]"
       else
-        echo -n -E "$zdecoded[stdout]"
-        if [[ -n $zdecoded[has_stderr] ]]; then
-          echo -n -E "$zdecoded[stderr]" >&2
-        fi
-        return $zdecoded[status]
+        _zmemoize_replay $funcname $key zdecoded
+        return
       fi
     fi
   fi
@@ -215,6 +266,8 @@ function zmemoize {
   memodef[vary_pwd]=0
   memodef[vary_hostname]=1
   memodef[vary_username]=1
+  memodef[reply_scalars]="REPLY"
+  memodef[reply_arrays]="reply"
 
   usage="Usage: zmemoize <options> FUNCTIONNAME
   
@@ -236,6 +289,10 @@ Options:
          Memoization timeout -- note that the memoized value is not guaranteed
          to persist for this period, or indeed for any period as the cache may
          be flushed.  Default is 30 minutes (1800 seconds)
+    -a <varname>
+         Add an array variable name used for function return data.
+    -s <varname>
+         Add a scalar variable name used for function return data.
     -e   Also memoize and replay standard error output.
     -p   Print the parameters of a function
     -P   Inject current working directory (\$PWD)
@@ -270,7 +327,7 @@ Options:
 
   local -a arg_functions arg_evals arg_options arg_files
 
-  while getopts "cehlmprt:uvD:EF:GHIO:PSTUV:" opt; do
+  while getopts "a:s:cehlmprt:uvD:EF:GHIO:PSTUV:" opt; do
     case "$opt" in
       h) echo -E $usage; return 0 ;;
       m) action=memoize; require_funcname=1;;
@@ -282,6 +339,8 @@ Options:
          print ${(k)zmemoize_defs}
          return
          ;;
+      a) memodef[reply_arrays]+=":${OPTARG}" ;;
+      s) memodef[reply_scalars]+=":${OPTARG}" ;;
       e) memodef[stderr]=1 ;;
       t) memodef[timeout]=$OPTARG ;;
       U) memodef[vary_username]=1 ;;

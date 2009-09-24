@@ -9,6 +9,8 @@ _arguments -s \
     '-r[Reset entire memoization system, clearing cache and unmemoizing all functions.]' \
     '-t[timeout in seconds; default 1800 (30 minutes)]:timeout:' \
     '-e[also capture and replay standard error]' \
+    '-s[capture and restore this reply scalar var]:varname:_vars' \
+    '-a[capture and restore this reply array var]:varname:_vars' \
     '-P[Use current working directory as implicit argument]' \
     '-E[Inject effective UID]' \
     '-G[Inject effective GID]' \
