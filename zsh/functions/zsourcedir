@@ -8,28 +8,26 @@ function zsourcedir() {
     shift 2
   fi
 
+  local -a pats
   for dir in "${(@)*}"; do
-    #zdir=`zdirname $dir`
-    zdir=$dir
-    # zctrace "zsourcedir: dir=$dir, zdir=$zdir"
-
-    [[ -d $zdir ]] || continue
-
-    for file in $zdir/*.zsh(N); do
-      # zctrace "zsourcedir: dir=$dir, file=$file"
-      
-      component=${file:t}
-      component=${component:r}
-      
-      # strip off any cron-style 00 or A00 prefixes, used to provide a natural
-      # ordering
-      component=${component#[A-Z][0-9][0-9]}
-      component=${component#[0-9][0-9]}
-      
-      [[ -n ${dotto_disabled_components[(r)$component]} ]] && continue
-      [[ -n ${dotto_disabled_components[(r)${systemname}/${component}]} ]] && continue
-      
-      source $file
-    done
+    [[ -d $dir ]] && pats+="${dir}/*.zsh(N)"
   done
+
+  for file in ${(@)~pats}; do
+    # zctrace "zsourcedir: file=$file, zdir=$zdir"
+
+    component=${file:t}
+    component=${component:r}
+    
+    # strip off any cron-style 00 or A00 prefixes, used to provide a natural
+    # ordering
+    component=${component#[A-Z][0-9][0-9]}
+    component=${component#[0-9][0-9]}
+    
+    [[ -n ${dotto_disabled_components[(r)$component]} ]] && continue
+    [[ -n ${dotto_disabled_components[(r)${systemname}/${component}]} ]] && continue
+    
+    source $file
+  done
+
 }
