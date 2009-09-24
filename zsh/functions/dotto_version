@@ -1,15 +1,18 @@
 #!/bin/zsh
 
-uselib zgit
+typeset -g DOTTO_VERSION
 
 function dotto_version {
   emulate -L zsh
   local ver description tag  
 
+  [[ -z $dotto_vars[version] && -n $DOTTO_VERSION ]] && dotto_vars[version]=$DOTTO_VERSION
+
   if [[ -z $dotto_vars[version] ]]; then
     local oldpwd=$PWD
   
     {
+      uselib zgit
       cd $DOTTODIR
   
       if zgit_in_p; then
@@ -31,10 +34,12 @@ function dotto_version {
     } always {
       cd $oldpwd
     }
-  
-    dotto_vars[version]=$(ztrim $ver)
+
+    dotto_vars[version]="$(ztrim $ver)"
   fi
   
-  echo $dotto_vars[version]
-  [[ -n "$dotto_vars[version]" ]]
+  export DOTTO_VERSION=$dotto_vars[version]
+  REPLY=$DOTTO_VERSION
+  echo $DOTTO_VERSION
+  [[ -n $DOTTO_VERSION ]]
 }
