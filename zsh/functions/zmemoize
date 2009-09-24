@@ -110,7 +110,7 @@ function _zmemoize_capture {
   
   for varname in ${(ps.:.)memodef[reply_scalars]}; do
     [[ -z $varname ]] && continue
-    memoavps["reply_scalar_${varname}"]=${(P)varname}
+    memoavps[reply_scalar_${varname}]=${(P)varname}
   done
 
   for varname in ${(ps.:.)memodef[reply_arrays]}; do
@@ -206,7 +206,7 @@ function _zmemoize_replay {
   ref="${__hashname}[(I)reply_scalar_*]"
   for __varname in ${(P)ref}; do
     ref="${__hashname}[${__varname}]"
-    eval "${__varname#reply_scalar_}=\$${__hashname}[${__varname}]"
+    eval "${__varname#reply_scalar_}=\$$ref"
   done
 
   ref="${__hashname}[(I)reply_array_*]"
