@@ -10,7 +10,7 @@ function zsourcedir() {
 
   local -a pats
   for dir in "${(@)*}"; do
-    [[ -d $dir ]] && pats+="${dir}/*.zsh(N)"
+    pats+="${dir}/*.zsh(N)"
   done
 
   for file in ${(@)~pats}; do
