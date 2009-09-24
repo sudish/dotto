@@ -2,11 +2,11 @@
 
 function newer_than {
   emulate -L zsh
-  local basetime=${1} file read time
+  local basetime=${1} file
   shift
   
   for file in "${(@)*}"; do
-    if [[ $(builtin stat +mtime "$file") -gt $basetime ]]; then
+    if [[ -e $file && $(builtin stat +mtime "$file") -gt $basetime ]]; then
         return 0
     fi
   done
