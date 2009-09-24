@@ -55,15 +55,15 @@ function zcapture {
   funcname=$1
   shift 1
 
-  zshellfunc_type $funcname >/dev/null
-  case $REPLY in
-    alias) 
-         # get actual effective command
-         funcname=${$(builtin alias $funcname)#${funcname}=}
-         # dequote if necessary
-         funcname=${${funcname#[\'\"]}%[\'\"]}
-      ;;
-  esac
+  # zshellfunc_type $funcname >/dev/null
+  # case $REPLY in
+  #   alias) 
+  #        # get actual effective command
+  #        funcname=${$(builtin alias $funcname)#${funcname}=}
+  #        # dequote if necessary
+  #        funcname=${${funcname#[\'\"]}%[\'\"]}
+  #     ;;
+  # esac
 
   { $funcname "${(@)*}" } > "$stdout_file" 2> "$stderr_file"
   retstat=$?
