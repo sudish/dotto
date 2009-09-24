@@ -18,6 +18,8 @@
 # autoload if that is given, as are -z and -k.  (This is harmless if the
 # function is actually defined inline.)
 
+function add-zsh-hook {
+
 emulate -L zsh
 
 local -a hooktypes
@@ -80,3 +82,5 @@ else
   fi
   autoload $autoopts -- $fn
 fi
+
+}
