@@ -8,13 +8,25 @@ typeset -g -A -H zgit_dirs
 
 function zgit_dir() {
     emulate -L zsh
-    local dir=""
+    local dir="" updir="" runrevparse=0
     REPLY=""
 
     if [[ -z $zgit_dirs[$PWD] ]]; then
-      if [[ -d $PWD/.git ]]; then
-        dir=$PWD/.git
-      else
+      zrealpath $PWD > /dev/null
+      updir=$REPLY
+      
+      while [[ ${updir} != "/" ]]; do
+        if [[ -d $updir/.git ]]; then
+          dir=$updir/.git
+          break
+        else
+          updir=${updir:h}
+        fi
+      done
+      
+      [[ -z $dir && -d /.git ]] && dir="/.git"
+
+      if [[ -z $dir && $runrevparse == 1 ]]; then
         dir=$(git rev-parse --git-dir) 2>/dev/null || return 1
       fi
       zrealpath $dir >/dev/null
