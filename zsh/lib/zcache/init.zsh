@@ -18,6 +18,7 @@ function zcache_setup() {
   zmodload zsh/system || { echo "zsh/system module not available for zcache"; return 2 }
 
   zcache_vars[enabled]=1
+  zcache_vars[default_timeout]=3600
 
   zcache_reset
 }

@@ -7,7 +7,7 @@ function zcache_storage_command {
 
   local data="" opt="" OPTIND="" OPTARG="" silent="" sfd="" replyvar="REPLY"
   typeset -a args
-  local cmd="" key="" flags=0 exptime=300 casunique=""
+  local cmd="" key="" flags=0 exptime=${zcache_vars[default_timeout]:-3600} casunique=""
 
   # the verb can precede the first option, or be after all options
   if [[ -n $1 && ! $1 == -* ]]; then
