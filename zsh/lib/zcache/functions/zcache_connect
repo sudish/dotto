@@ -17,27 +17,34 @@ function zcache_connect {
     fd=$zcache_vars[last_opened_fd]
   else
     [[ -n $zcache_vars[last_opened_server] ]] && zhosts+=$zcache_vars[last_opened_server]
-    zhosts+=${(k)zcache_servers}
+    zhosts+=(${(k)zcache_servers})
   
     typeset -a hostparts
 
     for key in $zhosts; do
+      # skip a server that is not currently defined -- primarily in the last_opened_server
+      # case
+      [[ -z $zcache_servers[$key] ]] && continue
+      
       set -A hostparts ${(ps.:.)key}
   
       zctrace "Trying server $key"
-      if ztcp $hostparts[1] ${hostparts[2]:-$zcache_vars[default_port]} 2>/dev/null; then
+      if ztcp $hostparts[1] ${hostparts[2]:-$zcache_vars[default_port]} 2>/dev/null \
+            && [[ -n $REPLY ]]; then
         fd=$REPLY
         zcache_vars[last_opened_server]=$key
         zcache_vars[last_opened_fd]=$fd
         zctrace "zcache: Success opening $key"
         break
+      else
+        retval=$?
       fi
-      retval=$?
     done
   fi
   
   if [[ -n $ovar ]]; then
     eval "$ovar=$fd"
   fi
+  [[ $retval == 0 && -z $fd ]] && return 15
   return $retval
 }

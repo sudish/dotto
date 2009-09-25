@@ -5,7 +5,7 @@ function zcache_storage_command {
   setopt typeset_silent
   unsetopt multibyte
 
-  local data="" opt="" OPTIND="" OPTARG="" silent="" sfd="" replyvar="REPLY"
+  local data="" opt="" OPTIND="" OPTARG="" silent="" sfd="" replyvar="REPLY" retval=0
   typeset -a args
   local cmd="" key="" flags=0 exptime=${zcache_vars[default_timeout]:-3600} casunique=""
 
@@ -39,7 +39,7 @@ function zcache_storage_command {
   data=${args[${#args}]}
   args[${#args}]=()
 
-  if zcache_connect -o sfd $key; then
+  if zcache_connect -o sfd $key && [[ -n $sfd ]]; then
     local cmd="$cmd $key $flags $exptime"
     [[ $cmd == cas ]] && cmd+=" $casunique"
     cmd+=" ${#data}"
@@ -47,8 +47,9 @@ function zcache_storage_command {
     zcache_send $sfd $cmd
     zcache_send $sfd $data
   else
-    eval ${replyvar}=''
-    return
+    retval=$?
+    REPLY=""
+    return $retval
   fi
   
   if [[ $silent != 1 ]]; then
