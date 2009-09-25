@@ -13,7 +13,7 @@ source $ZCONFIGDIR/core/newshell
 zctrace "running zshrc.."
 
 # set hostname
-HOSTNAME=$HOST
+typeset -g HOSTNAME=$HOST
 
 zrunsystem zshrc
 
