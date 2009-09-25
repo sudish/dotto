@@ -24,12 +24,14 @@ function zgit_status {
         gitstatus=$(git status 2>/dev/null)
         if [[ -z $(ztrim $gitstatus) ]]; then
           zctrace "No output from git status"
+          REPLY=""
           return 1
         fi
 
         # if it works, git status should tell us this
         if [[ -n ${gitstatus:#*On branch*} ]]; then
           zctrace "No branch listed"
+          REPLY=""
           return 1
         fi
 
