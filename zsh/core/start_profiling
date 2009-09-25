@@ -3,8 +3,6 @@
 [[ $DOTTO_PROFILING_STARTED == 1 ]] && return
 
 zmodload -i zsh/zprof
-# source $ZCONFIGDIR/functions/profiling_dot
-# source $ZCONFIGDIR/functions/profiling_source
 
 local __profiling_name=""
 for __profiling_name in . source; do
@@ -24,9 +22,6 @@ for __profiling_name in . source; do
   }
 done
 
-#function source { profiling_source $* }
-#function . { profiling_dot $* }
-
 typeset -g DOTTO_PROFILING_STARTED=1
 
-echo "Profiling started"
+zctrace "Profiling started"
