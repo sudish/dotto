@@ -1,0 +1,89 @@
+#!/bin/zsh
+
+#
+# invoke a function without using a subshell, and copy its well-known return var
+# into a var named by the caller.  Functions that want to return data other
+# than status values can do so by echoing to stdout -- which requires a
+# subshell -- or by setting a well-known variable like REPLY or reply. (See
+# the ZSH docs on that).
+#
+# Sometimes it's more convenient to have the function set another variable.
+# This function preserves the current value of REPLY and reply, 
+# invokes another function, and copies REPLY/reply as set by that function
+# into a named variable.  
+#
+# Example:
+#
+#   randomproduct() { REPLY=$(( $RANDOM * $1 )) }
+#
+#   zinvoke randvar randomproduct 10
+#   zinvoke randvar2 randomproduct 100
+#   echo "$(( $randvar + $randvar2 ))"
+#
+# Usage:
+#
+#  zinvoke [-a] [-v SRCVARNAME] DESTVARNAME FUNCTIONNAME [<arg>...]
+#
+#  -a    the return value will be an array - use "reply" as the source
+#  -v    The source value; is assumed to be "REPLY", or "reply" if an array,
+#        unless set with -v.
+#
+#  DESTVARNAME is the name of the variable that will receive the value
+#  FUNCTIONNAME and onward are just the text you'd write as though
+#  invoking the function without the use of zinvoke.
+#
+# See also 'zcapture' for a function that allows capturing stdout
+# from a process into a variable without forking a subshell.
+#
+#
+
+function zinvoke {
+  emulate -L zsh
+  setopt typeset_silent
+
+  local opt OPTIND OPTARG 
+  local _src_varname="" _is_array=0 _dst_varname="" retstat=0
+
+  while getopts "v:a" opt; do
+    case "$opt" in
+      v) _src_varname=$OPTARG ;;
+      a) _array_var=1 ;;
+      *) echo "$0: unknown option: $opt"; return 1;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+
+  [[ $# -lt 2 ]] && return 2
+
+  _dst_varname=$1;
+  shift
+
+  if [[ -z $_varname ]]; then
+    { [[ $_array_var == 1 ]] && _src_varname="reply" } || _src_varname="REPLY"
+  fi
+
+  if [[ $_src_varname != $_dst_varname ]]; then
+    if [[ $_is_array == 1 ]]; then
+      typeset -g -a "${_dst_varname}"
+      typeset -a "${_src_varname}"
+    else
+      typeset -g "${_dst_varname}"
+      typeset "${_src_varname}"
+    fi
+  fi
+
+  { $* } &> /dev/null
+  retstat=$?
+
+  # keep the reply/REPLY vars from being clobbered by localizing them,
+  # then copy their values into the intended destination vars
+  if [[ $_src_varname != $_dst_varname ]]; then
+    if [[ $_is_array == 1 ]]; then
+      set -A "${_dst_varname}" ${(P)_src_varname}
+    else
+      eval "${_dst_varname}=\$${_src_varname}"
+    fi
+  fi
+  
+  return $retstat
+}
