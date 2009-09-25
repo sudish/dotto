@@ -12,8 +12,9 @@ function zmd5 {
   
   for cmdname args in md5 "" md5sum ""; do
     if which $cmdname &>/dev/null; then
-      res=$(echo -n -E "$string" | $cmdname ${=args})
-      sum=${${=res}[1]}
+      res=$(echo -n -E "$string" | command $cmdname ${=args})
+      set ${=res}
+      sum=$1
     fi
   done
   
