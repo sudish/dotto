@@ -73,12 +73,14 @@ function prompt_rsbox_vcsupdate {
 
 function my_vcs_info {
     emulate -L zsh
+    setopt typeset_silent
     local output branch op dirty
     if zgit_in_p; then
-        zgit_branch > /dev/null   && rsboxvars[git_branch]=$REPLY
-        zgit_revision > /dev/null && rsboxvars[git_revision]=$REPLY
-        zgit_op > /dev/null       && rsboxvars[git_op]=$REPLY
-        zgit_status > /dev/null   && rsboxvars[git_status]=$REPLY
+      zctrace "doing git in zgit_in_p"
+        zgit_branch > /dev/null   ; rsboxvars[git_branch]=$REPLY
+        zgit_revision > /dev/null ; rsboxvars[git_revision]=$REPLY
+        zgit_op > /dev/null       ; rsboxvars[git_op]=$REPLY
+        zgit_status > /dev/null   ; rsboxvars[git_status]=$REPLY
 
         rsboxvars[git_dirty]=$(($status == 0 ? 0 : 1 ))
 
