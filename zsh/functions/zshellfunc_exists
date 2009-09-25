@@ -8,11 +8,8 @@
 function zshellfunc_exists {
   emulate -L zsh
   local name=$1 ftype
-  ftype=${(s: :)$(whence -w $name)[2]}
-  case $ftype in
-    function) return 0;;
-    alias) return 0;;
-    autoload) return 0;;
-    *) return 1;;
-  esac
+  
+  [[ -n $functions[$name] ]] && return 0
+  [[ -n $aliases[$name] ]] && return 0
+  return 1
 }
