@@ -2,16 +2,7 @@
 
 zctrace "running zprofile.."
 
-if [ "$TERM" = "console" -o "$TERM" = "dumb" ]; then
-   TERM=vt100
-fi
-
-if [ "$UID" != "0" ]; then
-   # remove '.' from path
-   PATH=`echo $PATH | sed -e "s/:\.//g"`
-fi
-
-export SHORTHOST=$(hostname -s)
+export SHORTHOST=${HOST//.*/}
 
 typeset -g -x DOTTO_LOGIN_ID
 [[ -z $DOTTO_LOGIN_ID ]] && DOTTO_LOGIN_ID="${TTY}:${$}:${HOST}"
