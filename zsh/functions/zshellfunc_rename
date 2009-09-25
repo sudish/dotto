@@ -19,7 +19,7 @@ function zshellfunc_rename {
   emulate -L zsh
   local old=$1 new=$2 ftype funcbody
   
-  if [[ -z $old || -z $new ]] || ! ftype=$(zshellfunc_type $old); then
+  if [[ -z $old || -z $new ]] || ! { zshellfunc_type $old > /dev/null && ftype=$REPLY }; then
     return 1
   fi
   
@@ -27,7 +27,7 @@ function zshellfunc_rename {
   if [[ $ftype == "autoload" ]]; then
     zctrace "forcing autoload for $old"
     autoload +X $old &>/dev/null || return 2
-    ftype=$(zshellfunc_type $old)
+    zshellfunc_type $old >/dev/null && ftype=$REPLY
   fi
   
   case $ftype in

@@ -36,10 +36,12 @@
 function zcapture {
   emulate -L zsh
   setopt typeset_silent
-  typeset -g REPLY=
-  ztmpfile
-  local opt OPTIND OPTARG retstat=2 stdout_file="$REPLY" stderr_file="/dev/null"
+  typeset -g REPLY=""
+  local opt OPTIND OPTARG retstat=2 stdout_file="" stderr_file="/dev/null"
   local stdout_var=REPLY stderr_var="" funcname=""
+
+  # get a tmpfile in stdout_file
+  zinvoke stdout_file ztmpfile
 
   while getopts "o:e:" opt; do
     case "$opt" in

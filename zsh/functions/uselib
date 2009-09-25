@@ -32,13 +32,13 @@ function _zfindlib {
   emulate -L zsh
   local lib=$1 libdir glob
   typeset -a libdirs pats
-
+  REPLY=""
   pats=("$DOTTODIR/local/zsh/lib" "$DOTTODIR/external/*/zsh/lib(N)" \
            "$ZCONFIGDIR/lib")
   for glob in $pats; do
     for libdir in ${~glob}; do
       [[ -d $libdir/$lib ]] || continue
-      echo "${libdir}/$lib" && return 0
+      REPLY="${libdir}/$lib" && return 0
     done
   done
   return 1
@@ -51,7 +51,7 @@ function uselib {
 
   for lib in "${(@)*}"; do
     [[ -n $zloaded_libs[$lib] ]] && return 0
-    libdir=$(_zfindlib $lib) || { echo "Cannot find library: $lib"; return 1 }
+    _zfindlib $lib && libdir=$REPLY || { echo "Cannot find library: $lib"; return 1 }
 
     { _zloadlib $libdir $lib && zloaded_libs[$lib]=$libdir } || \
         { echo "Cannot load library: $lib"; return }

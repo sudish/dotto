@@ -12,5 +12,6 @@ function ztrim {
 	tmp="${str%%[^ ]*}"
 	str="${str#${tmp}}"
   
+  REPLY=$str
   echo $str
 }

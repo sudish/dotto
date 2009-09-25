@@ -4,8 +4,9 @@ zdirname() {
   emulate -L zsh
 
   if [ -d "$1" ]; then
-    echo $1
+    REPLY=$1
   else
-    echo $ZCONFIGDIR/$1
+    REPLY=$ZCONFIGDIR/$1
   fi
+  echo $REPLY
 }

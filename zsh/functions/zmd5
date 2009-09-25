@@ -17,5 +17,6 @@ function zmd5 {
     fi
   done
   
-  echo -n -E $sum
+  REPLY=$sum
+  echo -n -E $REPLY
 }

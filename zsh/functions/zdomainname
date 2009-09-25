@@ -6,5 +6,6 @@ zdomainname() {
   local name=${1:-$HOSTNAME}
   set "${(s:.:)name}"
   shift
-  echo "${(j:.:)*}"
+  REPLY="${(j:.:)*}"
+  echo $REPLY
 }

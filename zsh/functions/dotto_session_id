@@ -18,6 +18,7 @@ function dotto_session_id {
     fi
   done
   zctrace "session prehash is $val"
-  [[ $dohash == 1 ]] && val="$(zmd5 $val)"
-  echo -n -E $val
+  [[ $dohash == 1 ]] && zmd5 $val && val=$REPLY
+  REPLY=$val
+  echo -n -E $REPLY
 }

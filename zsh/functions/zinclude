@@ -25,7 +25,7 @@ function zinclude () {
         fi
 
         if [[ -n "$target" ]]; then
-            realpath=$(zrealpath "${target%.zsh}")
+            zrealpath "${target%.zsh}" > /dev/null && realpath=$REPLY
             zrequired_files+="$realpath"
             source "$target"
             loaded=$((loaded+1))

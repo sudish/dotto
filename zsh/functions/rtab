@@ -13,6 +13,8 @@ function rtab {
   setopt localoptions
   setopt rc_quotes null_glob
 
+  REPLY=""
+
   typeset -i lastfull=0
   typeset -i short=0
   typeset -i tilde=0
@@ -100,7 +102,7 @@ function rtab {
   		cd $dir
   		shift tree
   	}
-  	echo ${result:-/}
+  	REPLY=${result:-/} && echo $REPLY
   )
 }
 
