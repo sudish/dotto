@@ -17,7 +17,8 @@ function zrealpath() {
     REPLY="$pth"
   else
     dir=${pth:h}
-    dir=$(cd -P "$dir" && pwd -P)
+    local oldpwd=$PWD
+    cd -P $dir && dir=$PWD && cd $oldpwd
   
     REPLY="$dir/${pth:t}"
   fi
