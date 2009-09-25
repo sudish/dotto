@@ -20,7 +20,14 @@
 function zshellfunc_type {
   local name=$1 funcbody ftype
   {
-    ftype=${(s: :)$(whence -w $name)[2]}
+    if [[ -n $aliases[$name] ]]; then
+      ftype="alias"
+    elif [[ -n $functions[$name] ]]; then
+      ftype="function"
+    else
+      ftype=${(s: :)$(whence -w $name)[2]}
+    fi
+
     if [[ $ftype == "function" ]]; then
       funcbody=$(typeset -f $name)
       if [[ ${#${(f)funcbody}} == 4 && -z ${funcbody:#*undefined*builtin autoload*} ]]; then
