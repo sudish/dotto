@@ -5,8 +5,10 @@ function zcache_disconnect {
   
   if [[ -z $fd ]]; then 
     fd=$zcache_vars[last_opened_fd]
-    zcache_vars[last_opened_fd]=''
   fi
-    
-  ztcp -c $fd
+
+  if [[ $zcache_vars[persistent] != 1 ]]; then
+    [[ $fd == $zcache_vars[last_opened_fd] ]] && unset 'zcache_vars[last_opened_fd]'
+    ztcp -c $fd
+  fi
 }

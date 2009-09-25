@@ -9,8 +9,13 @@ local libdir=${0:h}
 typeset -g -A -H zcache_vars
 typeset -g -A -H zcache_servers
 
+
 function zcache_reset() {
-    # nothing
+  emulate -L zsh
+
+  for var in last_opened_server last_opened_fd; do
+    unset "zcache_vars[$var]"
+  done
 }
 
 function zcache_setup() {
@@ -18,7 +23,15 @@ function zcache_setup() {
   zmodload zsh/system || { echo "zsh/system module not available for zcache"; return 2 }
 
   zcache_vars[enabled]=1
+  zcache_vars[persistent]=0
+
   zcache_vars[default_timeout]=3600
+  zcache_vars[default_port]=11211
+  
+  dotto_session_id > /dev/null
+  zcache_vars[default_prefix]="zsh.$REPLY"
+  
+  zcache_servers[localhost:11211]="1"
 
   zcache_reset
 }

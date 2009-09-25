@@ -1,17 +1,43 @@
 #!/bin/zsh
 
 function zcache_connect {
-  local ovar="" key=""
-  
+  emulate -L zsh
+  setopt typeset_silent
+
+  typeset -a -U zhosts
+  local ovar="" key="" server="" fd="" retval=0
+  REPLY=""
+
   if [[ $1 == "-o" ]]; then 
     ovar=$2
     shift 2
   fi
-    
-  ztcp localhost 11211
-  zcache_vars[last_opened_fd]=$REPLY
-  if [[ -n $ovar ]]; then
-    eval "$ovar=$REPLY"
+
+  if [[ $zcache_vars[persistent] == 1 && -n $zcache_vars[last_opened_fd] ]]; then
+    fd=$zcache_vars[last_opened_fd]
+  else
+    [[ -n $zcache_vars[last_opened_server] ]] && zhosts+=$zcache_vars[last_opened_server]
+    zhosts+=${(k)zcache_servers}
+  
+    typeset -a hostparts
+
+    for key in $zhosts; do
+      set -A hostparts ${(ps.:.)key}
+  
+      zctrace "Trying server $key"
+      if ztcp $hostparts[1] ${hostparts[2]:-$zcache_vars[default_port]} 2>/dev/null; then
+        fd=$REPLY
+        zcache_vars[last_opened_server]=$key
+        zcache_vars[last_opened_fd]=$fd
+        zctrace "zcache: Success opening $key"
+        break
+      fi
+      retval=$?
+    done
   fi
-  return
+  
+  if [[ -n $ovar ]]; then
+    eval "$ovar=$fd"
+  fi
+  return $retval
 }
