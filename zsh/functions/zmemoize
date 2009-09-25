@@ -45,6 +45,7 @@ function _zmemoize_calculate_key {
     done
   fi
   
+  local statres=""
   addons[files]=
   if [[ -n $memodef[vary_file] ]]; then
     local vfile= fsize= mtime=
@@ -52,8 +53,9 @@ function _zmemoize_calculate_key {
       # no file, mark as such
       vfile="${(e)vfile}"
       [[ ! -f $vfile ]] && { addons[files]+="(^$vfile)"; continue }
-      mtime=$(builtin stat +mtime $vfile)
-      fsize=$(builtin stat +size $vfile)
+      builtin stat -H statres $vfile
+      mtime=$statres[mtime]
+      fsize=$statres[fsize]
       addons[files]+="($file,$mtime,$fsize)"
     done
   fi 2>/dev/null
