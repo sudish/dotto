@@ -2,6 +2,7 @@
 
 function zlog {
   emulate -L zsh
+  local REPLY=""
 
   if [[ $DOTTO_DEBUG == 1 || $ZLOG_DEBUG == 1 ]]; then
     echo "`date`: $*" >>! $DOTTODIR/log/zlog.log 2>/dev/null

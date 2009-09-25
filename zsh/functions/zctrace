@@ -2,6 +2,7 @@
 
 zctrace() { 
   emulate -L zsh
+  local REPLY=""
 
   if [[ $ZC_TRACE == 1 && -z $ZC_TRACE_LOGONLY ]]; then
     echo "$*">&2
