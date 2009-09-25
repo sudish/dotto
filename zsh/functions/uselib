@@ -3,11 +3,30 @@
 typeset -A -g -U -H    zloaded_libs
 
 function _zloadlib {
-  local libdir=$1 lib=$2 zwc
+  local opt="" OPTIND="" OPTARG="" reload=0
+  local force=0
   
+  while getopts "fr" opt; do
+    case "$opt" in
+      r) reload=1; loadoptions+="-r";;
+      f) reload=1; loadoptions+="-r";;
+      *) echo "Unknown option: $opt"; return 1;;
+    esac
+  done
+  
+  shift $(( OPTIND - 1 ))
+
+  local libdir=$1 lib=$2 zwc="" func=""
+
   for zwc in $DOTTODIR/local/build/zsh/${ZSH_VERSION}/lib/$lib/**/*.zwc(N.); do
     fpath+=($zwc)
   done
+
+  if [[ $reload == 1 ]]; then
+    for func in $libdir/functions/*(.N) $libdir/completions/*(.N); do
+      unfunction ${${func:t}:r} &>/dev/null
+    done
+  fi
 
   [[ -d $libdir/functions ]] && fpath+=($libdir/functions)  
   [[ -d $libdir/completions ]] && fpath+=($libdir/completions)  
@@ -48,11 +67,12 @@ function uselib {
   local lib="" libdir=""
   local opt="" OPTIND="" OPTARG=""
   local force=0
+  local -a loadoptions
   
   while getopts "fr" opt; do
     case "$opt" in
-      r) force=1;;
-      f) force=1;;
+      r) force=1; loadoptions+="-r";;
+      f) force=1; loadoptions+="-r";;
       *) echo "Unknown option: $opt"; return 1;;
     esac
   done
@@ -65,7 +85,7 @@ function uselib {
     [[ $force != 1 && -n $zloaded_libs[$lib] ]] && return 0
     _zfindlib $lib && libdir=$REPLY || { echo "Cannot find library: $lib"; return 1 }
 
-    { _zloadlib $libdir $lib && zloaded_libs[$lib]=$libdir } || \
+    { _zloadlib $loadoptions $libdir $lib && zloaded_libs[$lib]=$libdir } || \
         { echo "Cannot load library: $lib"; return }
   done
   
