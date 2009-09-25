@@ -1,12 +1,15 @@
 #!/bin/zsh
 
+zmodload zsh/stat
+
 function newer_than {
   emulate -L zsh
   local basetime=${1} file
+  local -A statres
   shift
   
   for file in "${(@)*}"; do
-    if [[ -e $file && $(builtin stat +mtime "$file") -gt $basetime ]]; then
+    if builtin stat +mtime -H statres $file && [[ $statres[mtime] -gt $basetime ]]; then
         return 0
     fi
   done
