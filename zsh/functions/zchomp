@@ -5,11 +5,11 @@
 function zchomp {
   emulate -L zsh
   
-  local str=${1:-$REPLY}
-  
-  local BSN="\n" BSR=$(print -n "\C-M")
+  local str=${1:-$REPLY} chr=""
 
-  [[ $str[-1] == "$BSN" ]] && str[-1]=""
-  [[ $str[-1] == "$BSR" ]] && str[-1]=""
+  chr=10
+  [[ $str[-1] == ${(#)chr} ]] && str[-1]=""
+  chr=13
+  [[ $str[-1] == ${(#)chr} ]] && str[-1]=""
   REPLY=$str
 }
