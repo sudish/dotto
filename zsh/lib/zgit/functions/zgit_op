@@ -2,9 +2,9 @@
 
 function zgit_op () {
     emulate -L zsh
+    local op="" git_dir="" branch=""
 
-    local op git_dir branch
-    if git_dir=$(zgit_dir); then
+    if zgit_dir > /dev/null && git_dir=$REPLY; then
         if [[ -d $git_dir/rebase-apply ]]; then
             if [[ -f $git_dir/rebase-apply/rebasing ]]; then
                 io="rebase"
@@ -13,7 +13,7 @@ function zgit_op () {
             else
                 op="am/rebase"
             fi
-            branch="$(zgit_branch)"
+            zgit_branch && branch=$REPLY
         elif [[ -f $git_dir/rebase-merge/interactive ]]; then
             op="rebase -i"
             branch=$(< "$git_dir/rebase-merge/head-name") 2>/dev/null
@@ -22,7 +22,7 @@ function zgit_op () {
             branch=$(< "$git_dir/rebase-merge/head-name") 2>/dev/null
         elif [[ -f $git_dir/MERGE_HEAD ]]; then
             op="merge"
-            branch="$(zgit_branch)"
+            zgit_branch && branch=$REPLY
         elif
             if [[ -f $git_dir/BISECT_LOG ]]; then
     	    op="bisect"
@@ -50,7 +50,7 @@ function zgit_op () {
         # lvv: not always works. Should  ./.dotest  be used instead?
         elif  [[ -f "$git_dir/MERGE_HEAD" ]] ;  then
                 op="merge"
-                branch=$(zgit_branch)
+                zgit_branch > /dev/null && branch=$REPLY
                 
         else
                 [[  -f "$git_dir/BISECT_LOG"  ]]   &&  op="bisect"
@@ -59,8 +59,10 @@ function zgit_op () {
                 #    branch="$(cut -c1-7 "$git_dir/HEAD")..."
         fi
         
-        [ -n "$op" ] && echo $op
-    else
-        return 1
+        [ -n "$op" ] && REPLY=$op && echo $op
     fi
+
+    REPLY=$op
+    [[ -z "$op" ]] && return 1
+    echo $op
 }

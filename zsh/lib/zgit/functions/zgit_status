@@ -17,9 +17,10 @@
 function zgit_status {
     emulate -L zsh
     local gitstatus statstring res=0
-    local git_dir=$(zgit_dir)
+    local git_dir
+    REPLY=""
     
-    if zgit_in_p; then
+    if zgit_dir > /dev/null && git_dir=$REPLY; then
         gitstatus=$(git status 2>/dev/null)
         if [[ -z $(ztrim $gitstatus) ]]; then
           zctrace "No output from git status"
@@ -53,9 +54,11 @@ function zgit_status {
         # set return code
         [[ -n ${gitstatus:#*nothing to commit*} ]] && res=1
     else
+      REPLY=""
       return 1
     fi
 
+    REPLY=$statstring
     echo -nE $statstring
     return $res
 }

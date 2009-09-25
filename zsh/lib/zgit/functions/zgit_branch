@@ -3,21 +3,16 @@
 function zgit_branch() {
     emulate -L zsh
     local branch git_dir
+    REPLY=""
 
-    if zgit_in_p; then
-        git_dir=$(zgit_dir) && \
+    if zgit_dir > /dev/null && git_dir=$REPLY; then
             branch=$(< $git_dir/HEAD) 2>/dev/null && \
             branch=${branch#ref: refs/} && \
             branch=${branch#heads/} && \
+            REPLY=$branch && \
             echo "$branch" && \
             return 0
     fi
     
     return 1
-        
-    # if branch=$(git symbolic-ref HEAD 2>/dev/null); then
-    #     echo "${branch#refs/heads/}"
-    # else
-    #     return 1
-    # fi
 }

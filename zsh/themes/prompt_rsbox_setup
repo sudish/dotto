@@ -45,7 +45,7 @@ function prompt_rsbox_vcsupdate {
     elif [ "$delta" -gt "$rsboxvars[git_update_period]" -o "$rsboxvars[git_update_period]" = 0 ]; then
         zctrace "TIME FORCED VCS UPDATE"
         update=1
-    elif zcapture -o git_dir zgit_dir; then
+    elif zgit_dir >/dev/null && git_dir=$REPLY; then
         if newer_than $rsboxvars[last_vcs_update] "$git_dir/HEAD" "$git_dir" \
                  "$git_dir/.." "$git_dir/refs" "$git_dir/rebase_merge" "$git_dir/rebase_apply" \
                  "$git_dir/.dotest" "$git_dir/BISECT_LOG" \
@@ -53,14 +53,14 @@ function prompt_rsbox_vcsupdate {
         then
             zctrace "HEAD timestamp is newer!"
             update=1
-        elif ! zcapture zgit_revision || [[ $REPLY != $rsboxvars[git_revision] ]]; then
+        elif ! zgit_revision > /dev/null || [[ $REPLY != $rsboxvars[git_revision] ]]; then
             zctrace "Revision changed!"
             update=1
         elif [[ -n "$(fc -l -m '*git *' -1)" ]]; then
             zctrace "last cmd was git"
             update=1
         fi
-    fi
+    fi &> /dev/null
     
     if [ "$update" = 1 ]; then
         zctrace "updating VCS..."
@@ -75,10 +75,11 @@ function my_vcs_info {
     emulate -L zsh
     local output branch op dirty
     if zgit_in_p; then
-        zcapture -o 'rsboxvars[git_branch]' zgit_branch
-        zcapture -o 'rsboxvars[git_revision]' zgit_revision
-        zcapture -o 'rsboxvars[git_op]' zgit_op
-        zcapture -o 'rsboxvars[git_status]' zgit_status
+        zgit_branch > /dev/null   && rsboxvars[git_branch]=$REPLY
+        zgit_revision > /dev/null && rsboxvars[git_revision]=$REPLY
+        zgit_op > /dev/null       && rsboxvars[git_op]=$REPLY
+        zgit_status > /dev/null   && rsboxvars[git_status]=$REPLY
+
         rsboxvars[git_dirty]=$(($status == 0 ? 0 : 1 ))
 
         [[ -n "$rsboxvars[git_op]" ]] && op="[$rsboxvars[git_op]]"
@@ -116,7 +117,7 @@ function prompt_rsbox_chpwd {
     fi
 
     if [ $in_git = 0 ]; then
-        zcapture -o git_dir zgit_dir
+        zgit_dir > /dev/null && git_dir=$REPLY
         # did we change repos?
         [[ "$git_dir" != "$rsboxvars[git_dir]" ]] && update=1
 

@@ -1,5 +1,0 @@
-#!/bin/zsh
-
-function zgit_dir_cache() {
-    zgit_dirs=
-}
