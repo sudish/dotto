@@ -188,6 +188,7 @@ function prompt_rsbox_precmd {
     rsboxvars[PR_APM_RESULT]=''
     
     rsboxvars[preexec_ran]=0
+    REPLY=""
 }
 
 
