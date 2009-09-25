@@ -11,7 +11,6 @@ function set_remove() {
     
     for value in "${(@)*}"; do
         if [[ -n ${copy[(r)$value]} ]]; then
-            echo "removing ..$value.."
             eval "set -A $name \${$name:#$value}"
         fi
     done
