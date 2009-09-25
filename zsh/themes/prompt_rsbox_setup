@@ -56,7 +56,7 @@ function prompt_rsbox_vcsupdate {
         elif ! zgit_revision > /dev/null || [[ $REPLY != $rsboxvars[git_revision] ]]; then
             zctrace "Revision changed!"
             update=1
-        elif [[ -n "$(fc -l -m '*git *' -1)" ]]; then
+        elif [[ $history[$(($HISTCMD-1))] == git\ * ]]; then
             zctrace "last cmd was git"
             update=1
         fi
@@ -196,7 +196,9 @@ function prompt_rsbox_eraseprompt () {
     local i upcount
 
     local visible="${rsboxvars[LEFTPART]}${typed}"
-    local visiblesize=$(display_dimensions "$visible")
+    local visiblesize=""
+    
+    display_dimensions "$visible" > /dev/null && visiblesize=$REPLY
     
     (( upcount = 1 + ${visiblesize} ))
 

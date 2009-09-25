@@ -20,6 +20,7 @@ function display_dimensions() {
       fi
   done
   
+  REPLY=$lines
   printf "%d\n" "$lines"
 }
 
