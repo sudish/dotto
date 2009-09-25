@@ -45,17 +45,31 @@ function _zfindlib {
 }
 
 function uselib {
-  local lib libdir
+  local lib="" libdir=""
+  local opt="" OPTIND="" OPTARG=""
+  local force=0
+  
+  while getopts "fr" opt; do
+    case "$opt" in
+      r) force=1;;
+      f) force=1;;
+      *) echo "Unknown option: $opt"; return 1;;
+    esac
+  done
 
-  [[ $# == 0 ]] && { echo "${(k)zloaded_libs}"; return 0 }
+  shift $(( OPTIND - 1 ))
+
+  [[ $# == 0 ]] && { print -l "${(k)zloaded_libs}"; return 0 }
 
   for lib in "${(@)*}"; do
-    [[ -n $zloaded_libs[$lib] ]] && return 0
+    [[ $force != 1 && -n $zloaded_libs[$lib] ]] && return 0
     _zfindlib $lib && libdir=$REPLY || { echo "Cannot find library: $lib"; return 1 }
 
     { _zloadlib $libdir $lib && zloaded_libs[$lib]=$libdir } || \
         { echo "Cannot load library: $lib"; return }
   done
+  
+  REPLY=""
 }
 
 
