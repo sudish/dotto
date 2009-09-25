@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+function zcache_disconnect {
+  local fd=$1
+  
+  if [[ -z $fd ]]; then 
+    fd=$zcache_vars[last_opened_fd]
+    zcache_vars[last_opened_fd]=''
+  fi
+    
+  ztcp -c $fd
+}

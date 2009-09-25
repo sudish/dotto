@@ -1,0 +1,17 @@
+#!/bin/zsh
+
+function zcache_connect {
+  local ovar="" key=""
+  
+  if [[ $1 == "-o" ]]; then 
+    ovar=$2
+    shift 2
+  fi
+    
+  ztcp localhost 11211
+  zcache_vars[last_opened_fd]=$REPLY
+  if [[ -n $ovar ]]; then
+    eval "$ovar=$REPLY"
+  fi
+  return
+}

@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+function zcache_configure {
+  zcache_servers[localhost:11211]=1
+  zcache_servers[available]=1
+}
+

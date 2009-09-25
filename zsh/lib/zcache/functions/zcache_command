@@ -1,0 +1,24 @@
+#!/bin/zsh
+
+
+
+function zcache_command {
+  emulate -L zsh
+  local command=$1 ctype=""
+  local -a args
+  
+  case $command in
+    set|add|replace|append|prepend|cas) ctype=storage ;;
+    get|gets) ctype=retrieval ;;
+    *) ctype=lines ;;
+  esac
+  
+  case $ctype in
+    storage) zcache_storage_command $* ;;
+    retrieval) zcache_retrieval_command $* ;;
+    lines) zcache_lines_command $* ;;
+    *) echo "Unknown command type: $ctype" >&2 ; return 1 ;;
+  esac
+
+  return
+}

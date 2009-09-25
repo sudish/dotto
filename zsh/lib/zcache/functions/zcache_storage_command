@@ -1,0 +1,49 @@
+#!/bin/zsh
+
+function zcache_storage_command {
+  emulate -L zsh
+  setopt typeset_silent
+  local data="" opt="" OPTIND="" OPTARG="" silent="" sfd="" replyvar="REPLY"
+  typeset -a args
+
+  while getopts "s" opt; do
+    case "$opt" in
+      s) silent=1;;
+      *) echo -E $usage; return 1;;
+    esac
+  done
+  
+  shift $(( OPTIND - 1 ))
+  
+  set -A args "${(@)*}"
+  
+  data=${args[${#args}]}
+  args[${#args}]=()
+
+  local cmd=$args[1] key=$args[2] flags=$args[3] exptime=$args[4]
+  [[ $cmd == cas ]] && casunique=$5
+    
+  if [[ ${#args} -lt 4 || ($cmd == cas && ${#args} -lt 5) ]]; then
+    echo "Insufficient number of arguments for zcache_storage_command" >&2
+    return 1
+  fi
+  
+  if zcache_connect -o sfd $key; then
+    local cmd="$cmd $key $flags $exptime"
+    [[ $cmd == cas ]] && cmd+=" $casunique"
+    cmd+=" ${#data}"
+    [[ $silent == 1 ]] && cmd+=" noreply"
+    zcache_send $sfd $cmd
+    zcache_send $sfd $data
+  else
+    eval ${replyvar}=''
+    return
+  fi
+  
+  read -u $sfd -t 2 REPLY 
+  
+  zchomp $REPLY
+  zctrace "Memcache storage res is $REPLY.."
+  
+  zcache_disconnect $sfd
+}
