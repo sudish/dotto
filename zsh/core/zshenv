@@ -17,10 +17,10 @@ bootzshenv() {
   typeset -g REPLY
   typeset -g -a reply
   
-  for dir in $DOTTODIR/local/zsh/lib $DOTTODIR/external/*/zsh/lib(N) \
-           $ZCONFIGDIR/lib
+  for dir in $DOTTODIR/local/zsh/lib(/N) $DOTTODIR/external/*/zsh/lib(/N) \
+           $ZCONFIGDIR/lib(/N)
   do
-    [[ -d $dir ]] && zlib_paths+=$dir
+    zlib_paths+=$dir
   done
 }
 
