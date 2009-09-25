@@ -5,9 +5,9 @@
 #
 
 # check for the homebrew main executable
-if which brew &>/dev/null; do
+if which brew &>/dev/null; then
   return 0
-done
+fi
 
 emulate -L zsh
 unsetopt warn_create_global
