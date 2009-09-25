@@ -4,6 +4,6 @@ function zcache_send {
   local fd=$1 data=$2
   
   zctrace "sending data to memcache: $data.."
-  print -n -r -u $fd "$data" 
-  print -n -u $fd "\r\n" 
+  print -n -r -u $fd -- "$data" 
+  print -n -u $fd -- "\r\n" 
 }
