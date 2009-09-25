@@ -124,7 +124,7 @@ function _zmemoize_capture {
 
   for varname in ${(ps.:.)memodef[reply_arrays]}; do
     [[ -z $varname ]] && continue
-    memoavps[reply_array_${varname}]=${(pj."".)${(Pq)varname}} 
+    memoavps[reply_array_${varname}]=${(pj."".)${(Pq)varname}}
   done
 
   stdout+="${newline}"  
@@ -198,10 +198,13 @@ function _zmemoize_replay {
       return 235
     fi
     __hashname="_zdecoded"
+  else
+    typeset -g -A "$__hashname"
   fi
   
   # dear lord there has to be a prettier way to do this, but I'm
   # tired of playing line noise with zsh parameter substitution
+  
   
   ref="${__hashname}[stdout]"
   echo -n -E "${(P)ref}"
@@ -231,6 +234,7 @@ function _zmemoize_replay {
 
 function _zmemoize_wrapper {
   local key="" cached="" funcname=$1 capture=1
+  typeset -A zdecoded
 
   _zmemoize_calculate_key $*
   key=$REPLY
@@ -241,7 +245,6 @@ function _zmemoize_wrapper {
   
   ## short result means a status code; unset and return
   if [[ -n $cached ]]; then
-    typeset -A zdecoded
     if zavp -d -v zdecoded $cached 2>/dev/null; then
       if [[ -n $zdecoded[expires] && $zdecoded[expires] -le $EPOCHSECONDS ]]; then
         zlog "zmemoize_wrapper: expiring $funcname:$* entry"

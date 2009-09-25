@@ -111,7 +111,9 @@ function zavp_decode {
   
   zctrace "string is ${(q)string}"
   
-  set -A parts ${(ps:\0:)string}
+  # the quoting and @ flag are necessary to handle empty elements
+  # properly; otherwise they are omitted from the parts array
+  set -A parts "${(@ps:\0:)string}"
   
   zctrace "count is $#parts, first is ${(q)parts[1]}, last is ${(q)parts[$#parts]}"
   [[ $parts[1] == $zavp_vars[magic] && $parts[$#parts] == $zavp_vars[magic] ]] || { 
@@ -127,7 +129,7 @@ function zavp_decode {
   if [[ $positional == 1 || -z $varname ]]; then
     ## this is totally broken -- can't set from parent
   else
-    for key val in $parts; do
+    for key val in "${(@)parts}"; do
       # zctrace "DECODE: key is ${(Q)key}, val is ${(Q)val}"
       eval "${varname}[\${(Q)key}]=\${(Q)val}"
     done
