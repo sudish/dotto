@@ -1,7 +1,6 @@
 #!/bin/zsh
 
 function zsource() {
-  emulate zsh
   local arg
   for arg in "${(@)*}"; do
     arg=${arg#$ZCONFIGDIR/}
