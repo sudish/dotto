@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+# strip \r\n from end of a string
+
+function zchomp {
+  emulate -L zsh
+  
+  local str=${1:-$REPLY}
+  
+  local BSN="\n" BSR=$(print -n "\C-M")
+
+  [[ $str[-1] == "$BSN" ]] && str[-1]=""
+  [[ $str[-1] == "$BSR" ]] && str[-1]=""
+  REPLY=$str
+}

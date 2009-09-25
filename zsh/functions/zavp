@@ -10,7 +10,7 @@
 # zavp -d -v VARNAME STRING
 #    adds the avps from STRING into an associative array named VARNAME.
 #    the variable VARNAME must already exist and be of type association
-#    (typeset -A hash).  existing contents will not be cleared.
+#    (typeset -A hash).
 #
 # zavp -d STRING
 #    sets the positional parameters as M=keyN, M+1=valueN, etc. as

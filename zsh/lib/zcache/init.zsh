@@ -15,6 +15,7 @@ function zcache_reset() {
 
 function zcache_setup() {
   zmodload zsh/net/tcp || { echo "zsh/net/tcp module not available for zcache"; return 2 }
+  zmodload zsh/system || { echo "zsh/system module not available for zcache"; return 2 }
 
   zcache_vars[enabled]=1
 
