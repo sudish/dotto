@@ -373,12 +373,12 @@ Options:
   
   # split and canonicalize paths
   if [[ $action == "memoize" && $#arg_files -gt 0 ]]; then
-    local dfile= 
+    local dfile="" dfilearg=""
     typeset -a dfiles
-    for dfile in $arg_files; do
-      for dfile in "${(ops.:.)OPTARG}"; do
+    for dfilearg in $arg_files; do
+      for dfile in ${~~${(ops.:.)dfilearg}}; do
         # resolve to absolute path unless it contains a '$'
-        [[ $dfile == *\$* ]] || { zrealpath $dfile >/dev/null; dfile=$REPLY }
+        [[ "$dfile" == *\$* ]] || { zrealpath "$dfile" >/dev/null; dfile=$REPLY }
         dfiles+=$dfile
       done
     done  
