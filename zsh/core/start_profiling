@@ -1,0 +1,32 @@
+#!/bin/zsh
+
+[[ $DOTTO_PROFILING_STARTED == 1 ]] && return
+
+zmodload -i zsh/zprof
+# source $ZCONFIGDIR/functions/profiling_dot
+# source $ZCONFIGDIR/functions/profiling_source
+
+local __profiling_name=""
+for __profiling_name in . source; do
+  function $__profiling_name {
+    local ___ps_funname="" ___ps_file="$1" ___ps_result=0 ___realname="${0}"
+    local -a ___sargs
+    shift
+    ___sargs=($*)
+
+    ___ps_funname=source_${${${___ps_file#"$DOTTODIR/"}//\//_}//./}
+    function $___ps_funname { builtin $___realname $___ps_file $___sargs  }
+    $___ps_funname
+    result=$?
+    unfunction $___ps_funname
+  
+    return $___ps_result
+  }
+done
+
+#function source { profiling_source $* }
+#function . { profiling_dot $* }
+
+typeset -g DOTTO_PROFILING_STARTED=1
+
+echo "Profiling started"

@@ -2,6 +2,10 @@
 zctrace "running zshenv..."
 
 bootzshenv() {
+  if [[ $DOTTO_PROFILING == 1 ]]; then
+    source $ZCONFIGDIR/core/start_profiling
+  fi
+  
   local dir zdir file relfile sysname
   for file in $ZCONFIGDIR/zshenv.d/*(.N) \
          $ZCONFIGDIR/external/*/zsh/zshenv.d/*(.N) \

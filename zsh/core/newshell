@@ -2,6 +2,10 @@
 
 
 if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
+  if [[ $DOTTO_PROFILING == 1 && $DOTTO_PROFILING_STARTED != 1 ]]; then
+    source $ZCONFIGDIR/core/start_profiling
+  fi
+
   typeset -a -g -U       zinclude_path
   typeset -a -g -U       zrequired_files
   typeset -A -g -U       zloaded_libs
@@ -54,6 +58,11 @@ if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
     do
       source $zcfile
     done
+
+    if [[ $DOTTO_PROFILING == 1 && $DOTTO_PROFILING_STARTED != 1 ]]; then
+      source $ZCONFIGDIR/core/start_profiling
+    fi
+
 
     zrunsystem newshell
   

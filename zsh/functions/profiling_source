@@ -1,0 +1,22 @@
+#!/bin/zsh
+
+#
+# Wrap "source" and "." builtins so that they create a temporary function
+# per sourced file
+#
+
+function profiling_source {
+  local ___ps_funname="" ___ps_file="$1" ___ps_result=0
+  local -a ___sargs
+  shift
+  ___sargs=($*)
+
+  ___ps_funname=source_${${${___ps_file#"$DOTTODIR/"}//\//_}//./}
+  function $___ps_funname { builtin source $___ps_file $___sargs  }
+  $___ps_funname
+  result=$?
+  unfunction $___ps_funname
+  
+  return $___ps_result
+}
+
