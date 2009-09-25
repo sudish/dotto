@@ -32,7 +32,7 @@ function zcache_retrieval_command {
   emulate -L zsh
   setopt typeset_silent
   unsetopt multibyte
-  local data="" key="" opt="" OPTIND=1 OPTARG="" sfd="" replyvar="replyhash" cmd=""
+  local data="" key="" opt="" OPTIND=1 OPTARG="" sfd="" replyvar="replyhash" cmd="" retval=0
   typeset -a keys
   typeset -g -A $replyvar
   set -A $replyvar
@@ -63,14 +63,15 @@ function zcache_retrieval_command {
     zctrace "not connected w/key=${keys[1]}!"
     keys=()
     done=1
-  fi
-  
-  zctrace "connected w/key=${keys[1]}"
+    retval=3
+  else
+    zctrace "connected w/key=${keys[1]}"
 
-  line="$cmd ${(j: :)keys}"
-  zcache_send $sfd $line
-  zctrace "sent line $line"
-  
+    line="$cmd ${(j: :)keys}"
+    zcache_send $sfd $line
+    zctrace "sent line $line"
+  fi
+
   local keynum=1 firstdata=""
   while [[ $done != 1 ]]; do
     read -u $sfd -t 10 REPLY
@@ -102,10 +103,11 @@ function zcache_retrieval_command {
     zavp -v resphash && eval "${replyvar}[\$key]=\$REPLY"
   done
 
-  zcache_disconnect $sfd
+  [[ -n $sfd ]] && zcache_disconnect $sfd
 
   zctrace "value count is ${#values}, from key count ${#keys}, REPLY=..$REPLY.."
 
   REPLY=$firstdata
+  [[ $retval != 0 ]] && return $retval
   [[ ${(P)#replyvar} -gt 0 ]]
 }

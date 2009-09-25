@@ -3,6 +3,8 @@
 function zcache_storage_command {
   emulate -L zsh
   setopt typeset_silent
+  unsetopt multibyte
+
   local data="" opt="" OPTIND="" OPTARG="" silent="" sfd="" replyvar="REPLY"
   typeset -a args
 
@@ -40,10 +42,19 @@ function zcache_storage_command {
     return
   fi
   
-  read -u $sfd -t 2 REPLY 
-  
-  zchomp $REPLY
-  zctrace "Memcache storage res is $REPLY.."
+  if [[ $silent != 1 ]]; then
+    read -u $sfd -t 2 REPLY 
+    zchomp $REPLY
+    zctrace "Memcache storage res is $REPLY.."
+  else
+    REPLY=""
+  fi
   
   zcache_disconnect $sfd
+  
+  case $REPLY in
+    ERROR) return 10 ;;
+    NOT_FOUND) return 11 ;;
+    *) return 0 ;;
+  esac
 }
