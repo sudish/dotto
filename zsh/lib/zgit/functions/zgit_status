@@ -59,6 +59,6 @@ function zgit_status {
     fi
 
     REPLY=$statstring
-    echo -nE $statstring
+    echo -n -E $statstring
     return $res
 }
