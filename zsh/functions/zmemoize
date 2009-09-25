@@ -18,7 +18,7 @@ typeset -g -H -A zmemoize_cache
 
 function _zmemoize_calculate_key {
   emulate -L zsh
-  local funcname=$1 key="" funcall=""
+  local funcname=$1 key="" funcall="" tmp=""
   typeset -A memodef addons
   shift
   REPLY=""
@@ -31,7 +31,7 @@ function _zmemoize_calculate_key {
   [[ $memodef[vary_username] == 1 ]] && addons[username]=$USERNAME
   [[ $memodef[vary_hostname] == 1 ]] && addons[hostname]=$HOST
   [[ $memodef[vary_pid] == 1 ]] && addons[pid]=$$
-  [[ $memodef[vary_session] == 1 ]] && addons[session]=$(dotto_session_id)
+  [[ $memodef[vary_session] == 1 ]] && dotto_session_id >/dev/null && addons[session]=$REPLY
   [[ $memodef[vary_tty] == 1 ]] && addons[tty]=$TTY
   [[ $memodef[vary_euid] == 1 ]] && addons[euid]="${EUID}"
   [[ $memodef[vary_egid] == 1 ]] && addons[egid]="${EGID}"
@@ -58,8 +58,15 @@ function _zmemoize_calculate_key {
     done
   fi 2>/dev/null
 
-  [[ -n $memodef[vary_function] ]] && funcall=$memodef[vary_function] && \
-      addons[funcall]=$(${(z)funcall} 2>/dev/null)
+  if [[ -n $memodef[vary_function] ]] && funcall=$memodef[vary_function]; then
+    REPLY=""
+    reply=()
+    zcapture tmp ${(z)funcall} 2>/dev/null
+    addons[funcalll]="${tmp}${REPLY}${(pj.:.)reply}"
+
+    # addons[funcall]="$(${(z)funcall} 2>/dev/null)${REPLY}${(pj.:.)reply}"
+  fi
+  
   [[ -n $memodef[vary_eval] ]] && addons[evalcall]=${(e)~memodef[vary_eval]} 2>/dev/null
 
   if [[ ${#addons} -gt 0 ]]; then
