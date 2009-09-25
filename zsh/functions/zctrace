@@ -2,10 +2,11 @@
 
 zctrace() { 
   emulate -L zsh
-  local REPLY=""
+
+  local REPLY="" fname="trace"
 
   if [[ $ZC_TRACE == 1 && -z $ZC_TRACE_LOGONLY ]]; then
-    echo "$*">&2
+    echo "$fname: $*">&2
   fi
   
   zlog "$*"
