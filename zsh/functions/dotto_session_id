@@ -6,7 +6,7 @@
 function dotto_session_id {
   emulate -L zsh
   
-  local var= val= dohash=1
+  local var="" val="" dohash=1
   
   # try various ways to get a "session", in decreasing levels of
   # specificity
@@ -18,7 +18,7 @@ function dotto_session_id {
     fi
   done
   zctrace "session prehash is $val"
-  [[ $dohash == 1 ]] && zmd5 $val && val=$REPLY
+  [[ $dohash == 1 ]] && zmd5 $val >/dev/null && val=$REPLY
   REPLY=$val
   echo -n -E $REPLY
 }
