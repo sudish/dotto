@@ -44,7 +44,7 @@ function memcache {
         set|add|replace|append|prepend|cas) ctype=storage ;;
         get|gets) ctype=retrieval ;;
         stats) ctype=list ;;
-        status) ctype=subcommand ;;
+        status|server) ctype=subcommand ;;
         incr|decr|flush_all|version|delete) ctype=misc ;;
         reset|setup|help|ping) ctype=subcommand ;;
         misc) ctype=misc

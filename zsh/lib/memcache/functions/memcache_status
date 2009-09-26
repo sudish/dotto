@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+function memcache_status {
+  emulate -L zsh
+  setopt typeset_silent
+  
+  local server="" retval=1
+  
+  for server in ${(k)memcache_servers}; do
+    echo -n "Server $server - "
+    if memcache -S $server ping; then
+      echo "ONLINE"
+      retval=0
+    else
+      echo "OFFLINE"
+    fi
+  done
+  
+  return $retval
+}
