@@ -1,0 +1,70 @@
+#!/bin/zsh
+
+function memcache:connect {
+  emulate -L zsh
+  setopt typeset_silent
+
+  zctrace "memcache_connect: $*"
+
+  typeset -a -U zhosts
+  local ovar="" key="" server="" fd=""
+  local retval=0 persistent=${memcache_vars[persistent]:-0}
+  REPLY=""
+
+  local opt="" OPTIND=1 OPTARG=""
+
+  while getopts "S:po:" opt; do
+    case "$opt" in
+      S) server=$OPTARG ;;
+      p) persistent=1 ;;
+      o) ovar=$OPTARG ;;
+      *) echo -E "unknown option $opt"; return 1;;
+    esac
+  done
+
+  # abbreviation for "default"
+  [[ -z $server ]] && server="${memcache_vars[forced_server]}"
+  [[ $server == "-" || $server == "default" ]] && server=""
+
+  zctrace "server is $server"
+
+  if [[ $memcache_vars[persistent] == 1 && -n $memcache_vars[last_opened_fd] 
+        && ( -z $server || $server == $memcache_vars[last_opened_server] ) ]]; then
+    fd=$memcache_vars[last_opened_fd]
+  else
+    [[ -n $server ]] && zhosts+=$server
+    
+    if [[ -z $server ]]; then
+      [[ -n $memcache_vars[last_opened_server] ]] && zhosts+=$memcache_vars[last_opened_server]
+      zhosts+=(${(k)memcache_servers})
+    fi
+    
+    typeset -a hostparts
+
+    for key in $zhosts; do
+      # skip a server that is not currently defined -- primarily in the last_opened_server
+      # case
+      [[ -z $memcache_servers[$key] ]] && continue
+      
+      set -A hostparts ${(ps.:.)key}
+  
+      zctrace "Trying server $key"
+      if ztcp $hostparts[1] ${hostparts[2]:-$memcache_vars[default_port]} 2>/dev/null \
+            && [[ -n $REPLY ]]; then
+        fd=$REPLY
+        memcache_vars[last_opened_server]=$key
+        memcache_vars[last_opened_fd]=$fd
+        zctrace "memcache: Success opening $key"
+        break
+      else
+        retval=$?
+      fi
+    done
+  fi
+  
+  if [[ -n $ovar ]]; then
+    eval "$ovar=$fd"
+  fi
+  [[ $retval == 0 && -z $fd ]] && return 15
+  return $retval
+}

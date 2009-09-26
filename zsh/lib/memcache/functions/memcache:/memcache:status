@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+function memcache:status {
+  emulate -L zsh
+  setopt typeset_silent
+  
+  local server="" retval=1
+  
+  for server in ${(k)memcache_servers}; do
+    echo -n "Server $server - "
+    if memcache:with_server $server misc_command version &>/dev/null; then
+      echo "ONLINE"
+      retval=0
+    else
+      echo "OFFLINE"
+    fi
+  done
+  
+  return $retval
+}

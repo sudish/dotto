@@ -23,7 +23,7 @@ function memcache {
       k) key=$OPTARG ;;
       S) server=$OPTARG ;;
       T) ctype=$OPTARG ;;
-      *) echo -E $usage; return 1;;
+      *) echo -E "Unknown option: $opt"; return 1;;
     esac
   done
   
@@ -51,7 +51,7 @@ function memcache {
               cmd=$args[1]
               shift 1 args
           ;;
-        *) if zshellfunc_exists memcache_$cmd; then
+        *) if zshellfunc_exists memcache:$cmd; then
              ctype=subcommand
            else
              ctype=unknown
@@ -63,11 +63,11 @@ function memcache {
     # zctrace "cmd is $cmd, ctype is $ctype, args are $args, server is $server"
 
     case $ctype in
-      storage) memcache_storage_command $cmd $args ;;
-      retrieval) memcache_retrieval_command $cmd $args ;;
-      list) memcache_misc_command -l $cmd $args ;;
-      misc) memcache_misc_command $cmd $args ;;
-      subcommand) memcache_$cmd $args ;;
+      storage) memcache:storage_command $cmd $args ;;
+      retrieval) memcache:retrieval_command $cmd $args ;;
+      list) memcache:misc_command -l $cmd $args ;;
+      misc) memcache:misc_command $cmd $args ;;
+      subcommand) memcache:$cmd $args ;;
       *) echo "Unknown command type: $ctype" >&2 ; return 1 ;;
     esac
   } always {

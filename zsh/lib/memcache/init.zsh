@@ -23,7 +23,7 @@ function memcache_setup() {
   zmodload zsh/system || { echo "zsh/system module not available for memcache"; return 2 }
 
   uselib zcron
-  zcron add 30 memcache_periodic
+  zcron add 30 memcache:periodic
 
   memcache_vars[enabled]=1
   memcache_vars[persistent]=0
@@ -39,10 +39,17 @@ function memcache_setup() {
   memcache_reset
 }
 
-local _zfile
+local _zfile _zdir
 
-for _zfile in $libdir/functions/*; do
+for _zfile in $libdir/functions/*(.N); do
   autoload -Uk ${_zfile:t}
+done
+
+for _zdir in $libdir/functions/*:(/N); do
+  fpath+=$_zdir
+  for _zfile in $_zdir/*(.); do
+    autoload -Uk ${_zfile:t}
+  done
 done
 
 # setup in current dir

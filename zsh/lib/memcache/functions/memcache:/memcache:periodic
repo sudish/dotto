@@ -1,0 +1,10 @@
+#!/bin/zsh
+
+#
+# Function to run in the background, checking for memcache server
+# status
+#
+
+function memcache:periodic {
+  # nothing yet
+}

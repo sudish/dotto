@@ -1,0 +1,70 @@
+#!/bin/zsh
+
+function memcache:storage_command {
+  emulate -L zsh
+  setopt typeset_silent
+  unsetopt multibyte
+
+  local data="" opt="" OPTIND="" OPTARG="" silent="" sfd="" replyvar="REPLY" retval=0
+  typeset -a args
+  local cmd="" key="" flags=0 exptime=${memcache_vars[default_timeout]:-3600} casunique=""
+
+  # the verb can precede the first option, or be after all options
+  if [[ -n $1 && ! $1 == -* ]]; then
+    cmd=$1
+    shift
+  fi
+  
+  while getopts "c:k:f:t:su:" opt; do
+    case "$opt" in
+      s) silent=1;;
+      c) cmd=$OPTARG ;;
+      k) key=$OPTARG ;;
+      f) flags=$OPTARG ;;
+      t) exptime=$OPTARG ;;
+      u) casunique=$OPTARG ;;
+      *) echo -E "Unknown option; $*"; return 1;;
+    esac
+  done
+  
+  shift $(( OPTIND - 1 ))
+  
+  [[ -z $cmd ]] && { cmd=$1; shift }
+  [[ -z $key ]] && { key=$1; shift }
+  [[ -z $exptime ]] && { exptime=$1; shift }
+  [[ $cmd == cas && -z $casunique ]] && { casunique=$1; shift }
+    
+  set -A args "${(@)*}"
+  
+  data=${args[${#args}]}
+  args[${#args}]=()
+
+  if memcache:connect -o sfd $key && [[ -n $sfd ]]; then
+    local cmd="$cmd $key $flags $exptime"
+    [[ $cmd == cas ]] && cmd+=" $casunique"
+    cmd+=" ${#data}"
+    [[ $silent == 1 ]] && cmd+=" noreply"
+    memcache:send $sfd $cmd
+    memcache:send $sfd $data
+  else
+    retval=$?
+    REPLY=""
+    return $retval
+  fi
+  
+  if [[ $silent != 1 ]]; then
+    read -u $sfd -t 2 REPLY 
+    zchomp $REPLY
+    zctrace "Memcache storage res is $REPLY.."
+  else
+    REPLY=""
+  fi
+  
+  memcache:disconnect $sfd
+  
+  case $REPLY in
+    ERROR) return 10 ;;
+    NOT_FOUND) return 11 ;;
+    *) return 0 ;;
+  esac
+}

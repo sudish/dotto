@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+function memcache:ping {
+  memcache:misc_command stats &> /dev/null
+}

@@ -1,0 +1,31 @@
+#!/bin/zsh
+
+function memcache:with_server {
+  emulate -L zsh
+  setopt typeset_silent
+  local server="" fun="" saved_server=""
+  
+  if [[ $1 == -S ]]; then
+    server=$2
+    shift 2
+  else
+    server=$1
+    shift
+  fi
+
+  fun=$1
+  shift
+  
+  [[ $fun != memcache && $fun != *:* ]] && fun=memcache:${fun}
+  
+  { 
+    saved_server=$memcache_vars[forced_server]
+    memcache_vars[forced_server]=$server
+
+    $fun $*
+  } always {
+    zctrace "restoring saved server $saved_server"
+    memcache_vars[forced_server]=$saved_server
+  }
+  
+}
