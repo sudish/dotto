@@ -26,18 +26,6 @@ for _zfile in $libdir/functions/*; do
   autoload -Uk ${_zfile:t}
 done
 
-function zperiodic_function() {
-	for func in ${(k)PERIOD_FUNCS}
-	do
-		$func
- 	done
-
-  run_cron_funcs
-	run_periodic_dir hourly 3600
-	run_periodic_dir daily 86400
-	run_periodic_dir weekly 604800
-}
-
 typeset -g -a periodic_functions
 periodic_functions+=zperiodic_function
 

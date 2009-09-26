@@ -1,123 +1,49 @@
 #!/bin/zsh
 
-zctrace "running zperiodic..."
+function zcron {
+  emulate -L zsh
+  setopt typeset_silent
+  
+  local opt="" OPTIND="" OPTARG="" retval=0
+  local cmd="" period="" fun=""
 
-zmodload -i zsh/stat
+  # the verb can precede the first option, or be after all options
+  if [[ -n $1 && ! $1 == -* ]]; then
+    cmd=$1
+    shift
+  fi
+  
+  while getopts "c:hf:dla" opt; do
+    case "$opt" in
+      c) cmd=$OPTARG ;;
+      f) fun=$OPTARG ;;
+      d) cmd=delete ;;
+      l) cmd=list ;;
+      a) cmd=add ;;
+      *) echo -E "Unknown option: $opt" >&2; return 1;;
+    esac
+  done
+  
+  shift $(( OPTIND - 1 ))
+  
+  [[ -z $cmd ]] && { cmd=$1; shift }
 
-export PERIOD=30
-typeset -Ag PERIOD_FUNCS
-typeset -Ag ZCRON_TIMESTAMPS
-typeset -Ag ZCRON_FUNCTIONS
+  case $cmd in
+    add) 
+      [[ -z $period ]] && { period=$1; shift }
+      [[ -z $fun ]] && { fun=$1; shift }
+      zcron_add $period $fun
+    ;;
 
+    list) 
+      zcron_list $*
+    ;;
 
-function run_periodic_dir() {
-    local last dir seconds key
+    delete) 
+      [[ -z $fun ]] && { fun=$1; shift }
+      zcron_delete $period $fun    
+    ;;
     
-    dir=$1
-    period=$2
-    key="PERIODIC_DIR_$dir"
-
-    last=$ZCRON_TIMESTAMPS[$key]
-    
-    if [[ $last != <-> ]]; then
-         last=0
-    fi
-
-    if [[ $((SECONDS - last)) -gt $period ]]; then
-        ZCRON_TIMESTAMPS[$key]=$SECONDS
-        zsourcedir $ZCONFIGDIR/$dir
-    fi
+    *) echo -E "Unknown cron command: $opt" >&2; return 1;;
+  esac
 }
-
-
-function zperiodic_function() {
-	for func in ${(k)PERIOD_FUNCS}
-	do
-		$func
- 	done
-    run_cron_funcs
-	run_periodic_dir hourly 3600
-	run_periodic_dir daily 86400
-	run_periodic_dir weekly 604800
-}
-
-typeset -a periodic_functions
-periodic_functions+=zperiodic_function
-
-# old style
-add_periodic() {
-	for func in $*; do
-		PERIOD_FUNCS[$func]=$func
-	done
-}
-
-delete_periodic() {
-	for func in $*; do
-		delete "PERIOD_FUNCS[$func]"
-	done
-}
-
-zmodload zsh/sched 2>/dev/null
-
-zcron_runner() {
-    run_cron_funcs
-    sched +30 zcron_runner
-}
-
-zcron_add() {
-    local period=$1 func=$2
-    #local OLDIFS="$IFS"
-    #IFS="\0"
-    ZCRON_FUNCTIONS[$func]=$period
-    #unset "ZCRON_TIMESTAMPS[$func]"
-    #IFS="$OLDIFS"
-}
-
-zcron_delete() {
-    local func=$1
-    #local OLDIFS="$IFS"
-    #IFS="\0"
-
-    unset "ZCRON_FUNCTIONS[$func]"
-    unset "ZCRON_TIMESTAMPS[$func]"
-    #IFS="$OLDIFS"
-}
-
-zcron_list() {
-    local func period
-    #local OLDIFS="$IFS"
-    #IFS="\0"
-    for func in ${(k)ZCRON_FUNCTIONS}; do
-        echo $ZCRON_FUNCTIONS[$func] - $func
-    done
-    #IFS="$OLDIFS"
-}
-
-
-function run_cron_funcs() {
-    local func last dir seconds key period
-    #local OLDIFS="$IFS"
-    #IFS="\0"
-
-    for func in ${(k)ZCRON_FUNCTIONS}; do
-        last=$ZCRON_TIMESTAMPS[$func]
-        period=$ZCRON_FUNCTIONS[$func]
-    
-        if [[ $last != <-> ]]; then
-             last=0
-        fi
-
-        if [[ $((SECONDS - last)) -gt $period ]]; then
-            ZCRON_TIMESTAMPS[$func]=$SECONDS
-            #IFS=$OLDIFS 
-            $func
-            #IFS="\0"
-        fi
-    done
-    
-    #IFS="$OLDIFS"
-}
-
-# start the whole thing off
-# zcron_runner
-

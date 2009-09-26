@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+
+function zperiodic_function() {
+	for func in ${(k)PERIOD_FUNCS}
+	do
+		$func
+ 	done
+
+  run_cron_funcs
+	run_periodic_dir hourly 3600
+	run_periodic_dir daily 86400
+	run_periodic_dir weekly 604800
+}
+
