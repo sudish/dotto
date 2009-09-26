@@ -23,7 +23,7 @@ function _zloadlib {
   done
 
   if [[ $reload == 1 ]]; then
-    for func in $libdir/functions/*(.N) $libdir/completions/*(.N); do
+    for func in $libdir/functions/**/*(.N) $libdir/completions/**/*(.N); do
       unfunction ${${func:t}:r} &>/dev/null
     done
   fi
