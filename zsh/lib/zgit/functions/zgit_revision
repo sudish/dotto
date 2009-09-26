@@ -2,6 +2,7 @@
 
 function zgit_revision() {
     emulate -L zsh
+    setopt typeset_silent
     local branch git_dir rev
 
     if zgit_dir > /dev/null && git_dir=$REPLY; then
