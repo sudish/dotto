@@ -10,10 +10,9 @@ function memcache {
   local opt="" OPTIND=1 OPTARG="" cmd="" silent=0 ctype=""
   local -a args
 
-  if [[ -z $cmd ]]; then
-    cmd=$1
-    shift 1
-  fi
+  cmd=$1
+  shift 1
+
   args=($*)
 
   case $cmd in
