@@ -22,6 +22,9 @@ function memcache_setup() {
   zmodload zsh/net/tcp || { echo "zsh/net/tcp module not available for memcache"; return 2 }
   zmodload zsh/system || { echo "zsh/system module not available for memcache"; return 2 }
 
+  uselib zcron
+  zcron add 30 memcache_periodic
+
   memcache_vars[enabled]=1
   memcache_vars[persistent]=0
 

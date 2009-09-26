@@ -13,13 +13,14 @@ function zcron {
     shift
   fi
   
-  while getopts "c:hf:dla" opt; do
+  while getopts "c:hf:dlat:" opt; do
     case "$opt" in
       c) cmd=$OPTARG ;;
       f) fun=$OPTARG ;;
       d) cmd=delete ;;
       l) cmd=list ;;
       a) cmd=add ;;
+      t) period=$OPTARG ;;
       *) echo -E "Unknown option: $opt" >&2; return 1;;
     esac
   done
