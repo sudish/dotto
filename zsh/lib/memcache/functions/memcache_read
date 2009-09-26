@@ -1,0 +1,24 @@
+#!/bin/zsh
+
+function memcache_read {
+  local fd=$1 size=$2 timeout=${3}
+  local -a args
+  local remain=$size data="" loopdata="" count=0 total=0 looptimeout
+  local startseconds=$SECONDS
+  
+  while [[ $total -lt $size ]]; do
+    [[ -n $timeout && $SECONDS -gt $(( startseconds + timeout )) ]] && break
+    args=(-s $remain -c count -i $fd)
+    if [[ -n $timeout ]]; then
+      looptimeout=$(( timeout - ($SECONDS - $startseconds) ))
+      [[ $looptimeout -le 0 ]] && break
+      args+=(-t $looptimeout)
+    fi
+    sysread $args loopdata
+    data+=$loopdata
+    total=$(( total + count ))
+    zctrace "read $count bytes, total=$total"
+  done
+  
+  REPLY=$data
+}

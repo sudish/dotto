@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+function memcache_configure {
+  memcache_servers[localhost:11211]=1
+  memcache_servers[available]=1
+}
+

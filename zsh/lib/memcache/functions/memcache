@@ -1,0 +1,47 @@
+#!/bin/zsh
+
+
+
+function memcache {
+  emulate -L zsh
+  setopt typeset_silent
+  unsetopt multibyte
+
+  local opt="" OPTIND=1 OPTARG="" cmd="" silent=0 ctype=""
+  local -a args
+
+  if [[ -z $cmd ]]; then
+    cmd=$1
+    shift 1
+  fi
+  args=($*)
+
+  case $cmd in
+    set|add|replace|append|prepend|cas) ctype=storage ;;
+    get|gets) ctype=retrieval ;;
+    stats) ctype=list ;;
+    incr|decr|flush_all|version|delete) ctype=misc ;;
+    reset|setup|help) ctype=subcommand ;;
+    misc) ctype=misc
+          cmd=$args[1]
+          shift 1 args
+      ;;
+    *) if zshellfunc_exists memcache_$cmd; then
+         ctype=subcommand
+       else
+         ctype=unknown
+       fi
+      ;;
+  esac
+  
+  case $ctype in
+    storage) memcache_storage_command $cmd $args ;;
+    retrieval) memcache_retrieval_command $cmd $args ;;
+    list) memcache_misc_command -l $cmd $args ;;
+    misc) memcache_misc_command $cmd $args ;;
+    subcommand) memcache_$cmd $args ;;
+    *) echo "Unknown command type: $ctype" >&2 ; return 1 ;;
+  esac
+
+  return
+}

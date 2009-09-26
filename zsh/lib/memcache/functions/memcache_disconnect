@@ -1,0 +1,14 @@
+#!/bin/zsh
+
+function memcache_disconnect {
+  local fd=$1
+  
+  if [[ -z $fd ]]; then 
+    fd=$memcache_vars[last_opened_fd]
+  fi
+
+  if [[ $memcache_vars[persistent] != 1 ]]; then
+    [[ $fd == $memcache_vars[last_opened_fd] ]] && unset 'memcache_vars[last_opened_fd]'
+    ztcp -c $fd
+  fi
+}

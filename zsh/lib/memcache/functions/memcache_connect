@@ -1,0 +1,50 @@
+#!/bin/zsh
+
+function memcache_connect {
+  emulate -L zsh
+  setopt typeset_silent
+
+  typeset -a -U zhosts
+  local ovar="" key="" server="" fd="" retval=0
+  REPLY=""
+
+  if [[ $1 == "-o" ]]; then 
+    ovar=$2
+    shift 2
+  fi
+
+  if [[ $memcache_vars[persistent] == 1 && -n $memcache_vars[last_opened_fd] ]]; then
+    fd=$memcache_vars[last_opened_fd]
+  else
+    [[ -n $memcache_vars[last_opened_server] ]] && zhosts+=$memcache_vars[last_opened_server]
+    zhosts+=(${(k)memcache_servers})
+  
+    typeset -a hostparts
+
+    for key in $zhosts; do
+      # skip a server that is not currently defined -- primarily in the last_opened_server
+      # case
+      [[ -z $memcache_servers[$key] ]] && continue
+      
+      set -A hostparts ${(ps.:.)key}
+  
+      zctrace "Trying server $key"
+      if ztcp $hostparts[1] ${hostparts[2]:-$memcache_vars[default_port]} 2>/dev/null \
+            && [[ -n $REPLY ]]; then
+        fd=$REPLY
+        memcache_vars[last_opened_server]=$key
+        memcache_vars[last_opened_fd]=$fd
+        zctrace "memcache: Success opening $key"
+        break
+      else
+        retval=$?
+      fi
+    done
+  fi
+  
+  if [[ -n $ovar ]]; then
+    eval "$ovar=$fd"
+  fi
+  [[ $retval == 0 && -z $fd ]] && return 15
+  return $retval
+}

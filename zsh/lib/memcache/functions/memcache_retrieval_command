@@ -1,0 +1,113 @@
+#!/bin/zsh
+
+# Fetches one or more keys from a memcached.
+#
+# Usage: memcache_retrieval_command [-v VARNAME] <CMD> <KEY1> [<KEYn>...]
+#
+# <cmd> is either "get" or "gets"
+#
+# The first returned value will be stored in REPLY.  This is the simplest
+# usage
+# 
+# The exit status of the command will be zero if at least one key is retrieved
+# and no errors occurred; otherwise it will be non-zero.
+#
+# For multi-key fetches, or where you need additional information beyond
+# the key's associated contents (cas unique, flags):
+#
+# A hash of all returned keys to an AVP structure will be stored in the
+# variable "replyhash", or whatever variable is named by VARNAME. The AVP
+# must be decoded with the 'zavp' command, and contains the following keys::
+#
+#   key, flags, bytes, data, casunique (if applicable)
+#
+# For example, to get the flags for KEYB in a multi-fetch:
+#
+#   memcache_retrieval_command -v myvar gets KEYA KEYB
+#   zavp -d -v keyb_hash $myvar[KEYB]
+#   echo "KEYB flags: ${keyb_hash[flags]}
+#
+
+function memcache_retrieval_command {
+  emulate -L zsh
+  setopt typeset_silent
+  unsetopt multibyte
+  local data="" key="" opt="" OPTIND=1 OPTARG="" sfd="" replyvar="replyhash" cmd="" retval=0
+  typeset -a keys
+  typeset -g -A $replyvar
+  set -A $replyvar
+
+  while getopts "h" opt; do
+    case "$opt" in
+      v) replyvar=$OPTARG ;;
+      *) echo -E "unknown option $opt"; return 1;;
+    esac
+  done
+  
+  shift $(( OPTIND - 1 ))
+    
+  if [[ $#* -lt 2 ]]; then
+    echo "Insufficient number of arguments for memcache_retrieval_command" >&2
+    return 1
+  fi
+  
+  cmd=$1
+  shift 1
+  keys=($*)
+
+  local respline="" done=0 line=""
+  local -a resppos
+  local -A resphash
+
+  if ! memcache_connect -o sfd ${keys[1]}; then
+    zctrace "not connected w/key=${keys[1]}!"
+    keys=()
+    done=1
+    retval=3
+  else
+    zctrace "connected w/key=${keys[1]}"
+
+    line="$cmd ${(j: :)keys}"
+    memcache_send $sfd $line
+    zctrace "sent line $line"
+  fi
+
+  local keynum=1 firstdata=""
+  while [[ $done != 1 ]]; do
+    read -u $sfd -t 10 REPLY
+    zchomp
+    
+    set -A resppos ${=REPLY}
+    zctrace "read line ..$REPLY.., resppos=$resppos"    
+    
+    [[ $resppos[1] == "END" ]] && break
+    [[ $resppos[1] != "VALUE" ]] && { echo "Did not receive VALUE: $resppos[1]" >&2; return 3 }
+
+    key=$resppos[2]
+    resphash[key]=$key
+    resphash[flags]=$resppos[3]
+    resphash[bytes]=$resppos[4]
+    [[ -n $resppos[5] ]] && resphash[casunique]=$resppos[5]
+    
+    zctrace "reply=$REPLY, resppos=$resppos, resphash=${(kvpj:,:)resphash}"
+    
+    # read -u $sfd -t 4 -k $resphash[bytes] data
+    memcache_read $sfd $(( $resphash[bytes] + 2 )) 10
+    data=$REPLY[1,$resphash[bytes]]
+    [[ ${(P)#replyvar} == 0 ]] && firstdata=$data
+
+    zctrace "data from $cmd $key = ..$data.."
+    
+    resphash[data]=$data
+
+    zavp -v resphash && eval "${replyvar}[\$key]=\$REPLY"
+  done
+
+  [[ -n $sfd ]] && memcache_disconnect $sfd
+
+  zctrace "value count is ${#values}, from key count ${#keys}, REPLY=..$REPLY.."
+
+  REPLY=$firstdata
+  [[ $retval != 0 ]] && return $retval
+  [[ ${(P)#replyvar} -gt 0 ]]
+}
