@@ -4,21 +4,41 @@ function memcache_connect {
   emulate -L zsh
   setopt typeset_silent
 
+  zctrace "memcache_connect: $*"
+
   typeset -a -U zhosts
-  local ovar="" key="" server="" fd="" retval=0
+  local ovar="" key="" server="" fd=""
+  local retval=0 persistent=${memcache_vars[persistent]:-0}
   REPLY=""
 
-  if [[ $1 == "-o" ]]; then 
-    ovar=$2
-    shift 2
-  fi
+  local opt="" OPTIND=1 OPTARG=""
 
-  if [[ $memcache_vars[persistent] == 1 && -n $memcache_vars[last_opened_fd] ]]; then
+  while getopts "S:po:" opt; do
+    case "$opt" in
+      S) server=$OPTARG ;;
+      p) persistent=1 ;;
+      o) ovar=$OPTARG ;;
+      *) echo -E "unknown option $opt"; return 1;;
+    esac
+  done
+
+  # abbreviation for "default"
+  [[ -z $server ]] && server="${memcache_vars[forced_server]}"
+  [[ $server == "-" || $server == "default" ]] && server=""
+
+  zctrace "server is $server"
+
+  if [[ $memcache_vars[persistent] == 1 && -n $memcache_vars[last_opened_fd] 
+        && ( -z $server || $server == $memcache_vars[last_opened_server] ) ]]; then
     fd=$memcache_vars[last_opened_fd]
   else
-    [[ -n $memcache_vars[last_opened_server] ]] && zhosts+=$memcache_vars[last_opened_server]
-    zhosts+=(${(k)memcache_servers})
-  
+    [[ -n $server ]] && zhosts+=$server
+    
+    if [[ -z $server ]]; then
+      [[ -n $memcache_vars[last_opened_server] ]] && zhosts+=$memcache_vars[last_opened_server]
+      zhosts+=(${(k)memcache_servers})
+    fi
+    
     typeset -a hostparts
 
     for key in $zhosts; do

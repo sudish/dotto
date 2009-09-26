@@ -7,40 +7,75 @@ function memcache {
   setopt typeset_silent
   unsetopt multibyte
 
-  local opt="" OPTIND=1 OPTARG="" cmd="" silent=0 ctype=""
+  local opt="" OPTIND=1 OPTARG="" cmd="" silent=0 ctype="" key="" server="" saved_server=""
   local -a args
 
-  cmd=$1
-  shift 1
+  # the verb can precede the first option, or be after all options
+  if [[ -n $1 && ! $1 == -* ]]; then
+    cmd=$1
+    shift
+  fi
+  
+  while getopts "c:sk:S:T:" opt; do
+    case "$opt" in
+      s) silent=1 ;;
+      c) cmd=$OPTARG ;;
+      k) key=$OPTARG ;;
+      S) server=$OPTARG ;;
+      T) ctype=$OPTARG ;;
+      *) echo -E $usage; return 1;;
+    esac
+  done
+  
+  shift $(( OPTIND - 1 ))
+  
+  [[ -z $cmd ]] && { cmd=$1; shift }
 
   args=($*)
 
-  case $cmd in
-    set|add|replace|append|prepend|cas) ctype=storage ;;
-    get|gets) ctype=retrieval ;;
-    stats) ctype=list ;;
-    incr|decr|flush_all|version|delete) ctype=misc ;;
-    reset|setup|help) ctype=subcommand ;;
-    misc) ctype=misc
-          cmd=$args[1]
-          shift 1 args
-      ;;
-    *) if zshellfunc_exists memcache_$cmd; then
-         ctype=subcommand
-       else
-         ctype=unknown
-       fi
-      ;;
-  esac
-  
-  case $ctype in
-    storage) memcache_storage_command $cmd $args ;;
-    retrieval) memcache_retrieval_command $cmd $args ;;
-    list) memcache_misc_command -l $cmd $args ;;
-    misc) memcache_misc_command $cmd $args ;;
-    subcommand) memcache_$cmd $args ;;
-    *) echo "Unknown command type: $ctype" >&2 ; return 1 ;;
-  esac
+  if [[ -n $server ]]; then
+    saved_server=$memcache_vars[forced_server]
+    memcache_vars[forced_server]=$server
+  fi
 
+  {
+    if [[ -z $ctype ]]; then
+      case $cmd in
+        set|add|replace|append|prepend|cas) ctype=storage ;;
+        get|gets) ctype=retrieval ;;
+        stats) ctype=list ;;
+        status) ctype=subcommand ;;
+        incr|decr|flush_all|version|delete) ctype=misc ;;
+        reset|setup|help|ping) ctype=subcommand ;;
+        misc) ctype=misc
+              cmd=$args[1]
+              shift 1 args
+          ;;
+        *) if zshellfunc_exists memcache_$cmd; then
+             ctype=subcommand
+           else
+             ctype=unknown
+           fi
+          ;;
+      esac
+    fi
+
+    # zctrace "cmd is $cmd, ctype is $ctype, args are $args, server is $server"
+
+    case $ctype in
+      storage) memcache_storage_command $cmd $args ;;
+      retrieval) memcache_retrieval_command $cmd $args ;;
+      list) memcache_misc_command -l $cmd $args ;;
+      misc) memcache_misc_command $cmd $args ;;
+      subcommand) memcache_$cmd $args ;;
+      *) echo "Unknown command type: $ctype" >&2 ; return 1 ;;
+    esac
+  } always {
+    if [[ -n $server ]]; then
+      zctrace "restoring saved server $saved_server"
+      memcache_vars[forced_server]=$saved_server
+    fi
+  }
+  
   return
 }

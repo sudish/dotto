@@ -15,12 +15,14 @@ function memcache_misc_command {
   unsetopt multibyte
 
   local opt="" OPTIND=1 OPTARG="" sfd="" replyvar="" cmd="" islist=0 silent=0 retval=0
-  typeset -a args
+  local server="-"
+  typeset -a args connectargs
 
-  while getopts "hv:sl" opt; do
+  while getopts "hv:slS:" opt; do
     case "$opt" in
       v) replyvar=$OPTARG ;;
       s) silent=1 ;;
+      S) connectargs+=(-S $OPTARG) ;;
       l) islist=1 ;;
       *) echo -E "unknown option $opt"; return 1;;
     esac
@@ -48,7 +50,7 @@ function memcache_misc_command {
 
   local respline="" isdone=0 line="" data="" 
 
-  if ! memcache_connect -o sfd; then
+  if ! memcache_connect $connectargs -o sfd; then
     isdone=1
     retval=3
   else
