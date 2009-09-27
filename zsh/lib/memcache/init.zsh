@@ -10,7 +10,7 @@ typeset -g -A -H memcache_vars
 typeset -g -A -H memcache_servers
 
 
-function memcache_reset() {
+function memcache:reset() {
   emulate -L zsh
 
   for var in last_opened_server last_opened_fd; do
@@ -18,7 +18,7 @@ function memcache_reset() {
   done
 }
 
-function memcache_setup() {
+function memcache:setup() {
   zmodload zsh/net/tcp || { echo "zsh/net/tcp module not available for memcache"; return 2 }
   zmodload zsh/system || { echo "zsh/system module not available for memcache"; return 2 }
 
@@ -36,7 +36,7 @@ function memcache_setup() {
   
   memcache_servers[localhost:11211]="1"
 
-  memcache_reset
+  memcache:reset
 }
 
 local _zfile _zdir
@@ -53,4 +53,4 @@ for _zdir in $libdir/functions/*:(/N); do
 done
 
 # setup in current dir
-memcache_setup ${0:h}
+memcache:setup ${0:h}
