@@ -15,6 +15,8 @@ zctrace "running zshrc.."
 # set hostname
 typeset -g HOSTNAME=$HOST
 
+typeset -g PERIOD=${PERIOD:-30}
+
 zrunsystem zshrc
 
 zrunsystem zcomp
