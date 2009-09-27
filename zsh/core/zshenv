@@ -8,18 +8,21 @@ bootzshenv() {
   
   local dir zdir file relfile sysname
   for file in $ZCONFIGDIR/zshenv.d/*(.N) \
-         $ZCONFIGDIR/external/*/zsh/zshenv.d/*(.N) \
-         $ZCONFIGDIR/external/*/zsh/zshenv.d/`uname`/*(.N) \
-         $ZCONFIGDIR/external/*/hosts/{$SHORTHOST,$HOST}/zshenv.d/*(.N)
+         $DOTTODIR/external/*/zsh/zshenv.d/*(.N) \
+         $DOTTODIR/external/*/zsh/zshenv.d/`uname`/*(.N) \
+         $DOTTODIR/external/*/hosts/{$SHORTHOST,$HOST}/zsh/zshenv.d/*(.N)
   do
-    [[ ${file:e} == "example" ]] && continue
+    [[ ${file:e} == (disabled|example) ]] && continue
     source $file
   done
   
   typeset -g -a -H -U zlib_paths 
   typeset -g -a -U precmd_functions preexec_functions chpwd_functions zshexit_functions periodic_functions
+
+  # three types of well-known function reply variables: scalar, array, and hash.
   typeset -g REPLY
   typeset -g -a reply
+  typeset -g -A replyhash
   
   typeset -g -A dotto_prefs dotto_vars
   

@@ -1,0 +1,10 @@
+#!/bin/zsh
+
+function unshift() {
+    emulate -L zsh
+
+    local name=$1
+    shift
+
+    eval $name'[1,0]="$*"'
+}
