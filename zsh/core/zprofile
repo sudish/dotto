@@ -2,8 +2,6 @@
 
 zctrace "running zprofile.."
 
-export SHORTHOST=${HOST//.*/}
-
 typeset -g -x DOTTO_LOGIN_ID
 [[ -z $DOTTO_LOGIN_ID ]] && DOTTO_LOGIN_ID="${TTY}:${$}:${HOST}"
 

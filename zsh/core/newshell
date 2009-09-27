@@ -23,6 +23,8 @@ if [[ $dotto_vars[zconfig_booted] != 1 ]]; then
   function _dotto_newshell {
     local zcfile 
 
+    typeset -g -x SHORTHOST=${SHORTHOST:-${HOST//.*/}}
+
     FPATH=$ZCONFIGDIR/functions:$ZCONFIGDIR/completions:$FPATH
 
     setopt function_argzero typeset_silent

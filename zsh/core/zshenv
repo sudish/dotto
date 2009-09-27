@@ -10,7 +10,7 @@ bootzshenv() {
   for file in $ZCONFIGDIR/zshenv.d/*(.N) \
          $ZCONFIGDIR/external/*/zsh/zshenv.d/*(.N) \
          $ZCONFIGDIR/external/*/zsh/zshenv.d/`uname`/*(.N) \
-         $ZCONFIGDIR/external/*/hosts/$SHORTHOST/zshenv.d/*(.N)
+         $ZCONFIGDIR/external/*/hosts/{$SHORTHOST,$HOST}/zshenv.d/*(.N)
   do
     [[ ${file:e} == "example" ]] && continue
     source $file
@@ -20,6 +20,8 @@ bootzshenv() {
   typeset -g -a -U precmd_functions preexec_functions chpwd_functions zshexit_functions periodic_functions
   typeset -g REPLY
   typeset -g -a reply
+  
+  typeset -g -A dotto_prefs dotto_vars
   
   for dir in $DOTTODIR/local/zsh/lib(/N) $DOTTODIR/external/*/zsh/lib(/N) \
            $ZCONFIGDIR/lib(/N)
