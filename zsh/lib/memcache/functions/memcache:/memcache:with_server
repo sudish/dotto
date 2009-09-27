@@ -5,7 +5,7 @@ function memcache:with_server {
   setopt typeset_silent
   local server="" fun="" saved_server=""
   
-  if [[ $1 == -S ]]; then
+  if [[ $1 == "-S" ]]; then
     server=$2
     shift 2
   else
@@ -26,6 +26,8 @@ function memcache:with_server {
   } always {
     zctrace "restoring saved server $saved_server"
     memcache_vars[forced_server]=$saved_server
+    
+    [[ -z $memcache_vars[forced_server] ]] && unset 'memcache_vars[forced_server]'
   }
   
 }
