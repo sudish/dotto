@@ -1,6 +1,4 @@
-NOTE: portions of third party software are included in the Dotto
-distribution.  Where noted, other licenses may apply for those
-components.
+Dotto is distributed under the MIT license.
 
 ------------------------------------------------------------
 
@@ -27,3 +25,9 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
+
+------------------------------------------------------------
+
+NOTE: portions of third party software are included in the Dotto
+distribution.  Where noted, other licenses may apply for those
+components.

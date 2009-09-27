@@ -6,7 +6,7 @@
 #     http://github.com/sudish/dotfiles/blob/master/.zshinit/S90_git_status
 #     http://www.jukie.net/~bart/conf/zsh.d/S55_git
 #     http://repo.or.cz/w/git.git?a=blob_plain;f=contrib/completion/git-completion.bash;hb=master
-#
+#     http://pthree.org/2008/11/23/727/
 
 uselib zgit
 
